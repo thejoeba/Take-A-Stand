@@ -18,16 +18,10 @@ public class ScheduledAlarmEditor {
 
     public ScheduledAlarmEditor(Context context)
     {
-        this.mContext = context;
+        mContext = context;
     }
 
-    private void cancelAlarm()
-    {
-        Intent localIntent = new Intent(this.mContext, StartDayReceiver.class);
-        PendingIntent localPendingIntent = PendingIntent.getBroadcast(this.mContext, 0, localIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        ((AlarmManager)this.mContext.getSystemService(Context.ALARM_SERVICE)).cancel(localPendingIntent);
-    }
+
 
     /*
     Create a method that checks if next activated day is today, check if any other schedules have today,
@@ -40,43 +34,44 @@ public class ScheduledAlarmEditor {
     available days, instead of all.
      */
 
-    private void setAlarm(Date date)
+
+    protected int[] checkIfDaysFree(){
+        return alarmsDatabaseAdapter.getActivatedDays();
+    }
+
+
+    protected void editAlarm(int activated, String startTime, String endTime, int frequency,
+                             String title, String alarmType, int sunday, int monday,
+                             int tuesday, int wednesday, int thursday, int friday, int saturday,
+                             int rowID)
     {
-        long l = System.currentTimeMillis() + (date.getTime() - System.currentTimeMillis());
-        Intent localIntent = new Intent(this.mContext, StartDayReceiver.class);
-        PendingIntent localPendingIntent = PendingIntent.getBroadcast(this.mContext, 0, localIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        ((AlarmManager)this.mContext.getSystemService(Context.ALARM_SERVICE)).set(0, l, localPendingIntent);
+        alarmsDatabaseAdapter.editAlarm(activated, startTime, endTime, frequency, title,
+                alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday, rowID);
+        if (activated == 1)
+        {
+            NextScheduledAlarmSetter nextScheduledAlarmSetter = new NextScheduledAlarmSetter(mContext);
+            nextScheduledAlarmSetter.setNextAlarm();
+        }
+    }
+
+    protected void newAlarm(int activated, String startTime, String endTime, int frequency,
+                            String title, String alarmType, int sunday, int monday, int tuesday,
+                            int wednesday, int thursday, int friday, int saturday)
+    {
+       alarmsDatabaseAdapter.newAlarm(activated, startTime, endTime, frequency, title,
+                alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
+        if (activated == 1)
+        {
+            NextScheduledAlarmSetter nextScheduledAlarmSetter = new NextScheduledAlarmSetter(mContext);
+            nextScheduledAlarmSetter.setNextAlarm();
+        }
     }
 
     protected void deleteAlarm(int activated, int rowID)
     {
-        this.alarmsDatabaseAdapter.deleteAlarm(rowID);
-        if (activated == 1) {
-            cancelAlarm();
-        }
+        alarmsDatabaseAdapter.deleteAlarm(rowID);
+        NextScheduledAlarmSetter nextScheduledAlarmSetter = new NextScheduledAlarmSetter(mContext);
+        nextScheduledAlarmSetter.setNextAlarm();
     }
 
-    protected void editAlarm(int activated, String startTime, String endTime, int frequency, String title, String alarmType, int sunday, int monday, int tuesday, int wednesday, int thursday, int friday, int saturday, int rowID)
-    {
-        this.alarmsDatabaseAdapter.editAlarm(activated, startTime, endTime, frequency, title, alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday, rowID);
-        if (activated == 1)
-        {
-            new NextDayAlarmSetter().setNextDayAlarm(this.mContext, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
-            return;
-        }
-        cancelAlarm();
-    }
-
-    protected void newAlarm(int activated, String startTime, String endTime, int frequency, String title, String alarmType, int sunday, int monday, int tuesday, int wednesday, int thursday, int friday, int saturday)
-    {
-        this.alarmsDatabaseAdapter.newAlarm(activated, startTime, endTime, frequency, title, alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
-        if (activated == 1)
-        {
-            /*Date localDate = closestDay(sunday, monday, tuesday, wednesday, thursday, friday, saturday);
-            if (localDate != null) {
-                setAlarm(localDate);
-            }*/
-        }
-    }
 }
