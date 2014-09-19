@@ -14,6 +14,6 @@ public class EndDayReceiver
 
     public void onReceive(Context context, Intent intent)
     {
-        new NextDayAlarmSetter().setNextDayAlarm(context);
+        new NextScheduledAlarmSetter(context).setNextAlarm();
     }
 }

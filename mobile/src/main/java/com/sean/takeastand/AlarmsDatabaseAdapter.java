@@ -97,17 +97,14 @@ public class AlarmsDatabaseAdapter
         return count;
     }
 
+    /*
+    Searches the database for the activated alarm date.
+    It's parameter should be today's date.  Tomorrow if today's
+    alarm time has already passed.
+     */
     public String getNextActivatedDay(Date nextDay) {
-        ArrayList<String> UIDs= getUIDofActivated();
         AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        String[] columns = {AlarmsSQLHelper.UID, AlarmsSQLHelper.SUNDAY, AlarmsSQLHelper.MONDAY,
-                AlarmsSQLHelper.TUESDAY, AlarmsSQLHelper.WEDNESDAY, AlarmsSQLHelper.THURSDAY,
-                AlarmsSQLHelper.FRIDAY, AlarmsSQLHelper.SATURDAY, AlarmsSQLHelper.START_TIME,
-                AlarmsSQLHelper.END_TIME};
-        String[] uidArgs = new String[UIDs.size()];
-        uidArgs = UIDs.toArray(uidArgs);
-        Cursor cursor = alarmsSQLHelper.getWritableDatabase().query(AlarmsSQLHelper.TABLE_MAIN,
-                columns, "_id =? ", uidArgs, null, null, null);
+        Cursor cursor = getNextActivatedDayCursor(alarmsSQLHelper);
         int count = cursor.getCount();
         String alarmDetails = "";
         int currentColumn = firstColumn(nextDay);
@@ -140,7 +137,23 @@ public class AlarmsDatabaseAdapter
     }
 
     /*
-    Supports above method
+    Supports getNextActivatedDay
+     */
+    private Cursor getNextActivatedDayCursor(AlarmsSQLHelper alarmsSQLHelper){
+        ArrayList<String> UIDs= getUIDofActivated();
+        String[] columns = {AlarmsSQLHelper.UID, AlarmsSQLHelper.SUNDAY, AlarmsSQLHelper.MONDAY,
+                AlarmsSQLHelper.TUESDAY, AlarmsSQLHelper.WEDNESDAY, AlarmsSQLHelper.THURSDAY,
+                AlarmsSQLHelper.FRIDAY, AlarmsSQLHelper.SATURDAY, AlarmsSQLHelper.START_TIME,
+                AlarmsSQLHelper.END_TIME};
+        String[] uidArgs = new String[UIDs.size()];
+        uidArgs = UIDs.toArray(uidArgs);
+        Cursor cursor = alarmsSQLHelper.getWritableDatabase().query(AlarmsSQLHelper.TABLE_MAIN,
+                columns, "_id =? ", uidArgs, null, null, null);
+        return cursor;
+    }
+
+    /*
+    Supports getNextActivatedDay
      */
     private int firstColumn(Date nextDay){
         Calendar c = Calendar.getInstance();
@@ -169,6 +182,29 @@ public class AlarmsDatabaseAdapter
         }
     }
 
+    /*
+    Supports getNextActivatedDay
+     */
+    private ArrayList<String> getUIDofActivated()
+    {
+        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
+        ArrayList<String> UIDs = new ArrayList<String>();
+        Cursor localCursor = alarmsSQLHelper.getWritableDatabase().query("alarms_table", new String[] { "_id", "activated" }, null, null, null, null, null);
+        int size = localCursor.getCount();
+        localCursor.moveToFirst();
+        for (int j = 0; j < size ; j++)
+        {
+            int uid = localCursor.getInt(0);
+            if (localCursor.getInt(1) == 1) {
+                UIDs.add(Integer.toString(uid));
+            }
+            localCursor.moveToNext();
+        }
+        alarmsSQLHelper.close();
+        localCursor.close();
+        return UIDs;
+    }
+
     public int[] getActivatedDays(){
         int[] activatedDays = {0,0,0,0,0,0,0};
         AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
@@ -190,25 +226,7 @@ public class AlarmsDatabaseAdapter
         return activatedDays;
     }
 
-    public ArrayList<String> getUIDofActivated()
-    {
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        ArrayList<String> UIDs = new ArrayList<String>();
-        Cursor localCursor = alarmsSQLHelper.getWritableDatabase().query("alarms_table", new String[] { "_id", "activated" }, null, null, null, null, null);
-        int size = localCursor.getCount();
-        localCursor.moveToFirst();
-        for (int j = 0; j < size ; j++)
-        {
-            int uid = localCursor.getInt(0);
-            if (localCursor.getInt(1) == 1) {
-                UIDs.add(Integer.toString(uid));
-            }
-            localCursor.moveToNext();
-        }
-        alarmsSQLHelper.close();
-        localCursor.close();
-        return UIDs;
-    }
+
 
     public int getCount()
     {

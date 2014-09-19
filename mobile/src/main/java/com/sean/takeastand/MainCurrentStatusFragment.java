@@ -3,12 +3,14 @@ package com.sean.takeastand;
 /**
  * Created by Sean on 2014-09-03.
  */
+import android.content.Context;
 import android.os.Bundle;
+import android.app.Fragment;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -18,40 +20,58 @@ public class MainCurrentStatusFragment
     ImageView onOffImage;
     private static final String TAG = "MainCurrentStatusFragment";
     boolean repeatingAlarmOn;
+    private Context mContext;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle)
     {
         Log.i(TAG, "onCreateView");
+        mContext = getActivity();
         View view = layoutInflater.inflate(R.layout.main_current_status_fragment, viewGroup, false);
         onOffImage = (ImageView)view.findViewById(R.id.onOffImage);
+        onOffImage.setOnClickListener(imageListener);
+        setImage();
         return view;
     }
 
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        //setOnClickListener
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    private void setOnClickListener(){
-        //repeatingAlarmOn = checkIfOn
-        /*if(repeatingAlarmOn){
-            RepeatingAlarmController.cancelAlarm();
-            switch image
-        } else{
-            RepeatingAlarmController.startAlarm();
-            switch image
-        }
+    private OnClickListener imageListener = new OnClickListener(){
 
-         */
+        @Override
+        public void onClick(View view) {
+           switchImage();
+        }
+    };
+
+    private void setImage(){
+        repeatingAlarmOn = checkIfOn();
+        Log.i(TAG, "image is set to :" + Boolean.toString(repeatingAlarmOn));
+        if(repeatingAlarmOn){
+            onOffImage.setImageResource(R.drawable.alarm_image_active);
+        } else{
+            onOffImage.setImageResource(R.drawable.alarm_image_inactive);
+        }
     }
 
-    //private boolean checkIfOn()
+
+    private void switchImage(){
+        repeatingAlarmOn = checkIfOn();
+        Log.i(TAG, "image is set to :" + Boolean.toString(!repeatingAlarmOn));
+        if(repeatingAlarmOn){
+            new RepeatingAlarmController(mContext).cancelAlarm();
+            onOffImage.setImageResource(R.drawable.alarm_image_inactive);
+        } else{
+            new RepeatingAlarmController(mContext).setNewAlarm();
+            onOffImage.setImageResource(R.drawable.alarm_image_active);
+        }
+    }
+
+    private boolean checkIfOn()
     {
-        /*
-        Check to see if a repeatingAlarmController is set or not. Need to create
-        a new public method in RepeatingAlarmController. Maybe using a static variable.
-         */
+       return new RepeatingAlarmController(mContext).isAlarmSet();
     }
 }

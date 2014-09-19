@@ -4,7 +4,7 @@ package com.sean.takeastand;
  * Created by Sean on 2014-09-03.
  */
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;

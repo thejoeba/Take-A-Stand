@@ -10,11 +10,12 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 public class RepeatingAlarmController
 {
-    private static final String TAG = "RepeatingAlarmExecutive";
-    double mAlarmPeriodMinutes = 0.5D;
+    private static final String TAG = "RepeatingAlarmController";
+    double mAlarmPeriodMinutes = 0.15;
     Context mContext;
     /*
     Once done testing, convert all doubles to longs or int
@@ -26,66 +27,78 @@ public class RepeatingAlarmController
 
     public RepeatingAlarmController(Context context)
     {
-        this.mContext = context;
+        mContext = context;
     }
 
-    private void endService(Context context)
-    {
-        Intent localIntent = new Intent("KillService");
-        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
-    }
+    private static boolean alarmSet;
 
-    private void startService(Context context)
-    {
-        Log.i(TAG, "onClick");
-        context.startService(new Intent(context, StepService.class));
-    }
 
     public void cancelAlarm()
     {
-        Intent localIntent = new Intent(this.mContext, AlarmReceiver.class);
-        PendingIntent localPendingIntent = PendingIntent.getBroadcast(this.mContext, 0, localIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        ((AlarmManager)this.mContext.getSystemService(Context.ALARM_SERVICE).cancel(localPendingIntent));
+        PendingIntent pendingIntent = createPendingIntent(mContext);
+        AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(pendingIntent);
         Log.i(TAG, "Alarm canceled");
+        Toast.makeText(mContext, "Alarm Canceled",
+                Toast.LENGTH_LONG).show();
+        alarmSet = false;
     }
 
     public void setFiveMinuteAlarm()
     {
-        double d = 0.333D * 60 * 1000;
-        Long triggerTime = Double.doubleToLongBits(SystemClock.elapsedRealtime() + d);
-        Log.i(TAG, "alarm time: " + triggerTime);
-        Intent localIntent = new Intent(this.mContext, AlarmReceiver.class);
-        PendingIntent localPendingIntent = PendingIntent.getBroadcast(this.mContext, 0, localIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        ((AlarmManager)this.mContext.getSystemService(Context.ALARM_SERVICE)).set(2, triggerTime,
-                localPendingIntent);
+        double alarmTimeInMillis = 0.25D * 60 * 1000;
+        Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
+        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
+                SystemClock.elapsedRealtime());
+        PendingIntent pendingIntent = createPendingIntent(mContext);
+        AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
+        am.set(AlarmManager.ELAPSED_REALTIME, triggerTime,pendingIntent);
         Log.i(TAG, "Five Minute Alarm set");
+        Toast.makeText(mContext, "Set Five Minute Alarm",
+                Toast.LENGTH_LONG).show();
+        alarmSet = true;
     }
 
     public void setOneMinuteAlarm()
     {
-        double d = 0.166D * 60 * 1000;
-        Long triggerTime = Double.doubleToLongBits(SystemClock.elapsedRealtime() + d);
-        Log.i(TAG, "alarm time: " + triggerTime);
-        Intent localIntent = new Intent(this.mContext, AlarmReceiver.class);
-        PendingIntent localPendingIntent = PendingIntent.getBroadcast(this.mContext, 0, localIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        ((AlarmManager)this.mContext.getSystemService(Context.ALARM_SERVICE)).set(2, triggerTime,
-                localPendingIntent);
+        double alarmTimeInMillis = 0.166D * 60 * 1000;
+        Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
+        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
+                SystemClock.elapsedRealtime());
+        PendingIntent pendingIntent = createPendingIntent(mContext);
+        AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
+        am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         Log.i(TAG, "One Minute Alarm set");
+        Toast.makeText(mContext, "Set One Minute Alarm",
+                Toast.LENGTH_LONG).show();
+        alarmSet = true;
     }
 
     public void setNewAlarm()
     {
-        double d = this.mAlarmPeriodMinutes * 60 * 1000;
-        Long triggerTime = Double.doubleToLongBits(SystemClock.elapsedRealtime() + d);
-        Log.i(TAG, "alarm time: " + triggerTime);
-        Intent localIntent = new Intent(this.mContext, AlarmReceiver.class);
-        PendingIntent localPendingIntent = PendingIntent.getBroadcast(this.mContext, 0, localIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        ((AlarmManager)this.mContext.getSystemService(Context.ALARM_SERVICE)).set(2, triggerTime,
-                localPendingIntent);
+        double alarmTimeInMillis = mAlarmPeriodMinutes * 60 * 1000;
+        Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
+        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
+                SystemClock.elapsedRealtime());
+        PendingIntent pendingIntent = createPendingIntent(mContext);
+        AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
+        am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
+        alarmSet = true;
         Log.i(TAG, "Stood Alarm set");
+        Toast.makeText(mContext, "Set New Alarm",
+                Toast.LENGTH_LONG).show();
     }
+
+    private PendingIntent createPendingIntent(Context context){
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123456789, intent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+
+        return pendingIntent;
+    }
+
+    public boolean isAlarmSet(){
+        return alarmSet;
+    }
+
 }

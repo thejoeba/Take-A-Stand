@@ -5,15 +5,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import android.text.format.Time;
-
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 /**
  * Created by Sean on 2014-09-06.
@@ -36,39 +30,58 @@ public class NextScheduledAlarmSetter {
      */
     public void setNextAlarm(){
         Calendar rightNow = Calendar.getInstance();
-        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(mContext);
-        String alarmDetails = alarmsDatabaseAdapter.getNextActivatedDay(rightNow.getTime());
-        String[] alarmDetailsArray = alarmDetails.split("|");
+        String[] alarmDetailsArray = getAlarmDetails(rightNow);
         Calendar nextAlarmDate = Calendar.getInstance();
         nextAlarmDate.setTime(readWeekDayFromString(alarmDetailsArray[0]));
-        nextAlarmDate.add(Calendar.HOUR_OF_DAY, readHourFromString(alarmDetailsArray[1]));
-        nextAlarmDate.add(Calendar.MINUTE, readMinutesFromString(alarmDetailsArray[1]));
-        nextAlarmDate.add(Calendar.SECOND, 0);
+        nextAlarmDate = setCalendarTime(nextAlarmDate, readHourFromString(alarmDetailsArray[1]),
+                readMinutesFromString(alarmDetailsArray[1]));
         Calendar nextAlarmEndTime = nextAlarmDate;
-        nextAlarmEndTime.set(Calendar.HOUR_OF_DAY, readHourFromString(alarmDetailsArray[2]));
-        nextAlarmEndTime.set(Calendar.MINUTE, readMinutesFromString(alarmDetailsArray[2]));
-        nextAlarmEndTime.set(Calendar.SECOND, 0);
-        if(nextAlarmDate.after(rightNow)){
+        nextAlarmEndTime = setCalendarTime(nextAlarmEndTime, readHourFromString(alarmDetailsArray[2]),
+                readMinutesFromString(alarmDetailsArray[2]));
+        //If Alarm is today but has not started set the alarm today using StartDayReceiver
+        if(isAlarmToday(nextAlarmDate, rightNow) && nextAlarmDate.after(rightNow)){
             setAlarm(nextAlarmDate.getTime(), mContext);
-        } else if (nextAlarmDate.before(rightNow) && nextAlarmEndTime.after(rightNow)){
+        //If Alarm is today and has started already but has not ended begin the RepeatingAlarmController
+        } else if (isAlarmToday(nextAlarmDate, rightNow) && nextAlarmDate.before(rightNow) && nextAlarmEndTime.after(rightNow)){
             //Start the repeating alarm now
             RepeatingAlarmController repeatingAlarmController = new RepeatingAlarmController(mContext);
             repeatingAlarmController.setNewAlarm();
+        //Otherwise the alarm is either not today, or it is today and it has started and ended
+        //Find the next activated day starting with tomorrow and set the alarm for then
         } else {
             Calendar tomorrow = Calendar.getInstance();
             tomorrow.add(Calendar.DATE, 1);
-            alarmDetails = alarmsDatabaseAdapter.getNextActivatedDay(tomorrow.getTime());
+            AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(mContext);
+            String alarmDetails = alarmsDatabaseAdapter.getNextActivatedDay(tomorrow.getTime());
             String[] nextAlarmDetailsArray = alarmDetails.split("|");
             nextAlarmDate.setTime(readWeekDayFromString(nextAlarmDetailsArray[0]));
-            nextAlarmDate.add(Calendar.HOUR_OF_DAY, readHourFromString(nextAlarmDetailsArray[1]));
-            nextAlarmDate.add(Calendar.MINUTE, readMinutesFromString(nextAlarmDetailsArray[1]));
-            nextAlarmDate.add(Calendar.SECOND, 0);
+            nextAlarmDate = setCalendarTime(nextAlarmDate,readHourFromString(nextAlarmDetailsArray[1]),
+                    readMinutesFromString(nextAlarmDetailsArray[1]));
             setAlarm(nextAlarmDate.getTime(), mContext);
         }
     }
 
+    private boolean isAlarmToday(Calendar c1, Calendar c2) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        return (sdf.format(c1.getTime()).equals(sdf.format(c2.getTime())));
+    }
+
+    private String[] getAlarmDetails(Calendar rightNow){
+        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(mContext);
+        String alarmDetails = alarmsDatabaseAdapter.getNextActivatedDay(rightNow.getTime());
+        String[] alarmDetailsArray = alarmDetails.split("|");
+        return alarmDetailsArray;
+    }
+
+    private Calendar setCalendarTime(Calendar calendar, int hour, int minute){
+        Calendar cal = calendar;
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
+        cal.set(Calendar.SECOND, 0);
+        return cal;
+    }
+
     private Date readWeekDayFromString(String weekday) {
-        Calendar scheduleDay;
         Calendar today = Calendar.getInstance();
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);

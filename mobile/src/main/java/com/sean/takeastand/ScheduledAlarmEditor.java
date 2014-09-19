@@ -1,10 +1,6 @@
 package com.sean.takeastand;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 
 import java.util.Calendar;
 
@@ -20,27 +16,16 @@ public class ScheduledAlarmEditor {
     {
         mContext = context;
     }
-
-
-
     /*
-    Create a method that checks if next activated day is today, check if any other schedules have today,
-    if not set today, if yes inform user, already have alarm set for today; if no alarm set for today,
-    check each day, but check each day to see if there is another active alarm scheduled for that day,
-    stop searching if next active day of this alarm schedule is after another alarm schedule
+    This method will be used by the activity class in order to know which checkboxes to make
+    checkable
      */
-    /*
-    Important that only days that another alarm doesn't have are possible;  Perhaps only display the
-    available days, instead of all.
-     */
-
-
-    protected int[] checkIfDaysFree(){
+    public int[] checkIfDaysFree(){
         return alarmsDatabaseAdapter.getActivatedDays();
     }
 
 
-    protected void editAlarm(int activated, String startTime, String endTime, int frequency,
+    public void editAlarm(int activated, String startTime, String endTime, int frequency,
                              String title, String alarmType, int sunday, int monday,
                              int tuesday, int wednesday, int thursday, int friday, int saturday,
                              int rowID)
@@ -54,7 +39,7 @@ public class ScheduledAlarmEditor {
         }
     }
 
-    protected void newAlarm(int activated, String startTime, String endTime, int frequency,
+    public void newAlarm(int activated, String startTime, String endTime, int frequency,
                             String title, String alarmType, int sunday, int monday, int tuesday,
                             int wednesday, int thursday, int friday, int saturday)
     {
@@ -67,7 +52,7 @@ public class ScheduledAlarmEditor {
         }
     }
 
-    protected void deleteAlarm(int activated, int rowID)
+    public void deleteAlarm(int activated, int rowID)
     {
         alarmsDatabaseAdapter.deleteAlarm(rowID);
         NextScheduledAlarmSetter nextScheduledAlarmSetter = new NextScheduledAlarmSetter(mContext);
