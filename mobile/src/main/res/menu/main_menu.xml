@@ -6,7 +6,7 @@
         android1:title="@string/action_settings"
         android1:orderInCategory="100"
         android:showAsAction="never" />
-    <item android1:id="@+id/schedule_settings"
+    <item android1:id="@+id/schedules"
         android1:title="Schedule"
         android1:orderInCategory="1"
         android:showAsAction="always" />

@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.widget;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -17,13 +17,23 @@ public class TimePickerFragment
         implements TimePickerDialog.OnTimeSetListener
 {
 
+    private static final int NUMBER_HOURS_TO_ADD = 4;
+
     @Override
     public Dialog onCreateDialog(Bundle bundle)
     {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
-        return new TimePickerDialog(getActivity(), this, hour, minute, DateFormat.is24HourFormat(getActivity()));
+        boolean startOrEnd = getArguments().getBoolean("StartOrEndButton", true);
+        if(startOrEnd){
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        } else {
+            return new TimePickerDialog(getActivity(), this, hour + NUMBER_HOURS_TO_ADD, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
     }
 
     public void onTimeSet(TimePicker timePicker, int hour, int minute)

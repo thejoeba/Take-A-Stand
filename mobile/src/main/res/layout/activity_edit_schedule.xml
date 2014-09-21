@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <ScrollView
+        android:focusable="true"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <RelativeLayout
+            android:padding="16.0dip"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:textSize="27.0sp"
+                android:gravity="left"
+                android:id="@+id/txtActivated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="Activated"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" />
+            <ToggleButton
+                android:id="@+id/btnActivated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2.0dip"
+                android:layout_marginBottom="3.0dip"
+                android:text="Today"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true" />
+            <TextView
+                android:textSize="27.0sp"
+                android:gravity="left"
+                android:id="@+id/txtStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="Start Time:"
+                android:layout_below="@id/txtActivated"
+                android:layout_alignParentLeft="true" />
+            <Button
+                android:id="@+id/btnStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2.0dip"
+                android:layout_marginBottom="3.0dip"
+                android:text="11:30"
+                android:layout_below="@id/btnActivated"
+                android:layout_alignParentRight="true" />
+            <TextView
+                android:textSize="27.0sp"
+                android:gravity="left"
+                android:id="@+id/txtEndTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="End Time:"
+                android:layout_below="@id/txtStartTime"
+                android:layout_alignParentLeft="true" />
+            <Button
+                android:id="@+id/btnEndTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0.0dip"
+                android:layout_marginBottom="3.0dip"
+                android:text="17:30"
+                android:layout_below="@id/btnStartTime"
+                android:layout_alignParentRight="true" />
+            <TextView
+                android:textSize="27.0sp"
+                android:gravity="left"
+                android:id="@+id/txtAlertType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="Alert Type"
+                android:layout_below="@id/txtEndTime"
+                android:layout_alignParentLeft="true" />
+            <Button
+                android:id="@+id/btnAlertType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0.0dip"
+                android:layout_marginBottom="3.0dip"
+                android:text="Vibrate"
+                android:layout_below="@id/btnEndTime"
+                android:layout_alignParentRight="true" />
+            <TextView
+                android:textSize="27.0sp"
+                android:gravity="center"
+                android:id="@+id/txtDaysHeading"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="Days of The Week"
+                android:layout_below="@id/txtAlertType" />
+            <TextView
+                android:textSize="14.0sp"
+                android:gravity="center"
+                android:id="@+id/txtWed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="W"
+                android:layout_below="@id/txtDaysHeading"
+                android:layout_centerHorizontal="true" />
+            <TextView
+                android:textSize="14.0sp"
+                android:id="@+id/txtTue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="25.0dip"
+                android:text="T"
+                android:layout_toLeftOf="@id/txtWed"
+                android:layout_below="@id/txtDaysHeading" />
+            <TextView
+                android:textSize="14.0sp"
+                android:id="@+id/txtMon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="25.0dip"
+                android:text="M"
+                android:layout_toLeftOf="@id/txtTue"
+                android:layout_below="@id/txtDaysHeading" />
+            <TextView
+                android:textSize="14.0sp"
+                android:id="@+id/txtSun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="25.0dip"
+                android:text="S"
+                android:layout_toLeftOf="@id/txtMon"
+                android:layout_below="@id/txtDaysHeading" />
+            <TextView
+                android:textSize="14.0sp"
+                android:id="@+id/txtThu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25.0dip"
+                android:text="T"
+                android:layout_toRightOf="@id/txtWed"
+                android:layout_below="@id/txtDaysHeading" />
+            <TextView
+                android:textSize="14.0sp"
+                android:id="@+id/txtFri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25.0dip"
+                android:text="F"
+                android:layout_toRightOf="@id/txtThu"
+                android:layout_below="@id/txtDaysHeading" />
+            <TextView
+                android:textSize="14.0sp"
+                android:id="@+id/txtSat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25.0dip"
+                android:text="S"
+                android:layout_toRightOf="@id/txtFri"
+                android:layout_below="@id/txtDaysHeading" />
+            <CheckBox
+                android:gravity="center"
+                android:id="@+id/chbxWed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/txtWed"
+                android:layout_centerHorizontal="true" />
+            <CheckBox
+                android:gravity="center"
+                android:id="@+id/chbxTue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="13.0dip"
+                android:layout_toLeftOf="@id/txtWed"
+                android:layout_below="@id/txtWed" />
+            <CheckBox
+                android:gravity="center"
+                android:id="@+id/chbxMon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="13.0dip"
+                android:layout_toLeftOf="@id/txtTue"
+                android:layout_below="@id/txtWed" />
+            <CheckBox
+                android:gravity="center"
+                android:id="@+id/chbxSun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="13.0dip"
+                android:layout_toLeftOf="@id/txtMon"
+                android:layout_below="@id/txtWed" />
+            <CheckBox
+                android:gravity="center"
+                android:id="@+id/chbxThu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="13.0dip"
+                android:layout_toRightOf="@id/txtWed"
+                android:layout_below="@id/txtWed" />
+            <CheckBox
+                android:gravity="center"
+                android:id="@+id/chbxFri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="13.0dip"
+                android:layout_toRightOf="@id/txtThu"
+                android:layout_below="@id/txtWed" />
+            <CheckBox
+                android:gravity="center"
+                android:id="@+id/chbxSat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="13.0dip"
+                android:layout_toRightOf="@id/txtFri"
+                android:layout_below="@id/txtWed" />
+            <TextView
+                android:textSize="27.0sp"
+                android:gravity="left"
+                android:id="@+id/txtFrequency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="Frequency"
+                android:layout_below="@id/chbxWed"
+                android:layout_alignParentLeft="true" />
+            <Button
+                android:id="@+id/btnFrequency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="20"
+                android:layout_below="@id/chbxSat"
+                android:layout_alignParentRight="true" />
+            <TextView
+                android:textSize="27.0sp"
+                android:gravity="left"
+                android:id="@+id/txtName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:text="Name:"
+                android:layout_below="@id/txtFrequency"
+                android:layout_alignParentLeft="true" />
+            <EditText
+                android:id="@+id/editName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2.0dip"
+                android:layout_marginBottom="10.0dip"
+                android:hint="Optional"
+                android:layout_below="@id/txtFrequency"
+                android:layout_alignParentRight="true" />
+        </RelativeLayout>
+    </ScrollView>
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <Button android:textSize="20.0sp"
+            android:textColor="@color/white_text"
+            android:id="@+id/btnSave"
+            android:background="@color/Black"
+            android:padding="15.0dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0.0dip"
+            android:layout_marginLeft="-10.0dip"
+            android:layout_marginRight="0.0dip"
+            android:layout_marginBottom="-15.0dip"
+            android:text="Save"
+            android:layout_alignRight="@+id/lineView"
+            android:inputType="none" />
+        <Button android:textSize="20.0sp"
+            android:textColor="@color/white_text"
+            android:id="@+id/btnCancel"
+            android:background="@color/Black"
+            android:padding="15.0dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-1.0dip"
+            android:layout_marginRight="-3.0dip"
+            android:layout_marginBottom="-15.0dip"
+            android:text="Cancel"
+            android:layout_alignLeft="@+id/lineView"
+            android:inputType="none" />
+        <View
+            android:id="@+id/lineView"
+            android:background="@color/DarkSlateGray"
+            android:layout_width="1.0dip"
+            android:layout_height="40.0dip"
+            android:layout_marginLeft="10.0dip"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+</RelativeLayout>

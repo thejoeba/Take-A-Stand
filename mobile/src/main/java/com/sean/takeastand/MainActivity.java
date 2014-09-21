@@ -1,6 +1,7 @@
 package com.sean.takeastand;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +41,12 @@ public class MainActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-
+        switch(item.getItemId()){
+            case R.id.schedules:
+                Intent intent = new Intent(this, SchedulesListActivity.class);
+                startActivity(intent);
+                break;
+        }
 
         return super.onOptionsItemSelected(item);
     }

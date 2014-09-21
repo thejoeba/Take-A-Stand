@@ -1,116 +1,207 @@
 package com.sean.takeastand;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.ToggleButton;
+
+import com.sean.takeastand.widget.TimePickerFragment;
+
+import java.util.Calendar;
 
 /**
  * Created by Sean on 2014-09-03.
  */
 public class ScheduleCreatorActivity
         extends FragmentActivity
-        implements TimePickerFragment.EditButtonDialogListener
+        implements TimePickerFragment.EditButtonDialogListener,
+        NumberPicker.OnValueChangeListener
 {
-    /*
-    Like the Main Activity this will be recreated into fragments, this will be a list view, but
-    dynamic
-     */
+
+
     private static final String TAG = "ScheduleCreatorActivity";
-    Button btnCancel;
-    Button btnEndTime;
-    Button btnSave;
+    private static final int NUMBER_HOURS_TO_ADD = 4;
+    ToggleButton btnActivated;
     Button btnStartTime;
-    View.OnClickListener cancelListener = new View.OnClickListener()
+    Button btnEndTime;
+    CheckBox chBxSunday;
+    CheckBox chBxMonday;
+    CheckBox chBxTuesday;
+    CheckBox chBxWednesday;
+    CheckBox chBxThursday;
+    CheckBox chBxFriday;
+    CheckBox chBxSaturday;
+    Button btnFrequency;
+    EditText scheduleName;
+    Button btnSave;
+    Button btnCancel;
+
+    boolean mStartEndButtonSelected;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_schedule);
+        initializeViewsAndButtons();
+        removeKeyboardStart();
+    }
+
+    private void initializeViewsAndButtons()
     {
-        public void onClick(View paramAnonymousView)
-        {
-            Intent localIntent = new Intent();
-            localIntent.putExtra("result", "cancel");
-            ScheduleCreatorActivity.this.setResult(-1, localIntent);
-            ScheduleCreatorActivity.this.finish();
+        btnActivated = (ToggleButton)findViewById(R.id.btnActivated);
+        btnStartTime = (Button)findViewById(R.id.btnStartTime);
+        btnStartTime.setOnClickListener(startTimeListener);
+        Calendar calendar = Calendar.getInstance();
+        String timeNow = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
+        timeNow += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
+        btnStartTime.setText(timeNow);
+        btnEndTime = (Button)findViewById(R.id.btnEndTime);
+        btnEndTime.setOnClickListener(endTimeListener);
+        String endTime= Integer.toString(calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD);
+        endTime += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
+        btnEndTime.setText(endTime);
+        chBxSunday = (CheckBox)findViewById(R.id.chbxSun);
+        chBxMonday = (CheckBox)findViewById(R.id.chbxMon);
+        chBxTuesday = (CheckBox)findViewById(R.id.chbxTue);
+        chBxWednesday = (CheckBox)findViewById(R.id.chbxWed);
+        chBxThursday = (CheckBox)findViewById(R.id.chbxThu);
+        chBxFriday = (CheckBox)findViewById(R.id.chbxFri);
+        chBxSaturday = (CheckBox)findViewById(R.id.chbxSat);
+        btnFrequency = (Button)findViewById(R.id.btnFrequency);
+        btnFrequency.setOnClickListener(frequencyListener);
+        scheduleName = (EditText)findViewById(R.id.editName);
+        btnSave = (Button)findViewById(R.id.btnSave);
+        btnSave.setOnClickListener(saveListener);
+        btnCancel = (Button)findViewById(R.id.btnCancel);
+        btnCancel.setOnClickListener(cancelListener);
+    }
+
+    private void removeKeyboardStart()
+    {
+        if (scheduleName != null) {
+            scheduleName.clearFocus();
+        }
+        getWindow().setSoftInputMode(3);
+    }
+
+    View.OnClickListener startTimeListener = new View.OnClickListener(){
+
+        @Override
+        public void onClick(View view) {
+            mStartEndButtonSelected = true;
+            showTimePickerDialog(view);
         }
     };
-    View.OnClickListener endTimeListener = new View.OnClickListener()
-    {
-        public void onClick(View paramAnonymousView)
-        {
-            ScheduleCreatorActivity.this.startEndButtonSelected = false;
-            ScheduleCreatorActivity.this.showTimePickerDialog(paramAnonymousView);
+
+    View.OnClickListener endTimeListener = new View.OnClickListener(){
+
+        @Override
+        public void onClick(View view) {
+            mStartEndButtonSelected = false;
+            showTimePickerDialog(view);
         }
     };
-    EditText name;
+
+    private void showTimePickerDialog(View view)
+    {
+        Bundle args = new Bundle();
+        args.putBoolean("StartOrEndButton", mStartEndButtonSelected);
+        TimePickerFragment timePickerFragment = new TimePickerFragment();
+        timePickerFragment.setArguments(args);
+        timePickerFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    View.OnClickListener frequencyListener = new View.OnClickListener(){
+
+        @Override
+        public void onClick(View view) {
+            showNumberPickerDialog();
+        }
+    };
+
+    private String correctMinuteFormat(String minute){
+        if(minute.length()==1){
+            minute = "0" + minute;
+        }
+        return minute;
+    }
+    public void showNumberPickerDialog()
+    {
+        final Dialog numberPickerDialog = new Dialog(this);
+        numberPickerDialog.setTitle("NumberPicker");
+        numberPickerDialog.setContentView(R.layout.dialog_number_picker);
+        Button btnCancelNp = (Button) numberPickerDialog.findViewById(R.id.btnCancelNp);
+        Button btnSaveNp = (Button) numberPickerDialog.findViewById(R.id.btnSaveNp);
+        final NumberPicker numberPicker = (NumberPicker) numberPickerDialog.findViewById(R.id.numberPicker);
+        numberPicker.setMaxValue(100);
+        numberPicker.setMinValue(5);
+        numberPicker.setValue(Integer.valueOf((btnFrequency.getText()).toString()));
+        numberPicker.setWrapSelectorWheel(false);
+        numberPicker.setOnValueChangedListener(this);
+        btnSaveNp.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                btnFrequency.setText(String.valueOf(numberPicker.getValue()));
+                numberPickerDialog.dismiss();
+            }
+        });
+        btnCancelNp.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                numberPickerDialog.dismiss();
+            }
+        });
+        numberPickerDialog.show();
+    }
+
+    @Override
+    public void onTimeSelected(String time) {
+        setButton(time);
+    }
+
+    public void setButton(String time)
+    {
+        if (mStartEndButtonSelected)
+        {
+            btnStartTime.setText(time);
+        } else {
+            btnEndTime.setText(time);
+        }
+    }
+
     View.OnClickListener saveListener = new View.OnClickListener()
     {
         public void onClick(View paramAnonymousView)
         {
             Intent localIntent = new Intent();
             localIntent.putExtra("result", "cancel");
-            ScheduleCreatorActivity.this.setResult(-1, localIntent);
-            ScheduleCreatorActivity.this.finish();
+            setResult(-1, localIntent);
+            finish();
         }
     };
-    boolean startEndButtonSelected;
-    View.OnClickListener startTimeListener = new View.OnClickListener()
+
+    View.OnClickListener cancelListener = new View.OnClickListener()
     {
         public void onClick(View paramAnonymousView)
         {
-            ScheduleCreatorActivity.this.startEndButtonSelected = true;
-            ScheduleCreatorActivity.this.showTimePickerDialog(paramAnonymousView);
+            Intent localIntent = new Intent();
+            localIntent.putExtra("result", "cancel");
+            setResult(-1, localIntent);
+            finish();
         }
     };
 
-    private void initializeViewsAndButtons()
-    {
-        this.name = ((EditText)findViewById(2131034202));
-        this.btnStartTime = ((Button)findViewById(2131034179));
-        this.btnStartTime.setOnClickListener(this.startTimeListener);
-        this.btnEndTime = ((Button)findViewById(2131034181));
-        this.btnEndTime.setOnClickListener(this.endTimeListener);
-        this.btnSave = ((Button)findViewById(2131034203));
-        this.btnSave.setOnClickListener(this.saveListener);
-        this.btnCancel = ((Button)findViewById(2131034205));
-        this.btnCancel.setOnClickListener(this.cancelListener);
-    }
+    @Override
+    public void onValueChange(NumberPicker numberPicker, int i, int i2) {
 
-    private void removeKeyboardStart()
-    {
-        if (this.name != null) {
-            this.name.clearFocus();
-        }
-        getWindow().setSoftInputMode(3);
-    }
-
-    protected void onCreate(Bundle paramBundle)
-    {
-        setContentView(2130903065);
-        super.onCreate(paramBundle);
-        initializeViewsAndButtons();
-        removeKeyboardStart();
-    }
-
-    public void onTimeSelected(String paramString)
-    {
-        Log.i(TAG, "onTimeSelected");
-        setButton(paramString);
-    }
-
-    public void setButton(String paramString)
-    {
-        if (this.startEndButtonSelected)
-        {
-            this.btnStartTime.setText(paramString);
-            return;
-        }
-        this.btnEndTime.setText(paramString);
-    }
-
-    public void showTimePickerDialog(View paramView)
-    {
-        new TimePickerFragment().show(getFragmentManager(), "timePicker");
     }
 }

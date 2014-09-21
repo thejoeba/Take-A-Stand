@@ -16,6 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ScheduleCreatorActivity"></activity>
+        <activity android:name=".SchedulesListActivity"></activity>
         <receiver android:name=".AlarmReceiver" ></receiver>
         <service android:name=".AlarmService"></service>
     </application>
