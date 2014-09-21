@@ -9,7 +9,7 @@
     tools:context=".Main_Activity">
 
     <fragment
-        android:name="com.sean.takeastand.MainCurrentStatusFragment"
+        android:name="com.sean.takeastand.ImageStatusFragment"
         android:id="@+id/main_current_status_fragment"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

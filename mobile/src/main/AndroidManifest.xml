@@ -9,7 +9,7 @@
         android:theme="@android:style/Theme.Holo.Light" >
 
         <activity
-            android:name="com.sean.takeastand.Main_Activity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

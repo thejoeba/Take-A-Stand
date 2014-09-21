@@ -2,17 +2,15 @@ package com.sean.takeastand;
 
 import android.content.Context;
 
-import java.util.Calendar;
-
 /**
  * Created by Sean on 2014-09-03.
  */
-public class ScheduledAlarmEditor {
-    private static final String TAG = "ScheduledAlarmEditor";
+public class AlarmScheduleEditor {
+    private static final String TAG = "AlarmScheduleEditor";
     AlarmsDatabaseAdapter alarmsDatabaseAdapter;
     Context mContext;
 
-    public ScheduledAlarmEditor(Context context)
+    public AlarmScheduleEditor(Context context)
     {
         mContext = context;
     }
@@ -34,8 +32,8 @@ public class ScheduledAlarmEditor {
                 alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday, rowID);
         if (activated == 1)
         {
-            NextScheduledAlarmSetter nextScheduledAlarmSetter = new NextScheduledAlarmSetter(mContext);
-            nextScheduledAlarmSetter.setNextAlarm();
+            NextScheduleAlarmSetter nextScheduleAlarmSetter = new NextScheduleAlarmSetter(mContext);
+            nextScheduleAlarmSetter.setNextAlarm();
         }
     }
 
@@ -47,16 +45,16 @@ public class ScheduledAlarmEditor {
                 alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
         if (activated == 1)
         {
-            NextScheduledAlarmSetter nextScheduledAlarmSetter = new NextScheduledAlarmSetter(mContext);
-            nextScheduledAlarmSetter.setNextAlarm();
+            NextScheduleAlarmSetter nextScheduleAlarmSetter = new NextScheduleAlarmSetter(mContext);
+            nextScheduleAlarmSetter.setNextAlarm();
         }
     }
 
     public void deleteAlarm(int activated, int rowID)
     {
         alarmsDatabaseAdapter.deleteAlarm(rowID);
-        NextScheduledAlarmSetter nextScheduledAlarmSetter = new NextScheduledAlarmSetter(mContext);
-        nextScheduledAlarmSetter.setNextAlarm();
+        NextScheduleAlarmSetter nextScheduleAlarmSetter = new NextScheduleAlarmSetter(mContext);
+        nextScheduleAlarmSetter.setNextAlarm();
     }
 
 }

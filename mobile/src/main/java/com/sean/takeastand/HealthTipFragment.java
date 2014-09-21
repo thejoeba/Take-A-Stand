@@ -11,10 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class MainHealthTipFragment
+public class HealthTipFragment
         extends Fragment
 {
-    private static final String TAG = "MainHealthTipFragment";
+    private static final String TAG = "HealthTipFragment";
     TextView healthTip;
 
     private void setUpTextView()

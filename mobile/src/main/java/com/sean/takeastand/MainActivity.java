@@ -7,7 +7,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
-public class Main_Activity extends Activity {
+public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
 

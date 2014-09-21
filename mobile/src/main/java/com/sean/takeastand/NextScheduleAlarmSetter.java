@@ -12,7 +12,7 @@ import java.util.Date;
 /**
  * Created by Sean on 2014-09-06.
  */
-public class NextScheduledAlarmSetter {
+public class NextScheduleAlarmSetter {
 
     /*
     Create an app level variable that says the next alarm date (time and date).  Only one class
@@ -20,7 +20,7 @@ public class NextScheduledAlarmSetter {
      */
     Context mContext;
 
-    public NextScheduledAlarmSetter(Context context){
+    public NextScheduleAlarmSetter(Context context){
         mContext = context;
     }
 
