@@ -7,8 +7,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.os.SystemClock;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,6 +17,9 @@ public class RepeatingAlarmController
     private static final String TAG = "RepeatingAlarmController";
     double mAlarmPeriodMinutes = 0.15;
     Context mContext;
+    AlarmSchedule mCurrentAlarmSchedule;
+    private static final int REPEATING_ALARM_ID = 987654321;
+    private static boolean alarmSet;
     /*
     Once done testing, convert all doubles to longs or int
      */
@@ -25,17 +28,20 @@ public class RepeatingAlarmController
     classes change it.  This NextScheduledAlarmSetter and this class.
      */
 
-    public RepeatingAlarmController(Context context)
-    {
+    public RepeatingAlarmController(Context context){
         mContext = context;
     }
 
-    private static boolean alarmSet;
 
+    public RepeatingAlarmController(Context context, AlarmSchedule alarmSchedule)
+    {
+        mContext = context;
+        mCurrentAlarmSchedule = alarmSchedule;
+    }
 
     public void cancelAlarm()
     {
-        PendingIntent pendingIntent = createPendingIntent(mContext);
+        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         Log.i(TAG, "Alarm canceled");
@@ -46,11 +52,11 @@ public class RepeatingAlarmController
 
     public void setFiveMinuteAlarm()
     {
-        double alarmTimeInMillis = 0.25D * 60 * 1000;
+        double alarmTimeInMillis = 0.25D * Constants.secondsInMinute * Constants.millisecondsInSecond;
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
-        PendingIntent pendingIntent = createPendingIntent(mContext);
+        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime,pendingIntent);
         Log.i(TAG, "Five Minute Alarm set");
@@ -61,11 +67,11 @@ public class RepeatingAlarmController
 
     public void setOneMinuteAlarm()
     {
-        double alarmTimeInMillis = 0.166D * 60 * 1000;
+        double alarmTimeInMillis = 0.166D * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
-        PendingIntent pendingIntent = createPendingIntent(mContext);
+        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         Log.i(TAG, "One Minute Alarm set");
@@ -74,13 +80,13 @@ public class RepeatingAlarmController
         alarmSet = true;
     }
 
-    public void setNewAlarm()
+    public void setNewRepeatingAlarm()
     {
-        double alarmTimeInMillis = mAlarmPeriodMinutes * 60 * 1000;
+        double alarmTimeInMillis = mAlarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
-        PendingIntent pendingIntent = createPendingIntent(mContext);
+        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         alarmSet = true;
@@ -89,9 +95,10 @@ public class RepeatingAlarmController
                 Toast.LENGTH_LONG).show();
     }
 
-    private PendingIntent createPendingIntent(Context context){
+    private PendingIntent createPendingIntent(Context context, AlarmSchedule alarmSchedule){
         Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 123456789, intent,
+        intent.putExtra(Constants.ALARM_SCHEDULE, (Parcelable)alarmSchedule);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
         return pendingIntent;

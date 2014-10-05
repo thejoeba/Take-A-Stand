@@ -36,9 +36,17 @@ public class TimePickerFragment
 
     }
 
+    private String correctMinuteFormat(String minute){
+        if(minute.length()==1){
+            minute = "0" + minute;
+        }
+        return minute;
+    }
+
     public void onTimeSet(TimePicker timePicker, int hour, int minute)
     {
-        ((EditButtonDialogListener)getActivity()).onTimeSelected(Integer.toString(hour) + ":" + Integer.toString(minute));
+        ((EditButtonDialogListener)getActivity()).onTimeSelected(Integer.toString(hour) + ":"
+                + correctMinuteFormat(Integer.toString(minute)));
     }
 
     public static abstract interface EditButtonDialogListener

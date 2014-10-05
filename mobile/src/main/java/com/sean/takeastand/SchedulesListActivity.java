@@ -16,6 +16,7 @@ public class SchedulesListActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_list);
+        deleteDatabase("alarms_database");
         if(new AlarmsDatabaseAdapter(this).getCount()==0) {
             startActivityForResult(new Intent(this, ScheduleCreatorActivity.class), REQUEST_CODE);
         }
@@ -26,9 +27,6 @@ public class SchedulesListActivity extends Activity{
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE){
             if(resultCode ==  -1){
-                finish();
-            }
-            if(resultCode == 0){
                 finish();
             }
         }

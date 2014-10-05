@@ -9,10 +9,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import java.util.Calendar;
 
 public class AlarmReceiver
         extends BroadcastReceiver
@@ -21,14 +20,23 @@ public class AlarmReceiver
     Context mContext;
 
 
+
     @Override
     public void onReceive(Context context, Intent intent)
     {
         Log.i(TAG, "AlarmReceiver received intent");
         mContext = context;
-        sendNotification();
-        Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
-        mContext.startService(serviceStartIntent);
+        AlarmSchedule currentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
+        //If the alarmSchedule is still running, send a notification that it is time
+        //to stand up and start the service that listens for the user response.
+        if(!hasEndTimePassed(currentAlarmSchedule.getEndTime())){
+            sendNotification();
+            Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
+            serviceStartIntent.putExtra(Constants.ALARM_SCHEDULE, currentAlarmSchedule);
+            mContext.startService(serviceStartIntent);
+        } else {
+            Log.i(TAG, "Alarm day is over.");
+        }
     }
 
     private void sendNotification(){
@@ -61,5 +69,10 @@ public class AlarmReceiver
                         .setTicker("Time to stand up"))
                 .build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
+    }
+
+    private boolean hasEndTimePassed(Calendar endTime){
+        Calendar rightNow = Calendar.getInstance();
+        return endTime.before(rightNow);
     }
 }

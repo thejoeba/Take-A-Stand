@@ -1,10 +1,10 @@
 package com.sean.takeastand;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -28,22 +28,21 @@ public class ScheduleCreatorActivity
 
     private static final String TAG = "ScheduleCreatorActivity";
     private static final int NUMBER_HOURS_TO_ADD = 4;
-    ToggleButton btnActivated;
-    Button btnStartTime;
-    Button btnEndTime;
-    CheckBox chBxSunday;
-    CheckBox chBxMonday;
-    CheckBox chBxTuesday;
-    CheckBox chBxWednesday;
-    CheckBox chBxThursday;
-    CheckBox chBxFriday;
-    CheckBox chBxSaturday;
-    Button btnFrequency;
-    EditText scheduleName;
-    Button btnSave;
-    Button btnCancel;
-
-    boolean mStartEndButtonSelected;
+    private ToggleButton btnActivated;
+    private Button btnStartTime;
+    private Button btnEndTime;
+    private CheckBox chBxSunday;
+    private CheckBox chBxMonday;
+    private CheckBox chBxTuesday;
+    private CheckBox chBxWednesday;
+    private CheckBox chBxThursday;
+    private CheckBox chBxFriday;
+    private CheckBox chBxSaturday;
+    private Button btnFrequency;
+    private EditText scheduleName;
+    private Button btnSave;
+    private Button btnCancel;
+    private boolean mStartEndButtonSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +55,7 @@ public class ScheduleCreatorActivity
     private void initializeViewsAndButtons()
     {
         btnActivated = (ToggleButton)findViewById(R.id.btnActivated);
+        btnActivated.setActivated(true);
         btnStartTime = (Button)findViewById(R.id.btnStartTime);
         btnStartTime.setOnClickListener(startTimeListener);
         Calendar calendar = Calendar.getInstance();
@@ -74,6 +74,7 @@ public class ScheduleCreatorActivity
         chBxThursday = (CheckBox)findViewById(R.id.chbxThu);
         chBxFriday = (CheckBox)findViewById(R.id.chbxFri);
         chBxSaturday = (CheckBox)findViewById(R.id.chbxSat);
+        setAvailableCheckboxes();
         btnFrequency = (Button)findViewById(R.id.btnFrequency);
         btnFrequency.setOnClickListener(frequencyListener);
         scheduleName = (EditText)findViewById(R.id.editName);
@@ -164,6 +165,38 @@ public class ScheduleCreatorActivity
     }
 
     @Override
+    public void onValueChange(NumberPicker numberPicker, int i, int i2) {
+
+    }
+
+    private void setAvailableCheckboxes(){
+        //If the day already has an alarm schedule do not allow it to be checkable
+        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
+        boolean[] activatedDays = alarmsDatabaseAdapter.getAlreadyTakenAlarmDays();
+        if(activatedDays[0]){
+            chBxSunday.setEnabled(false);
+        }
+        if(activatedDays[1]){
+            chBxMonday.setEnabled(false);
+        }
+        if(activatedDays[2]){
+            chBxTuesday.setEnabled(false);
+        }
+        if(activatedDays[3]){
+            chBxWednesday.setEnabled(false);
+        }
+        if(activatedDays[4]){
+            chBxThursday.setEnabled(false);
+        }
+        if(activatedDays[5]){
+            chBxFriday.setEnabled(false);
+        }
+        if(activatedDays[6]){
+            chBxSaturday.setEnabled(false);
+        }
+    }
+
+    @Override
     public void onTimeSelected(String time) {
         setButton(time);
     }
@@ -180,18 +213,19 @@ public class ScheduleCreatorActivity
 
     View.OnClickListener saveListener = new View.OnClickListener()
     {
-        public void onClick(View paramAnonymousView)
+        public void onClick(View view)
         {
+            saveNewAlarm();
             Intent localIntent = new Intent();
-            localIntent.putExtra("result", "cancel");
-            setResult(-1, localIntent);
+            localIntent.putExtra("result", "save");
+            setResult(0, localIntent);
             finish();
         }
     };
 
     View.OnClickListener cancelListener = new View.OnClickListener()
     {
-        public void onClick(View paramAnonymousView)
+        public void onClick(View view)
         {
             Intent localIntent = new Intent();
             localIntent.putExtra("result", "cancel");
@@ -200,8 +234,66 @@ public class ScheduleCreatorActivity
         }
     };
 
-    @Override
-    public void onValueChange(NumberPicker numberPicker, int i, int i2) {
-
+    private void saveNewAlarm(){
+        boolean activated = isAlarmActivated();
+        String startTime = getStartTime();
+        String endTime = getEndTime();
+        int frequency = getFrequency();
+        String title = getAlarmTitle();
+        String alarmType = "";
+        boolean[] checkedDays = getCheckedDays();
+        new AlarmScheduleEditor(this)
+                .newAlarm(activated, startTime, endTime, frequency, title, alarmType,
+                        checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
+                        checkedDays[4], checkedDays[5], checkedDays[6]);
     }
+
+    private boolean isAlarmActivated(){
+        return btnActivated.isActivated();
+    }
+
+    private String getStartTime(){
+        Log.i(TAG, btnStartTime.getText().toString());
+        return btnStartTime.getText().toString();
+    }
+
+    private String getEndTime(){
+        Log.i(TAG, btnEndTime.getText().toString());
+        return btnEndTime.getText().toString();
+    }
+
+    private int getFrequency(){
+        return Integer.valueOf(btnFrequency.getText().toString());
+    }
+
+    private String getAlarmTitle(){
+        return scheduleName.getText().toString();
+    }
+
+    private boolean[] getCheckedDays(){
+        boolean[] checkedDays = {false, false, false, false, false, false, false};
+        if(chBxSunday.isChecked()){
+            checkedDays[0]=true;
+        }
+        if(chBxMonday.isChecked()){
+            checkedDays[1]=true;
+        }
+        if(chBxTuesday.isChecked()){
+            checkedDays[2]=true;
+        }
+        if(chBxWednesday.isChecked()){
+            checkedDays[3]=true;
+        }
+        if(chBxThursday.isChecked()){
+            checkedDays[4]=true;
+        }
+        if(chBxFriday.isChecked()){
+            checkedDays[5]=true;
+        }
+        if(chBxSaturday.isChecked()){
+            checkedDays[6]=true;
+        }
+        return checkedDays;
+    }
+
 }

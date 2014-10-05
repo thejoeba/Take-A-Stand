@@ -22,6 +22,7 @@ public class AlarmService extends Service{
     private final long fifteenSecondsMillis = 15000;
     Handler mHandler;
     Context mContext;
+    AlarmSchedule mCurrentAlarmSchedule;
 
 
     @Override
@@ -35,7 +36,8 @@ public class AlarmService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "AlarmService started");
-        mHandler.postDelayed(oneMinuteForNotifResponse, oneMinuteMillis);
+        mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
+        mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -74,7 +76,7 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
             cancelNotification();
-            mHandler.removeCallbacks(oneMinuteForNotifResponse);
+            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             mHandler.postDelayed(stoodUp, fifteenSecondsMillis);
         }
     };
@@ -86,7 +88,7 @@ public class AlarmService extends Service{
             Log.i(TAG, "oneMinuteReceiver");
             cancelNotification();
             setOneMinuteAlarm(mContext);
-            mHandler.removeCallbacks(oneMinuteForNotifResponse);
+            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             //End service
             AlarmService.this.stopSelf();
         }
@@ -99,7 +101,7 @@ public class AlarmService extends Service{
             Log.i(TAG, "fiveMinuteReceiver");
             cancelNotification();
             setFiveMinuteAlarm(mContext);
-            mHandler.removeCallbacks(oneMinuteForNotifResponse);
+            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             //End service
             AlarmService.this.stopSelf();
         }
@@ -109,14 +111,14 @@ public class AlarmService extends Service{
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "User switched off the repeating alarm");
-            mHandler.removeCallbacks(oneMinuteForNotifResponse);
+            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             cancelNotification();
             //End this service
             AlarmService.this.stopSelf();
         }
     };
 
-    private Runnable oneMinuteForNotifResponse = new Runnable() {
+    private Runnable oneMinuteForNotificationResponse = new Runnable() {
 
         public void run() {
             cancelNotification();
@@ -143,17 +145,20 @@ public class AlarmService extends Service{
     }
 
     private void setOneMinuteAlarm(Context context){
-        RepeatingAlarmController repeatingAlarmController = new RepeatingAlarmController(context);
+        RepeatingAlarmController repeatingAlarmController =
+                new RepeatingAlarmController(context, mCurrentAlarmSchedule);
         repeatingAlarmController.setOneMinuteAlarm();
     }
 
     private void setFiveMinuteAlarm(Context context){
-        RepeatingAlarmController repeatingAlarmController = new RepeatingAlarmController(context);
+        RepeatingAlarmController repeatingAlarmController =
+                new RepeatingAlarmController(context, mCurrentAlarmSchedule);
         repeatingAlarmController.setFiveMinuteAlarm();
     }
 
     private void setStoodUpAlarm(Context context){
-        RepeatingAlarmController repeatingAlarmController = new RepeatingAlarmController(context);
-        repeatingAlarmController.setNewAlarm();
+        RepeatingAlarmController repeatingAlarmController =
+                new RepeatingAlarmController(context, mCurrentAlarmSchedule);
+        repeatingAlarmController.setNewRepeatingAlarm();
     }
 }

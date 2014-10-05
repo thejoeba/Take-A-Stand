@@ -31,6 +31,7 @@ public class ImageStatusFragment
         Log.i(TAG, "onCreateView");
         mContext = getActivity();
         View view = layoutInflater.inflate(R.layout.fragment_main_image_status, viewGroup, false);
+        //In future before setting image, will check to see that alarmSchedule is not running
         onOffImage = (ImageView)view.findViewById(R.id.onOffImage);
         onOffImage.setOnClickListener(imageListener);
         setInitialImage();
@@ -99,7 +100,7 @@ public class ImageStatusFragment
             endAlarmService();
             mRepeatingAlarmOn = false;
         } else{
-            new RepeatingAlarmController(mContext).setNewAlarm();
+            new RepeatingAlarmController(mContext).setNewRepeatingAlarm();
             onOffImage.setImageResource(R.drawable.alarm_image_active);
             mRepeatingAlarmOn = true;
         }
