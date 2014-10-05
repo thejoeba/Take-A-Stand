@@ -46,7 +46,7 @@ public class StartScheduleReceiver extends BroadcastReceiver
 
     private void setFirstAlarm(Context context, AlarmSchedule alarmSchedule)
     {
-        new RepeatingAlarmController(context, alarmSchedule).setNewRepeatingAlarm();
+        new RepeatingAlarmController(context, alarmSchedule).setNewScheduledRepeatingAlarm();
     }
 
     /*

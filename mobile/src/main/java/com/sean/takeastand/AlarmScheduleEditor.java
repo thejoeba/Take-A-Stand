@@ -12,9 +12,10 @@ import java.util.Calendar;
  * Created by Sean on 2014-09-03.
  */
 public class AlarmScheduleEditor {
+
     private static final String TAG = "AlarmScheduleEditor";
-    AlarmsDatabaseAdapter alarmsDatabaseAdapter;
-    Context mContext;
+    private AlarmsDatabaseAdapter alarmsDatabaseAdapter;
+    private Context mContext;
     //This constant should be global
 
 
@@ -48,7 +49,7 @@ public class AlarmScheduleEditor {
                             Utils.convertToCalendarTime(startTime), Utils.convertToCalendarTime(endTime),
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
-                    new RepeatingAlarmController(mContext, newAlarmSchedule).setNewRepeatingAlarm();
+                    new RepeatingAlarmController(mContext, newAlarmSchedule).setNewScheduledRepeatingAlarm();
                 }
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");
@@ -74,7 +75,7 @@ public class AlarmScheduleEditor {
                             Utils.convertToCalendarTime(startTime), Utils.convertToCalendarTime(endTime),
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
-                    new RepeatingAlarmController(mContext, newAlarmSchedule).setNewRepeatingAlarm();
+                    new RepeatingAlarmController(mContext, newAlarmSchedule).setNewScheduledRepeatingAlarm();
                 }
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");

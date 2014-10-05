@@ -20,9 +20,9 @@ public class AlarmService extends Service{
     //Change to 60000 after testing
     private final long oneMinuteMillis = 10000;
     private final long fifteenSecondsMillis = 15000;
-    Handler mHandler;
-    Context mContext;
-    AlarmSchedule mCurrentAlarmSchedule;
+    private Handler mHandler;
+    private Context mContext;
+    private AlarmSchedule mCurrentAlarmSchedule;
 
 
     @Override
@@ -159,6 +159,6 @@ public class AlarmService extends Service{
     private void setStoodUpAlarm(Context context){
         RepeatingAlarmController repeatingAlarmController =
                 new RepeatingAlarmController(context, mCurrentAlarmSchedule);
-        repeatingAlarmController.setNewRepeatingAlarm();
+        repeatingAlarmController.setNewScheduledRepeatingAlarm();
     }
 }

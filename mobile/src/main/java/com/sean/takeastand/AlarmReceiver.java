@@ -17,7 +17,7 @@ public class AlarmReceiver
         extends BroadcastReceiver
 {
     private static final String TAG = "AlarmReceiver";
-    Context mContext;
+    private Context mContext;
 
 
 

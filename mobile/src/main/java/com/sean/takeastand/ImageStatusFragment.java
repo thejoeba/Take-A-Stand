@@ -19,11 +19,11 @@ import android.widget.ImageView;
 public class ImageStatusFragment
         extends Fragment
 {
-    ImageView onOffImage;
+    private ImageView onOffImage;
     private static final String TAG = "ImageStatusFragment";
     private static final String CURRENT_IMAGE_STATE = "CurrentImageStatus";
     private static final String SHARED_PREFERENCES_NAME = "CurrentStatusFragmentSharedP";
-    boolean mRepeatingAlarmOn;
+    private boolean mRepeatingAlarmOn;
     private Context mContext;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle)
@@ -100,7 +100,7 @@ public class ImageStatusFragment
             endAlarmService();
             mRepeatingAlarmOn = false;
         } else{
-            new RepeatingAlarmController(mContext).setNewRepeatingAlarm();
+            new RepeatingAlarmController(mContext).setNonScheduleRepeatingAlarm();
             onOffImage.setImageResource(R.drawable.alarm_image_active);
             mRepeatingAlarmOn = true;
         }
