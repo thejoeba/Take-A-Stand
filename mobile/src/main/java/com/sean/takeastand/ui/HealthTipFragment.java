@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.ui;
 
 /**
  * Created by Sean on 2014-09-03.

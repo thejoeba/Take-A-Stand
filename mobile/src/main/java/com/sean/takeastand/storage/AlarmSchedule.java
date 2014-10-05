@@ -1,7 +1,8 @@
-package com.sean.takeastand;
+package com.sean.takeastand.storage;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -24,6 +25,7 @@ public class AlarmSchedule implements Parcelable {
     private boolean thursday;
     private boolean friday;
     private boolean saturday;
+    private static final String TAG = "AlarmSchedule";
 
     //This constructor is the only way for the class variables to be initialized
     //This class was intentionally restricted, so it could not be modified after creation
@@ -60,12 +62,13 @@ public class AlarmSchedule implements Parcelable {
         saturday = arrayBooleans[7];
         UID = inParcel.readInt();
         alertType = inParcel.readString();
-        startTime = Calendar.getInstance();
-        startTime.setTimeInMillis(Long.getLong(inParcel.readString()));
-        endTime = Calendar.getInstance();
-        endTime.setTimeInMillis(Long.getLong(inParcel.readString()));
-        frequency = inParcel.readInt();
         title = inParcel.readString();
+        startTime = Calendar.getInstance();
+        startTime.setTimeInMillis(Long.decode(inParcel.readString()));
+        endTime = Calendar.getInstance();
+        endTime.setTimeInMillis(Long.decode(inParcel.readString()));
+        frequency = inParcel.readInt();
+
     }
 
     @Override
@@ -80,10 +83,11 @@ public class AlarmSchedule implements Parcelable {
         outParcel.writeBooleanArray(arrayBooleans);
         outParcel.writeInt(UID);
         outParcel.writeString(alertType);
+        outParcel.writeString(title);
         outParcel.writeString(Long.toString(startTime.getTimeInMillis()));
         outParcel.writeString(Long.toString(endTime.getTimeInMillis()));
         outParcel.writeInt(frequency);
-        outParcel.writeString(title);
+
     }
 
     public static  final Creator<AlarmSchedule> CREATOR =

@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.storage;
 
 /**
  * Created by Sean on 2014-09-03.
@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,8 +32,8 @@ public class AlarmsDatabaseAdapter
         mContext = context;
     }
 
-    public long newAlarm(boolean activated, String startTime, String endTime, int frequency,
-                         String title, String alertType, boolean sunday, boolean monday, boolean tuesday,
+    public long newAlarm(boolean activated, String alertType, String startTime, String endTime, int frequency,
+                         String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
         Log.i(TAG, "new alarm: new database row");
@@ -39,11 +41,11 @@ public class AlarmsDatabaseAdapter
         SQLiteDatabase localSQLiteDatabase = alarmsSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put("activated", Utils.convertBooleanToInt(activated));
+        databaseInfo.put("alert_type", alertType);
         databaseInfo.put("start_time", startTime);
         databaseInfo.put("end_time", endTime);
         databaseInfo.put("frequency", frequency);
         databaseInfo.put("title", title);
-        databaseInfo.put("alert_type", alertType);
         databaseInfo.put("sunday", Utils.convertBooleanToInt(sunday));
         databaseInfo.put("monday", Utils.convertBooleanToInt(monday));
         databaseInfo.put("tuesday", Utils.convertBooleanToInt(tuesday));
@@ -65,14 +67,15 @@ public class AlarmsDatabaseAdapter
         //Need to create a string array for the whereArgs, which determine row(s) to update
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(rowID);
-        int count = alarmsDatabase.delete("alarms_table", "_id = ?", arrayOfString);
+        int count = alarmsDatabase.delete(AlarmsSQLHelper.TABLE_MAIN,
+                AlarmsSQLHelper.UID + " = ?", arrayOfString);
         alarmsDatabase.close();
         alarmsSQLHelper.close();
         return  count;
     }
 
-    public int editAlarm(boolean activated, String startTime, String endTime, int frequency,
-                         String title, String alertType, boolean sunday, boolean monday, boolean tuesday,
+    public int editAlarm(boolean activated, String alertType, String startTime, String endTime, int frequency,
+                         String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday, int rowID)
     {
         Log.i(TAG, "edit alarm: edit database row");
@@ -80,11 +83,11 @@ public class AlarmsDatabaseAdapter
         SQLiteDatabase alarmsDatabase = alarmsSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(AlarmsSQLHelper.ACTIVATED, Utils.convertBooleanToInt(activated));
+        databaseInfo.put(AlarmsSQLHelper.ALERT_TYPE, alertType);
         databaseInfo.put(AlarmsSQLHelper.START_TIME, startTime);
         databaseInfo.put(AlarmsSQLHelper.END_TIME, endTime);
         databaseInfo.put(AlarmsSQLHelper.FREQUENCY, frequency);
         databaseInfo.put(AlarmsSQLHelper.TITLE, title);
-        databaseInfo.put(AlarmsSQLHelper.ALERT_TYPE, alertType);
         databaseInfo.put(AlarmsSQLHelper.SUNDAY, Utils.convertBooleanToInt(sunday));
         databaseInfo.put(AlarmsSQLHelper.MONDAY, Utils.convertBooleanToInt(monday));
         databaseInfo.put(AlarmsSQLHelper.TUESDAY, Utils.convertBooleanToInt(tuesday));
@@ -95,7 +98,8 @@ public class AlarmsDatabaseAdapter
         //Need to create a string array for the whereArgs, which determine row(s) to update
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(rowID);
-        int count = alarmsDatabase.update("alarms_table", databaseInfo, "_id =? ", arrayOfString);
+        int count = alarmsDatabase.update(AlarmsSQLHelper.TABLE_MAIN, databaseInfo,
+                AlarmsSQLHelper.UID + "=? ", arrayOfString);
         alarmsDatabase.close();
         alarmsSQLHelper.close();
         return count;
@@ -107,25 +111,28 @@ public class AlarmsDatabaseAdapter
         Cursor cursor = alarmsSQLHelper.getWritableDatabase().query(AlarmsSQLHelper.TABLE_MAIN,
                 null, null, null, null, null, null);
         cursor.moveToFirst();
-        do {
-            int UID = cursor.getInt(0);
-            boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
-            String alertType = cursor.getString(2);
-            Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
-            Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4));
-            int frequency = cursor.getInt(5);
-            String title = cursor.getString(6);
-            boolean sunday = Utils.convertIntToBoolean(cursor.getInt(7));
-            boolean monday = Utils.convertIntToBoolean(cursor.getInt(8));
-            boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(9));
-            boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(10));
-            boolean thursday = Utils.convertIntToBoolean(cursor.getInt(11));
-            boolean friday = Utils.convertIntToBoolean(cursor.getInt(12));
-            boolean saturday = Utils.convertIntToBoolean(cursor.getInt(13));
-            AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, alertType, startTime, endTime,
-                    frequency, title, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
-            alarmSchedules.add(alarmSchedule);
-        } while (cursor.moveToNext());
+        //Check to make sure there is a row; this prevents IndexOutOfBoundsException
+        if(!(cursor.getCount()==0)){
+            do {
+                int UID = cursor.getInt(0);
+                boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
+                String alertType = cursor.getString(2);
+                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
+                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4));
+                int frequency = cursor.getInt(5);
+                String title = cursor.getString(6);
+                boolean sunday = Utils.convertIntToBoolean(cursor.getInt(7));
+                boolean monday = Utils.convertIntToBoolean(cursor.getInt(8));
+                boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(9));
+                boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(10));
+                boolean thursday = Utils.convertIntToBoolean(cursor.getInt(11));
+                boolean friday = Utils.convertIntToBoolean(cursor.getInt(12));
+                boolean saturday = Utils.convertIntToBoolean(cursor.getInt(13));
+                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, alertType, startTime, endTime,
+                        frequency, title, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
+                alarmSchedules.add(alarmSchedule);
+            } while (cursor.moveToNext());
+        }
         alarmsSQLHelper.close();
         cursor.close();
         return alarmSchedules;
@@ -160,6 +167,7 @@ public class AlarmsDatabaseAdapter
         String selectQuery = "SELECT  * FROM " + AlarmsSQLHelper.TABLE_MAIN + " ORDER BY " +
                 AlarmsSQLHelper.UID + " DESC LIMIT 1;";
         Cursor cursor = alarmsSQLHelper.getWritableDatabase().rawQuery(selectQuery, null);
+        cursor.moveToFirst();
         int lastRowID = cursor.getInt(0);
         alarmsSQLHelper.close();
         cursor.close();

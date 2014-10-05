@@ -1,9 +1,15 @@
-package com.sean.takeastand;
+package com.sean.takeastand.alarmprocess;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
+import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;
 
@@ -15,15 +21,12 @@ public class StartScheduleReceiver extends BroadcastReceiver
 {
     
     private static final String TAG = "StartScheduleReceiver";
-    /*
-    Modify findIfAlarmToday to check the UID of the intent received and see if
-    that row has an alarmSchedule for today.  Will be faster and more efficient.
-    Can just use a for statement to find the AlarmSchedule that matches the UID (getUID)
-    and then check to see if it's weekday has been activated.
-     */
+
+    @Override
     public void onReceive(Context context, Intent intent)
     {
         Log.i(TAG, "StartScheduleReceiver has received an intent");
+        Toast.makeText(context, "StartReceiver is starting an alarm schedule", Toast.LENGTH_LONG);
         ArrayList<AlarmSchedule> alarmSchedules =
                 new AlarmsDatabaseAdapter(context).getAlarmSchedules();
         if(!alarmSchedules.isEmpty()){

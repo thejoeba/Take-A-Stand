@@ -1,8 +1,9 @@
-package com.sean.takeastand;
+package com.sean.takeastand.util;
 
 import android.util.Log;
 
 import java.util.Calendar;
+import java.util.InputMismatchException;
 
 /**
  * Created by Sean on 2014-10-04.
@@ -22,17 +23,40 @@ public final class Utils {
         return calendar;
     }
 
+    public static String calendarToTimeString(Calendar calendar){
+        String time = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
+        time += ":";
+        //In order to account for the zero that precedes minutes less than 10
+        if(calendar.get(Calendar.MINUTE)<10){
+            time+="0";
+        }
+        time += Integer.toString(calendar.get(Calendar.MINUTE));
+        return time;
+    }
+
     private static int readHourFromString(String alarmTime){
-        Log.i(TAG, alarmTime);
-        String time = alarmTime.substring(0, alarmTime.indexOf(":"));
-        Log.i(TAG, "readHoursFromString" + time);
-        return Integer.valueOf(time);
+        if(alarmTime.length()==5){
+            String time = alarmTime.substring(0, alarmTime.indexOf(":"));
+            Log.i(TAG, "readHoursFromString " + time);
+            return Integer.valueOf(time);
+        } else {
+            Log.i(TAG, "alarmTime string is " + Integer.toString(alarmTime.length())
+                    + " characters long, not 5.");
+            return 24;
+        }
     }
 
     private static int readMinutesFromString(String alarmTime){
-        String time = alarmTime.substring(alarmTime.indexOf(":") + 1, 6);
-        Log.i(TAG, "readMinutesFromString" + time);
-        return Integer.valueOf(time);
+        if(alarmTime.length()==5){
+            String time = alarmTime.substring(alarmTime.indexOf(":") + 1, 5);
+            Log.i(TAG, "readMinutesFromString " + time);
+            return Integer.valueOf(time);
+        } else {
+            Log.i(TAG, "alarmTime string is " + Integer.toString(alarmTime.length()) +
+                    " characters long, not 5.");
+            return 61;
+        }
+
     }
 
     private static Calendar setCalendarTime(Calendar calendar, int hour, int minute){

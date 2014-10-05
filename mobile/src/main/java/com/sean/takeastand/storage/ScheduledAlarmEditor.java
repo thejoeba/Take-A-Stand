@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.storage;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -6,20 +6,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.alarmprocess.RepeatingAlarmController;
+import com.sean.takeastand.alarmprocess.StartScheduleReceiver;
+import com.sean.takeastand.util.Utils;
+
 import java.util.Calendar;
 
 /**
  * Created by Sean on 2014-09-03.
  */
-public class AlarmScheduleEditor {
+public class ScheduledAlarmEditor {
 
-    private static final String TAG = "AlarmScheduleEditor";
+    private static final String TAG = "ScheduledAlarmEditor";
     private AlarmsDatabaseAdapter alarmsDatabaseAdapter;
     private Context mContext;
-    //This constant should be global
 
 
-    public AlarmScheduleEditor(Context context)
+    public ScheduledAlarmEditor(Context context)
     {
         mContext = context;
         alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(context);
@@ -30,12 +34,12 @@ public class AlarmScheduleEditor {
      */
 
 
-    public void newAlarm(boolean activated, String startTime, String endTime, int frequency,
-                            String title, String alarmType, boolean sunday, boolean monday, boolean tuesday,
+    public void newAlarm(boolean activated,  String alarmType, String startTime, String endTime, int frequency,
+                            String title, boolean sunday, boolean monday, boolean tuesday,
                             boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
-       alarmsDatabaseAdapter.newAlarm(activated, startTime, endTime, frequency, title,
-                alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
+       alarmsDatabaseAdapter.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
+                sunday, monday, tuesday, wednesday, thursday, friday, saturday);
         if (activated)
         {
             int UID = new AlarmsDatabaseAdapter(mContext).getLastRowID();
@@ -54,6 +58,8 @@ public class AlarmScheduleEditor {
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");
             }
+        } else {
+            Log.i(TAG, "Alarm is not activated");
         }
     }
 
@@ -62,8 +68,8 @@ public class AlarmScheduleEditor {
                           boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday,
                           int rowID){
 
-        alarmsDatabaseAdapter.editAlarm(activated, startTime, endTime, frequency, title,
-                alarmType, sunday, monday, tuesday, wednesday, thursday, friday, saturday, rowID);
+        alarmsDatabaseAdapter.editAlarm(activated, alarmType,startTime, endTime, frequency, title,
+                sunday, monday, tuesday, wednesday, thursday, friday, saturday, rowID);
         cancelDailyRepeatingAlarm(rowID);
         if (activated)
         {
@@ -71,7 +77,9 @@ public class AlarmScheduleEditor {
             //If new alarm is meant to run this day
             if(Utils.isTodayActivated(sunday, monday, tuesday, wednesday, thursday, friday, saturday)){
                 if(checkToSetRepeatingAlarm(startTime, endTime)){
-                    AlarmSchedule newAlarmSchedule = new AlarmSchedule(rowID, activated, alarmType,
+                    //Because we are within an if statement where activated is true, put true in place
+                    //of activated
+                    AlarmSchedule newAlarmSchedule = new AlarmSchedule(rowID, true, alarmType,
                             Utils.convertToCalendarTime(startTime), Utils.convertToCalendarTime(endTime),
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
@@ -83,8 +91,9 @@ public class AlarmScheduleEditor {
         }
     }
 
-    public void deleteAlarm(int activated, int rowID){
-        alarmsDatabaseAdapter.deleteAlarm(rowID);
+    public void deleteAlarm(AlarmSchedule alarmSchedule){
+        cancelDailyRepeatingAlarm(alarmSchedule.getUID());
+        alarmsDatabaseAdapter.deleteAlarm(alarmSchedule.getUID());
     }
 
     private void setDailyRepeatingAlarm(int UID, String time){
@@ -96,6 +105,8 @@ public class AlarmScheduleEditor {
         ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE))
                 .setRepeating(AlarmManager.RTC_WAKEUP, Utils.calendarToRTCMillis(nextAlarmTime(time)),
                         AlarmManager.INTERVAL_DAY, pendingIntent);
+        Log.i(TAG, "Set Daily Repeating alarm for " + Long.toString(Utils.calendarToRTCMillis(nextAlarmTime(time))) +
+                " current time " + Long.toString(System.currentTimeMillis()));
     }
 
     private void cancelDailyRepeatingAlarm(int UID){
@@ -129,7 +140,7 @@ public class AlarmScheduleEditor {
             Log.i(TAG, "New alarm is within current day's timeframe.  Starting RepeatingAlarm.");
             return true;
         } else {
-            Log.i(TAG, "New alarm is not within today's timeframe.");
+            Log.i(TAG, "New alarm's repeating timeframe has either not begun or has already passed.");
             return false;
         }
     }

@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.alarmprocess;
 
 /**
  * Created by Sean on 2014-09-03.
@@ -10,6 +10,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.R;
 
 import java.util.Calendar;
 
@@ -31,6 +35,8 @@ public class AlarmReceiver
         //to stand up and start the service that listens for the user response.
         if(!hasEndTimePassed(currentAlarmSchedule.getEndTime())){
             sendNotification();
+            //currentAlarmSchedule.getAlarmType if vibrate, vibrate, some kind of sound, make that
+            //sound
             Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
             serviceStartIntent.putExtra(Constants.ALARM_SCHEDULE, currentAlarmSchedule);
             mContext.startService(serviceStartIntent);

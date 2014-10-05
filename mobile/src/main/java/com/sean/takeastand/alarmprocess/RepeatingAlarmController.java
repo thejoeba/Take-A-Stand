@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.alarmprocess;
 
 /**
  * Created by Sean on 2014-09-03.
@@ -11,6 +11,9 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.storage.AlarmSchedule;
 
 public class RepeatingAlarmController
 {
@@ -42,6 +45,8 @@ public class RepeatingAlarmController
 
     public void setNewScheduledRepeatingAlarm()
     {
+        //Will check mAlarmSchedule.getFrequency()
+        //Will check mAlarmSchedule.alarmType()
         double alarmTimeInMillis = mAlarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
@@ -50,13 +55,14 @@ public class RepeatingAlarmController
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         alarmSet = true;
-        Log.i(TAG, "Stood Alarm set");
+        Log.i(TAG, "New Scheduled Repeating Alarm Set");
         Toast.makeText(mContext, "Set New Alarm",
                 Toast.LENGTH_LONG).show();
     }
 
     public void setNonScheduleRepeatingAlarm()
     {
+        //Will check sharedPreferences for alarmType and frequency
         double alarmTimeInMillis = mAlarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
@@ -65,7 +71,7 @@ public class RepeatingAlarmController
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         alarmSet = true;
-        Log.i(TAG, "Stood Alarm set");
+        Log.i(TAG, "New Non-Scheduled Alarm Set");
         Toast.makeText(mContext, "Set New Alarm",
                 Toast.LENGTH_LONG).show();
     }
@@ -76,6 +82,11 @@ public class RepeatingAlarmController
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
+        //If scheduled:
+        //Will check mAlarmSchedule.alarmType()
+        //Will set pending intent with schedule
+        //If unscheduled will check shared preferences for alarm type, no schedule in intent
+        //Have this method take parameter boolean scheduled and then add if statements to act accordingly
         PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
@@ -91,6 +102,11 @@ public class RepeatingAlarmController
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
+        //If scheduled:
+        //Will check mAlarmSchedule.alarmType()
+        //Will set pending intent with schedule
+        //If unscheduled will check shared preferences for alarm type, no schedule in intent
+        //Have this method take parameter boolean scheduled and then add if statements to act accordingly
         PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime,pendingIntent);

@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.alarmprocess;
 
 import android.app.NotificationManager;
 import android.app.Service;
@@ -10,6 +10,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.R;
+import com.sean.takeastand.storage.AlarmSchedule;
 
 /**
  * Created by Sean on 2014-09-18.
@@ -76,6 +81,7 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
             cancelNotification();
+            Toast.makeText(mContext, "Good job!", Toast.LENGTH_SHORT);
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             mHandler.postDelayed(stoodUp, fifteenSecondsMillis);
         }

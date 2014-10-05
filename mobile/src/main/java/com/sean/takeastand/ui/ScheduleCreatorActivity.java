@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.ui;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -12,6 +12,9 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 
+import com.sean.takeastand.storage.ScheduledAlarmEditor;
+import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
+import com.sean.takeastand.R;
 import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.Calendar;
@@ -24,6 +27,12 @@ public class ScheduleCreatorActivity
         implements TimePickerFragment.EditButtonDialogListener,
         NumberPicker.OnValueChangeListener
 {
+
+    /*
+    Edit so that if user chooses an end time after the start time then nothing changes and a toast
+         is displayed saying end time can't be before start time.  If the user chooses a new start time,
+         and that start time is after the current end time, move the end time back by the difference
+         it was before. */
 
 
     private static final String TAG = "ScheduleCreatorActivity";
@@ -55,7 +64,7 @@ public class ScheduleCreatorActivity
     private void initializeViewsAndButtons()
     {
         btnActivated = (ToggleButton)findViewById(R.id.btnActivated);
-        btnActivated.setActivated(true);
+        btnActivated.setChecked(true);
         btnStartTime = (Button)findViewById(R.id.btnStartTime);
         btnStartTime.setOnClickListener(startTimeListener);
         Calendar calendar = Calendar.getInstance();
@@ -236,20 +245,20 @@ public class ScheduleCreatorActivity
 
     private void saveNewAlarm(){
         boolean activated = isAlarmActivated();
+        String alarmType = "";
         String startTime = getStartTime();
         String endTime = getEndTime();
         int frequency = getFrequency();
         String title = getAlarmTitle();
-        String alarmType = "";
         boolean[] checkedDays = getCheckedDays();
-        new AlarmScheduleEditor(this)
-                .newAlarm(activated, startTime, endTime, frequency, title, alarmType,
+        ScheduledAlarmEditor scheduledAlarmEditor = new ScheduledAlarmEditor(this);
+        scheduledAlarmEditor.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
                         checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
                         checkedDays[4], checkedDays[5], checkedDays[6]);
     }
 
     private boolean isAlarmActivated(){
-        return btnActivated.isActivated();
+        return btnActivated.isChecked();
     }
 
     private String getStartTime(){

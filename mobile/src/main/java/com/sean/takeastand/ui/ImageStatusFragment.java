@@ -1,4 +1,4 @@
-package com.sean.takeastand;
+package com.sean.takeastand.ui;
 
 /**
  * Created by Sean on 2014-09-03.
@@ -15,6 +15,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import com.sean.takeastand.R;
+import com.sean.takeastand.alarmprocess.RepeatingAlarmController;
 
 public class ImageStatusFragment
         extends Fragment
