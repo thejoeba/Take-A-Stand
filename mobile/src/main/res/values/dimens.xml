@@ -1,5 +1,9 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
+    <!-- Will need to have different dimens based on screen size.  Might as well use
+    klinker apps alarm clock dimens for reference -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="footer_button_size">56dp</dimen>
+    <dimen name="footer_layout_margin">16dp</dimen>
 </resources>

@@ -4,6 +4,7 @@
     tools:context=".SchedulesListActivity">
     <item android1:id="@+id/delete"
         android1:title="Delete"/>
-
+    <item android1:id="@+id/edit"
+        android1:title="Edit"/>
 
 </menu>

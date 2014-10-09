@@ -23,7 +23,7 @@ public class AlarmService extends Service{
 
     private static final String TAG = "AlarmService";
     //Change to 60000 after testing
-    private final long oneMinuteMillis = 10000;
+    private final long oneMinuteMillis = 60000;
     private final long fifteenSecondsMillis = 15000;
     private Handler mHandler;
     private Context mContext;
@@ -62,6 +62,8 @@ public class AlarmService extends Service{
                 new IntentFilter("FiveMinute"));
         LocalBroadcastManager.getInstance(AlarmService.this).registerReceiver(endAlarmService,
                 new IntentFilter("userSwitchedOffAlarm"));
+        LocalBroadcastManager.getInstance(AlarmService.this).registerReceiver(deletedAlarm,
+                new IntentFilter(Constants.ALARM_SCHEDULE_DELETED));
     }
 
     private void unregisterReceivers(){
@@ -69,6 +71,7 @@ public class AlarmService extends Service{
         getApplicationContext().unregisterReceiver(oneMinuteReceiver);
         getApplicationContext().unregisterReceiver(fiveMinuteReceiver);
         LocalBroadcastManager.getInstance(AlarmService.this).unregisterReceiver(endAlarmService);
+        LocalBroadcastManager.getInstance(AlarmService.this).unregisterReceiver(deletedAlarm);
     }
 
     @Override
@@ -121,6 +124,25 @@ public class AlarmService extends Service{
             cancelNotification();
             //End this service
             AlarmService.this.stopSelf();
+        }
+    };
+
+    private BroadcastReceiver deletedAlarm = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "User deleted an Alarm Schedule.  Checking to see if that is the currently" +
+                    " alarm notification.");
+            int currentAlarmUID = -1;
+            if(mCurrentAlarmSchedule!=null){
+                currentAlarmUID = mCurrentAlarmSchedule.getUID();
+            }
+            int deletedAlarmUID = intent.getIntExtra("UID" , -2);
+            if(deletedAlarmUID == currentAlarmUID){
+                mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+                cancelNotification();
+                //End this service
+                AlarmService.this.stopSelf();
+            }
         }
     };
 

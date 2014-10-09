@@ -148,14 +148,16 @@ public class AlarmsDatabaseAdapter
         Cursor cursor = alarmsSQLHelper.getWritableDatabase().query(AlarmsSQLHelper.TABLE_MAIN,
                 columns, null, null, null, null, null);
         if(cursor != null && cursor.getCount() > 0){
-            for(int column = 0; column <7; column++){
-                cursor.moveToFirst();
-                do{
-                    if(cursor.getInt(column)==1){
-                        activatedDays[column]=true;
+            cursor.moveToFirst();
+            do{
+                //Purpose is to go through each row's 7 columns and mark which days are
+                //true, which means they are already taken
+                for(int index = 0; index <7; index++){
+                    if(cursor.getInt(index)==1){
+                        activatedDays[index]=true;
                     }
-                } while(cursor.moveToNext()&&activatedDays[column]);
-            }
+                }
+            } while(cursor.moveToNext());
             cursor.close();
         }
         alarmsSQLHelper.close();

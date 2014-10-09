@@ -1,9 +1,13 @@
 package com.sean.takeastand.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.util.Calendar;
 import java.util.InputMismatchException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Sean on 2014-10-04.
@@ -12,6 +16,7 @@ import java.util.InputMismatchException;
 public final class Utils {
 
     private static String TAG = "Utils ";
+
 
     public static long calendarToRTCMillis(Calendar cal){
         return cal.getTimeInMillis();
@@ -106,6 +111,17 @@ public final class Utils {
         }
     }
 
+    public static void setRunningScheduledAlarm(Context context, int uid){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.EVENT_SHARED, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.CURRENT_RUNNING_SCHEDULED_ALARM, uid);
+        editor.commit();
+    }
+
+    public static int getRunningScheduledAlarm(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.EVENT_SHARED, 0);
+        return sharedPreferences.getInt(Constants.CURRENT_RUNNING_SCHEDULED_ALARM, -1);
+    }
 
 
 }

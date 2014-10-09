@@ -12,9 +12,12 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 
+import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.ScheduledAlarmEditor;
 import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
 import com.sean.takeastand.R;
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.Calendar;
@@ -36,7 +39,7 @@ public class ScheduleCreatorActivity
 
 
     private static final String TAG = "ScheduleCreatorActivity";
-    private static final int NUMBER_HOURS_TO_ADD = 4;
+    private static final int NUMBER_HOURS_TO_ADD = 1;
     private ToggleButton btnActivated;
     private Button btnStartTime;
     private Button btnEndTime;
@@ -52,30 +55,29 @@ public class ScheduleCreatorActivity
     private Button btnSave;
     private Button btnCancel;
     private boolean mStartEndButtonSelected;
+    private AlarmSchedule mAlarmSchedule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_schedule);
+        if(getIntent().hasExtra(Constants.SELECTED_ALARM_SCHEDULE)){
+            mAlarmSchedule =
+                    (AlarmSchedule)getIntent().getParcelableExtra(Constants.SELECTED_ALARM_SCHEDULE);
+        }
         initializeViewsAndButtons();
+        setViewText();
+        setViewStatus();
         removeKeyboardStart();
     }
 
     private void initializeViewsAndButtons()
     {
         btnActivated = (ToggleButton)findViewById(R.id.btnActivated);
-        btnActivated.setChecked(true);
         btnStartTime = (Button)findViewById(R.id.btnStartTime);
         btnStartTime.setOnClickListener(startTimeListener);
-        Calendar calendar = Calendar.getInstance();
-        String timeNow = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
-        timeNow += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
-        btnStartTime.setText(timeNow);
         btnEndTime = (Button)findViewById(R.id.btnEndTime);
         btnEndTime.setOnClickListener(endTimeListener);
-        String endTime= Integer.toString(calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD);
-        endTime += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
-        btnEndTime.setText(endTime);
         chBxSunday = (CheckBox)findViewById(R.id.chbxSun);
         chBxMonday = (CheckBox)findViewById(R.id.chbxMon);
         chBxTuesday = (CheckBox)findViewById(R.id.chbxTue);
@@ -83,7 +85,6 @@ public class ScheduleCreatorActivity
         chBxThursday = (CheckBox)findViewById(R.id.chbxThu);
         chBxFriday = (CheckBox)findViewById(R.id.chbxFri);
         chBxSaturday = (CheckBox)findViewById(R.id.chbxSat);
-        setAvailableCheckboxes();
         btnFrequency = (Button)findViewById(R.id.btnFrequency);
         btnFrequency.setOnClickListener(frequencyListener);
         scheduleName = (EditText)findViewById(R.id.editName);
@@ -91,6 +92,33 @@ public class ScheduleCreatorActivity
         btnSave.setOnClickListener(saveListener);
         btnCancel = (Button)findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(cancelListener);
+    }
+
+    private void setViewText(){
+        if(mAlarmSchedule==null){
+            Calendar calendar = Calendar.getInstance();
+            String timeNow = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
+            timeNow += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
+            btnStartTime.setText(timeNow);
+            String endTime= Integer.toString(calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD);
+            endTime += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
+            btnEndTime.setText(endTime);
+        } else {
+            btnStartTime.setText(Utils.calendarToTimeString(mAlarmSchedule.getStartTime()));
+            btnEndTime.setText(Utils.calendarToTimeString(mAlarmSchedule.getEndTime()));
+            //Will also in future check for alertType
+            btnFrequency.setText(Integer.toString(mAlarmSchedule.getFrequency()));
+            scheduleName.setText(mAlarmSchedule.getTitle());
+        }
+    }
+
+    private void setViewStatus(){
+        if(mAlarmSchedule==null){
+            btnActivated.setChecked(true);
+        } else {
+            btnActivated.setChecked(mAlarmSchedule.getActivated());
+        }
+        setAvailableCheckboxes();
     }
 
     private void removeKeyboardStart()
@@ -178,32 +206,7 @@ public class ScheduleCreatorActivity
 
     }
 
-    private void setAvailableCheckboxes(){
-        //If the day already has an alarm schedule do not allow it to be checkable
-        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
-        boolean[] activatedDays = alarmsDatabaseAdapter.getAlreadyTakenAlarmDays();
-        if(activatedDays[0]){
-            chBxSunday.setEnabled(false);
-        }
-        if(activatedDays[1]){
-            chBxMonday.setEnabled(false);
-        }
-        if(activatedDays[2]){
-            chBxTuesday.setEnabled(false);
-        }
-        if(activatedDays[3]){
-            chBxWednesday.setEnabled(false);
-        }
-        if(activatedDays[4]){
-            chBxThursday.setEnabled(false);
-        }
-        if(activatedDays[5]){
-            chBxFriday.setEnabled(false);
-        }
-        if(activatedDays[6]){
-            chBxSaturday.setEnabled(false);
-        }
-    }
+
 
     @Override
     public void onTimeSelected(String time) {
@@ -224,7 +227,11 @@ public class ScheduleCreatorActivity
     {
         public void onClick(View view)
         {
-            saveNewAlarm();
+            if(mAlarmSchedule==null){
+                saveNewAlarm();
+            } else {
+                editAlarm();
+            }
             Intent localIntent = new Intent();
             localIntent.putExtra("result", "save");
             setResult(0, localIntent);
@@ -257,6 +264,20 @@ public class ScheduleCreatorActivity
                         checkedDays[4], checkedDays[5], checkedDays[6]);
     }
 
+    private void editAlarm(){
+        boolean activated = isAlarmActivated();
+        String alarmType = "";
+        String startTime = getStartTime();
+        String endTime = getEndTime();
+        int frequency = getFrequency();
+        String title = getAlarmTitle();
+        boolean[] checkedDays = getCheckedDays();
+        ScheduledAlarmEditor scheduledAlarmEditor = new ScheduledAlarmEditor(this);
+        scheduledAlarmEditor.editAlarm(activated, startTime, endTime, frequency, title,
+                alarmType, checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
+                checkedDays[4], checkedDays[5], checkedDays[6], mAlarmSchedule.getUID());
+    }
+
     private boolean isAlarmActivated(){
         return btnActivated.isChecked();
     }
@@ -277,6 +298,92 @@ public class ScheduleCreatorActivity
 
     private String getAlarmTitle(){
         return scheduleName.getText().toString();
+    }
+
+    private void setAvailableCheckboxes(){
+        //If the day already is used by another alarm schedule, do not allow it to be checkable
+        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
+        boolean[] activatedDays = alarmsDatabaseAdapter.getAlreadyTakenAlarmDays();
+        if(activatedDays[0]){
+            //If mAlarmSchedule == null, then this is a new schedule, so it couldn't be
+            // //responsible for this day being activated already
+            if(mAlarmSchedule==null){
+                chBxSunday.setEnabled(false);
+                //If Sunday isn't checked by this schedule don't allow this day to be checkable
+            } else if (!mAlarmSchedule.getSunday()){
+                chBxSunday.setEnabled(false);
+                //This final case means that this is the schedule that checked the day initially
+            } else {
+                chBxSunday.setChecked(true);
+                chBxSunday.setEnabled(true);
+            }
+        }
+        if(activatedDays[1]){
+            if(mAlarmSchedule==null){
+                chBxMonday.setEnabled(false);
+            } else if (!mAlarmSchedule.getMonday()){
+                chBxMonday.setEnabled(false);
+            } else {
+                chBxMonday.setChecked(true);
+                chBxMonday.setEnabled(true);
+            }
+        }
+        if(activatedDays[2]){
+            if(mAlarmSchedule==null){
+                chBxTuesday.setEnabled(false);
+            } else if (!mAlarmSchedule.getTuesday()){
+                chBxTuesday.setEnabled(false);
+            } else {
+                chBxTuesday.setChecked(true);
+                chBxTuesday.setEnabled(true);
+            }
+        }
+        if(activatedDays[3]){
+            if(mAlarmSchedule==null){
+                chBxWednesday.setEnabled(false);
+            } else if (!mAlarmSchedule.getWednesday()){
+                chBxWednesday.setEnabled(false);
+            } else {
+                chBxWednesday.setChecked(true);
+                chBxWednesday.setEnabled(true);
+            }
+        }
+        if(activatedDays[4]){
+            if(mAlarmSchedule==null){
+                Log.i(TAG, "1");
+                chBxThursday.setEnabled(false);
+            } else if (!mAlarmSchedule.getThursday()){
+                Log.i(TAG, "2");
+                chBxThursday.setEnabled(false);
+            } else {
+                Log.i(TAG, "3");
+                chBxThursday.setChecked(true);
+                chBxThursday.setEnabled(true);
+            }
+        }
+        if(activatedDays[5]){
+            if(mAlarmSchedule==null){
+                Log.i(TAG, "1");
+                chBxFriday.setEnabled(false);
+            } else if (!mAlarmSchedule.getFriday()){
+                Log.i(TAG, "2");
+                chBxFriday.setEnabled(false);
+            } else {
+                Log.i(TAG, "3");
+                chBxFriday.setChecked(true);
+                chBxFriday.setEnabled(true);
+            }
+        }
+        if(activatedDays[6]){
+            if(mAlarmSchedule==null){
+                chBxSaturday.setEnabled(false);
+            } else if (!mAlarmSchedule.getSaturday()){
+                chBxSaturday.setEnabled(false);
+            } else {
+                chBxSaturday.setChecked(true);
+                chBxSaturday.setEnabled(true);
+            }
+        }
     }
 
     private boolean[] getCheckedDays(){

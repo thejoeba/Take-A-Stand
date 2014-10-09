@@ -14,11 +14,12 @@ import android.widget.Toast;
 
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.util.Utils;
 
 public class RepeatingAlarmController
 {
     private static final String TAG = "RepeatingAlarmController";
-    private double mAlarmPeriodMinutes = 0.15;
+    private double mAlarmPeriodMinutes = 20;
     private Context mContext;
     private AlarmSchedule mCurrentAlarmSchedule;
     private static final int REPEATING_ALARM_ID = 987654321;
@@ -55,6 +56,8 @@ public class RepeatingAlarmController
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         alarmSet = true;
+        //The purpose of this is to have a way of keeping track of which scheduled alarm is running
+        Utils.setRunningScheduledAlarm(mContext,mCurrentAlarmSchedule.getUID());
         Log.i(TAG, "New Scheduled Repeating Alarm Set");
         Toast.makeText(mContext, "Set New Alarm",
                 Toast.LENGTH_LONG).show();
@@ -78,7 +81,7 @@ public class RepeatingAlarmController
 
     public void setOneMinuteAlarm()
     {
-        double alarmTimeInMillis = 0.166D * Constants.secondsInMinute  * Constants.millisecondsInSecond;
+        double alarmTimeInMillis = 1 * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
@@ -98,7 +101,7 @@ public class RepeatingAlarmController
 
     public void setFiveMinuteAlarm()
     {
-        double alarmTimeInMillis = 0.25D * Constants.secondsInMinute * Constants.millisecondsInSecond;
+        double alarmTimeInMillis = 5 * Constants.secondsInMinute * Constants.millisecondsInSecond;
         Long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
@@ -142,6 +145,8 @@ public class RepeatingAlarmController
         Toast.makeText(mContext, "Alarm Canceled",
                 Toast.LENGTH_LONG).show();
         alarmSet = false;
+        //-1 indicates that there is no scheduled alarm running right now
+        Utils.setRunningScheduledAlarm(mContext, -1);
     }
 
 }
