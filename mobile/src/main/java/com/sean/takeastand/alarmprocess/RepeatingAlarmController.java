@@ -18,6 +18,10 @@ import com.sean.takeastand.util.Utils;
 
 public class RepeatingAlarmController
 {
+    /*
+    This class in the future should be divided into scheduledRepeatingAlarmController and
+    unscheduledRepeatingAlarmController
+     */
     private static final String TAG = "RepeatingAlarmController";
     private double mAlarmPeriodMinutes = 20;
     private Context mContext;
@@ -90,7 +94,12 @@ public class RepeatingAlarmController
         //Will set pending intent with schedule
         //If unscheduled will check shared preferences for alarm type, no schedule in intent
         //Have this method take parameter boolean scheduled and then add if statements to act accordingly
-        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
+        PendingIntent pendingIntent;
+        if(mCurrentAlarmSchedule==null){
+            pendingIntent = createNonScheduledPendingIntent(mContext);
+        } else {
+            pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
+        }
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         Log.i(TAG, "One Minute Alarm set");
@@ -110,7 +119,12 @@ public class RepeatingAlarmController
         //Will set pending intent with schedule
         //If unscheduled will check shared preferences for alarm type, no schedule in intent
         //Have this method take parameter boolean scheduled and then add if statements to act accordingly
-        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
+        PendingIntent pendingIntent;
+        if(mCurrentAlarmSchedule==null){
+            pendingIntent = createNonScheduledPendingIntent(mContext);
+        } else {
+            pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
+        }
         AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime,pendingIntent);
         Log.i(TAG, "Five Minute Alarm set");

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.ui.MainActivity;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Utils;
@@ -35,23 +36,34 @@ public class AlarmReceiver
         AlarmSchedule currentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         //If the alarmSchedule is still running, send a notification that it is time
         //to stand up and start the service that listens for the user response.
-        if(!hasEndTimePassed(currentAlarmSchedule.getEndTime())){
-            sendNotification();
-            //currentAlarmSchedule.getAlarmType if vibrate, vibrate, some kind of sound, make that
-            //sound
-            Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
-            serviceStartIntent.putExtra(Constants.ALARM_SCHEDULE, currentAlarmSchedule);
-            mContext.startService(serviceStartIntent);
+        if(currentAlarmSchedule!=null){
+            if(!hasEndTimePassed(currentAlarmSchedule.getEndTime())){
+                sendNotification();
+                //currentAlarmSchedule.getAlarmType if vibrate, vibrate, some kind of sound, make that
+                //sound
+                Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
+                serviceStartIntent.putExtra(Constants.ALARM_SCHEDULE, currentAlarmSchedule);
+                mContext.startService(serviceStartIntent);
+            } else {
+                //-1 indicates that there is no currently running scheduled alarm
+                Utils.setRunningScheduledAlarm(mContext, -1);
+                Log.i(TAG, "Alarm day is over.");
+            }
         } else {
-            //-1 indicates that there is no currently running scheduled alarm
-            Utils.setRunningScheduledAlarm(mContext, -1);
-            Log.i(TAG, "Alarm day is over.");
+            sendNotification();
+            Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
+            mContext.startService(serviceStartIntent);
         }
     }
 
     private void sendNotification(){
         NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
+
+        //Make intents
+        Intent launchActivity = new Intent(mContext, MainActivity.class);
+        PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(mContext, 0,
+                launchActivity, 0);
         Intent stoodUpIntent = new Intent("StoodUp");
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(mContext, 0,
                 stoodUpIntent, 0);
@@ -66,11 +78,10 @@ public class AlarmReceiver
                 new Notification.Builder(mContext)
                         .setContentTitle("Take A Stand")
                         .setContentText("Time to stand up")
+                        .setContentIntent(launchActivityPendingIntent)
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setAutoCancel(true)
-                        .setOngoing(false)
-                        //Once app done testing set ongoing to true, as will be removed
-                        //by the AlarmService after a minute
+                        .setAutoCancel(false)
+                        .setOngoing(true)
                         .addAction(android.R.drawable.btn_default, "Stood Up", stoodUpPendingIntent)
                         .addAction(android.R.drawable.btn_default, "1 More Minute",
                                 oneMinutePendingIntent)

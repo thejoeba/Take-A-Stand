@@ -56,6 +56,7 @@ public class ScheduleCreatorActivity
     private Button btnCancel;
     private boolean mStartEndButtonSelected;
     private AlarmSchedule mAlarmSchedule;
+    private int mArrayPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class ScheduleCreatorActivity
             mAlarmSchedule =
                     (AlarmSchedule)getIntent().getParcelableExtra(Constants.SELECTED_ALARM_SCHEDULE);
         }
+        mArrayPosition = getIntent().getIntExtra(Constants.EDITED_ALARM_POSITION, -1);
         initializeViewsAndButtons();
         setViewText();
         setViewStatus();
@@ -100,7 +102,12 @@ public class ScheduleCreatorActivity
             String timeNow = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
             timeNow += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
             btnStartTime.setText(timeNow);
-            String endTime= Integer.toString(calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD);
+            String endTime;
+            if( ( Calendar.HOUR_OF_DAY + NUMBER_HOURS_TO_ADD ) >23){
+                endTime = Integer.toString(NUMBER_HOURS_TO_ADD - 1);
+            } else {
+                endTime= Integer.toString(calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD);
+            }
             endTime += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
             btnEndTime.setText(endTime);
         } else {
@@ -151,6 +158,11 @@ public class ScheduleCreatorActivity
     {
         Bundle args = new Bundle();
         args.putBoolean("StartOrEndButton", mStartEndButtonSelected);
+        if(mStartEndButtonSelected){
+            args.putString(Constants.START_TIME_ARG, btnStartTime.getText().toString());
+        } else {
+            args.putString(Constants.END_TIME_ARG, btnEndTime.getText().toString());
+        }
         TimePickerFragment timePickerFragment = new TimePickerFragment();
         timePickerFragment.setArguments(args);
         timePickerFragment.show(getFragmentManager(), "timePicker");
@@ -227,14 +239,24 @@ public class ScheduleCreatorActivity
     {
         public void onClick(View view)
         {
+            boolean newAlarm;
             if(mAlarmSchedule==null){
                 saveNewAlarm();
+                newAlarm = true;
             } else {
                 editAlarm();
+                newAlarm = false;
             }
-            Intent localIntent = new Intent();
-            localIntent.putExtra("result", "save");
-            setResult(0, localIntent);
+            Intent intent = new Intent();
+            intent.putExtra(Constants.ACTIVITY_RESULT, "save");
+            //You need to add the mAlarmSchedule so that it can be added to the arrayadapter
+            //on ScheduleListActivity so that the new alarmSchedule is shown in the listview
+            intent.putExtra(Constants.EDITED_ALARM_SCHEDULE, mAlarmSchedule);
+            //This serves as a flag for the SchedulesListActivity to know whether to add a new
+            //schedule to the array or to replace the existing
+            intent.putExtra(Constants.NEW_ALARM_SCHEDULE, newAlarm);
+            intent.putExtra(Constants.EDITED_ALARM_POSITION, mArrayPosition);
+            setResult(0, intent);
             finish();
         }
     };
@@ -243,9 +265,9 @@ public class ScheduleCreatorActivity
     {
         public void onClick(View view)
         {
-            Intent localIntent = new Intent();
-            localIntent.putExtra("result", "cancel");
-            setResult(-1, localIntent);
+            Intent intent = new Intent();
+            intent.putExtra(Constants.ACTIVITY_RESULT, "cancel");
+            setResult(-1, intent);
             finish();
         }
     };
@@ -262,6 +284,11 @@ public class ScheduleCreatorActivity
         scheduledAlarmEditor.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
                         checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
                         checkedDays[4], checkedDays[5], checkedDays[6]);
+        mAlarmSchedule = new AlarmSchedule(new AlarmsDatabaseAdapter(this).getLastRowID(),
+                        activated, alarmType, Utils.convertToCalendarTime(startTime),
+                        Utils.convertToCalendarTime(endTime), frequency, title,
+                        checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3], checkedDays[4],
+                        checkedDays[5], checkedDays[6]);
     }
 
     private void editAlarm(){
@@ -272,10 +299,15 @@ public class ScheduleCreatorActivity
         int frequency = getFrequency();
         String title = getAlarmTitle();
         boolean[] checkedDays = getCheckedDays();
+        int UID = mAlarmSchedule.getUID();
         ScheduledAlarmEditor scheduledAlarmEditor = new ScheduledAlarmEditor(this);
         scheduledAlarmEditor.editAlarm(activated, startTime, endTime, frequency, title,
                 alarmType, checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
-                checkedDays[4], checkedDays[5], checkedDays[6], mAlarmSchedule.getUID());
+                checkedDays[4], checkedDays[5], checkedDays[6], UID);
+        mAlarmSchedule = new AlarmSchedule(UID, activated, alarmType, Utils.convertToCalendarTime(startTime),
+                        Utils.convertToCalendarTime(endTime), frequency, title,
+                        checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3], checkedDays[4],
+                        checkedDays[5], checkedDays[6]);
     }
 
     private boolean isAlarmActivated(){

@@ -14,4 +14,10 @@ public final class Constants {
     public static final String CURRENT_RUNNING_SCHEDULED_ALARM = "CurrentScheduledAlarm";
     public static final String ALARM_SCHEDULE_DELETED = "AlarmDeleted";
     public static final String SELECTED_ALARM_SCHEDULE = "SelectedAlarmSchedule";
+    public static final String EDITED_ALARM_SCHEDULE = "EditedAlarmSchedule";
+    public static final String EDITED_ALARM_POSITION = "EditedAlarmPosition";
+    public static final String ACTIVITY_RESULT = "ActivityResult";
+    public static final String NEW_ALARM_SCHEDULE = "NewAlarmSchedule";
+    public static final String START_TIME_ARG = "StartTimeArgument";
+    public static final String END_TIME_ARG = "EndTimeArgument";
 }

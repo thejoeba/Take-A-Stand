@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.util.Utils;
+
 import java.util.Calendar;
 
 /**
@@ -17,21 +20,18 @@ public class TimePickerFragment
         implements TimePickerDialog.OnTimeSetListener
 {
 
-    private static final int NUMBER_HOURS_TO_ADD = 4;
-
     @Override
     public Dialog onCreateDialog(Bundle bundle)
     {
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
         boolean startOrEnd = getArguments().getBoolean("StartOrEndButton", true);
         if(startOrEnd){
-            return new TimePickerDialog(getActivity(), this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
+            String startTime = getArguments().getString(Constants.START_TIME_ARG);
+            return new TimePickerDialog(getActivity(), this, Utils.readHourFromString(startTime),
+                    Utils.readMinutesFromString(startTime), DateFormat.is24HourFormat(getActivity()));
         } else {
-            return new TimePickerDialog(getActivity(), this, hour + NUMBER_HOURS_TO_ADD, minute,
-                    DateFormat.is24HourFormat(getActivity()));
+            String endTime = getArguments().getString(Constants.END_TIME_ARG);
+            return new TimePickerDialog(getActivity(), this, Utils.readHourFromString(endTime),
+                    Utils.readMinutesFromString(endTime), DateFormat.is24HourFormat(getActivity()));
         }
 
     }

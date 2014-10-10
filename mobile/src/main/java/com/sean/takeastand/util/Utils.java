@@ -39,7 +39,7 @@ public final class Utils {
         return time;
     }
 
-    private static int readHourFromString(String alarmTime){
+    public static int readHourFromString(String alarmTime){
         if(alarmTime.length()==5){
             String time = alarmTime.substring(0, alarmTime.indexOf(":"));
             Log.i(TAG, "readHoursFromString " + time);
@@ -51,7 +51,7 @@ public final class Utils {
         }
     }
 
-    private static int readMinutesFromString(String alarmTime){
+    public static int readMinutesFromString(String alarmTime){
         if(alarmTime.length()==5){
             String time = alarmTime.substring(alarmTime.indexOf(":") + 1, 5);
             Log.i(TAG, "readMinutesFromString " + time);
