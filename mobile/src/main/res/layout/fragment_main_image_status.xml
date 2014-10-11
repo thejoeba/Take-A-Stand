@@ -8,6 +8,6 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="500.0dip"
-        android:id="@+id/onOffImage"
+        android:id="@+id/statusImage"
         android:src="@drawable/alarm_image_inactive"/>
 </LinearLayout>

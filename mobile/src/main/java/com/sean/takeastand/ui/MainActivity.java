@@ -2,17 +2,21 @@ package com.sean.takeastand.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.sean.takeastand.R;
+import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
+import com.sean.takeastand.util.Constants;
 
 
 public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
+
 
     @Override
     protected void onCreate(Bundle paramBundle)
@@ -52,6 +56,8 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
     @Override
     protected void onPause()

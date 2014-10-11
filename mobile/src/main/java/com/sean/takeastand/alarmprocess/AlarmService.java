@@ -18,6 +18,7 @@ import com.sean.takeastand.ui.MainActivity;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.util.Utils;
 
 /**
  * Created by Sean on 2014-09-18.
@@ -27,7 +28,8 @@ public class AlarmService extends Service{
     private static final String TAG = "AlarmService";
     //Change to 60000 after testing
     private final long oneMinuteMillis = 60000;
-    private final long fiveMillis = 5000;
+    private final long fiveSecondsMillis = 5000;
+    private final long thirtySecondsMillis = 10000;
     private Handler mHandler;
     private Context mContext;
     private AlarmSchedule mCurrentAlarmSchedule;
@@ -49,6 +51,8 @@ public class AlarmService extends Service{
         if(intent.hasExtra(Constants.ALARM_SCHEDULE)){
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         }
+        Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_TIME_TO_STAND);
+        Utils.notifyImageUpdate(mContext);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -92,7 +96,9 @@ public class AlarmService extends Service{
             cancelNotification();
             Toast.makeText(mContext, "Good job!", Toast.LENGTH_SHORT).show();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            mHandler.postDelayed(stoodUp, fiveMillis);
+            mHandler.postDelayed(stoodUp, fiveSecondsMillis);
+            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_STOOD_UP);
+            Utils.notifyImageUpdate(mContext);
         }
     };
 
@@ -163,7 +169,17 @@ public class AlarmService extends Service{
     private Runnable stoodUp = new Runnable() {
         @Override
         public void run() {
+            AlarmService.this.stopSelf();
             setStoodUpAlarm(mContext);
+            mHandler.postDelayed(changeImage, thirtySecondsMillis);
+        }
+    };
+
+    private Runnable changeImage= new Runnable() {
+        @Override
+        public void run() {
+            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+            Utils.notifyImageUpdate(mContext);
             //End this service
             AlarmService.this.stopSelf();
         }
@@ -252,7 +268,7 @@ public class AlarmService extends Service{
             repeatingAlarmController.setNonScheduleRepeatingAlarm();
         } else {
             repeatingAlarmController = new RepeatingAlarmController(context, mCurrentAlarmSchedule);
-            repeatingAlarmController.setNonScheduleRepeatingAlarm();
+            repeatingAlarmController.setNewScheduledRepeatingAlarm();
         }
     }
 }

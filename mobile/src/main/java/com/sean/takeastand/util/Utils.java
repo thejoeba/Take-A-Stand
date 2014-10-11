@@ -1,13 +1,12 @@
 package com.sean.takeastand.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.util.Calendar;
-import java.util.InputMismatchException;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Sean on 2014-10-04.
@@ -40,13 +39,13 @@ public final class Utils {
     }
 
     public static int readHourFromString(String alarmTime){
-        if(alarmTime.length()==5){
+        if(alarmTime.length()==5 || alarmTime.length()==4){
             String time = alarmTime.substring(0, alarmTime.indexOf(":"));
             Log.i(TAG, "readHoursFromString " + time);
             return Integer.valueOf(time);
         } else {
             Log.i(TAG, "alarmTime string is " + Integer.toString(alarmTime.length())
-                    + " characters long, not 5.");
+                    + " characters long, not 4 or 5.");
             return 24;
         }
     }
@@ -56,9 +55,13 @@ public final class Utils {
             String time = alarmTime.substring(alarmTime.indexOf(":") + 1, 5);
             Log.i(TAG, "readMinutesFromString " + time);
             return Integer.valueOf(time);
+        } else if (alarmTime.length()==4) {
+            String time = alarmTime.substring(alarmTime.indexOf(":") + 1, 4);
+            Log.i(TAG, "readMinutesFromString " + time);
+            return Integer.valueOf(time);
         } else {
             Log.i(TAG, "alarmTime string is " + Integer.toString(alarmTime.length()) +
-                    " characters long, not 5.");
+                    " characters long, not 4 or 5.");
             return 61;
         }
 
@@ -112,16 +115,37 @@ public final class Utils {
     }
 
     public static void setRunningScheduledAlarm(Context context, int uid){
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.EVENT_SHARED, 0);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Constants.CURRENT_RUNNING_SCHEDULED_ALARM, uid);
         editor.commit();
     }
 
     public static int getRunningScheduledAlarm(Context context){
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.EVENT_SHARED, 0);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         return sharedPreferences.getInt(Constants.CURRENT_RUNNING_SCHEDULED_ALARM, -1);
     }
 
+    public static void setCurrentMainActivityImage(Context context, int imageStatus){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.MAIN_IMAGE_STATUS, imageStatus);
+        editor.commit();
+    }
+
+    public static void notifyImageUpdate(Context context){
+        Log.i(TAG, "SendingIntent");
+        Intent intent = new Intent(Constants.INTENT_MAIN_IMAGE);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    public static int getCurrentImageStatus(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getInt(Constants.MAIN_IMAGE_STATUS, 1);
+    }
 
 }

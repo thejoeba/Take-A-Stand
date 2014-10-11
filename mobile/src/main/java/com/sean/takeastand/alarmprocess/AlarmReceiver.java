@@ -48,8 +48,11 @@ public class AlarmReceiver
                 //-1 indicates that there is no currently running scheduled alarm
                 Utils.setRunningScheduledAlarm(mContext, -1);
                 Log.i(TAG, "Alarm day is over.");
+                Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
+                Utils.notifyImageUpdate(mContext);
             }
         } else {
+            Log.i(TAG, "AlarmSchedule is null");
             sendNotification();
             Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
             mContext.startService(serviceStartIntent);

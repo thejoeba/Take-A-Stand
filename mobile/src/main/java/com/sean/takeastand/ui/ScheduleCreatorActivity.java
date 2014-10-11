@@ -182,6 +182,7 @@ public class ScheduleCreatorActivity
         }
         return minute;
     }
+
     public void showNumberPickerDialog()
     {
         final Dialog numberPickerDialog = new Dialog(this);

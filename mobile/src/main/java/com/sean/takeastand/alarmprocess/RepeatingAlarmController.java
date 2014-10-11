@@ -7,6 +7,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
@@ -23,7 +24,7 @@ public class RepeatingAlarmController
     unscheduledRepeatingAlarmController
      */
     private static final String TAG = "RepeatingAlarmController";
-    private double mAlarmPeriodMinutes = 20;
+    private double mAlarmPeriodMinutes = .5;
     private Context mContext;
     private AlarmSchedule mCurrentAlarmSchedule;
     private static final int REPEATING_ALARM_ID = 987654321;
@@ -61,7 +62,12 @@ public class RepeatingAlarmController
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
         alarmSet = true;
         //The purpose of this is to have a way of keeping track of which scheduled alarm is running
-        Utils.setRunningScheduledAlarm(mContext,mCurrentAlarmSchedule.getUID());
+        Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
+        if(Utils.getCurrentImageStatus(mContext) == Constants.NO_ALARM_RUNNING ||
+                Utils.getCurrentImageStatus(mContext) == Constants.NON_SCHEDULE_ALARM_RUNNING){
+            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+            Utils.notifyImageUpdate(mContext);
+        }
         Log.i(TAG, "New Scheduled Repeating Alarm Set");
         Toast.makeText(mContext, "Set New Alarm",
                 Toast.LENGTH_LONG).show();
@@ -135,7 +141,7 @@ public class RepeatingAlarmController
 
     private PendingIntent createPendingIntent(Context context, AlarmSchedule alarmSchedule){
         Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.putExtra(Constants.ALARM_SCHEDULE, (Parcelable)alarmSchedule);
+        intent.putExtra(Constants.ALARM_SCHEDULE, alarmSchedule);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 

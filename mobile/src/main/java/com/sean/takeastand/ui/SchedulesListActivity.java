@@ -80,13 +80,14 @@ public class SchedulesListActivity extends ListActivity {
                     AlarmSchedule editedAlarm =
                             intent.getParcelableExtra(Constants.EDITED_ALARM_SCHEDULE);
                     if (intent.getBooleanExtra(Constants.NEW_ALARM_SCHEDULE, true)) {
+                        Log.i(TAG, "New Alarm added.");
                         alarmSchedules.add(editedAlarm);
                     } else {
                         int arrayPosition = intent.getIntExtra(Constants.EDITED_ALARM_POSITION, -1);
                         if(arrayPosition!=-1){
                             alarmSchedules.remove(arrayPosition);
                             alarmSchedules.add(arrayPosition, editedAlarm);
-                            Log.i(TAG, "ArrayList reflects edit");
+                            Log.i(TAG, "Alarm " + arrayPosition + " edited.");
                         }
                     }
                 }
@@ -157,6 +158,8 @@ public class SchedulesListActivity extends ListActivity {
         //If deleting the last alarm set listadapter to null
         if(position==0&&alarmSchedules.size()==1){
             Log.i(TAG, "Deleting the last alarmSchedule");
+            alarmSchedules.clear();
+            alarmScheduleListAdapter.clear();
             setListAdapter(null);
         } else {
             alarmSchedules.remove(position);

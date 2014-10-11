@@ -35,6 +35,8 @@ public class StartScheduleReceiver extends BroadcastReceiver
             if(!(todayAlarm.getUID()==-100)){
                 if(todayAlarm.getActivated()){
                     setFirstAlarm(context, todayAlarm);
+                    Utils.setCurrentMainActivityImage(context, Constants.SCHEDULE_RUNNING);
+                    Utils.notifyImageUpdate(context);
                 } else {
                     Log.i(TAG, "Today's alarm is not activated.");
                 }
