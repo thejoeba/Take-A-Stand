@@ -134,9 +134,10 @@ public final class Utils {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Constants.MAIN_IMAGE_STATUS, imageStatus);
         editor.commit();
+        notifyImageUpdate(context);
     }
 
-    public static void notifyImageUpdate(Context context){
+    private static void notifyImageUpdate(Context context){
         Log.i(TAG, "SendingIntent");
         Intent intent = new Intent(Constants.INTENT_MAIN_IMAGE);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

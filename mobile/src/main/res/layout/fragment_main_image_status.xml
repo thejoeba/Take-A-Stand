@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:paddingTop="45.0dip"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center">
-    <ImageView
+    <TextView
+        android:id="@+id/tap_to_set"
         android:layout_width="wrap_content"
-        android:layout_height="500.0dip"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textSize="25sp"
+        android:layout_marginBottom="20dp"
+        android:text="@string/tap_to_start"/>
+    <ImageView
         android:id="@+id/statusImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tap_to_set"
+        android:layout_centerInParent="true"
         android:src="@drawable/alarm_image_inactive"/>
-</LinearLayout>
+</RelativeLayout>

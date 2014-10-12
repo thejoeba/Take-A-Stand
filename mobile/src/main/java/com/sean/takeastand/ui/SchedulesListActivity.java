@@ -4,10 +4,8 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.internal.view.menu.MenuView;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.KeyEvent;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,7 +13,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-import com.sean.takeastand.alarmprocess.RepeatingAlarmController;
+import com.sean.takeastand.alarmprocess.RepeatingAlarm;
+import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.AlarmScheduleListAdapter;
 import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
@@ -56,7 +55,7 @@ public class SchedulesListActivity extends ListActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(alarmScheduleListAdapter==null){
+        if(alarmScheduleListAdapter == null){
             alarmScheduleListAdapter =
                     new AlarmScheduleListAdapter(this, android.R.id.list, alarmSchedules);
             setListAdapter(alarmScheduleListAdapter);
@@ -72,7 +71,7 @@ public class SchedulesListActivity extends ListActivity {
         AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
         int numberOfAlarms = alarmsDatabaseAdapter.getCount();
         if(requestCode == REQUEST_CODE){
-            if(resultCode ==  -1&& numberOfAlarms==0){
+            if(resultCode ==  -1&& numberOfAlarms == 0){
                 finish();
             } else {
                 if (intent.getStringExtra(Constants.ACTIVITY_RESULT).equals("save")) {
@@ -129,7 +128,7 @@ public class SchedulesListActivity extends ListActivity {
     private void launchEditIfNoAlarms(){
         AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
         alarmSchedules = alarmsDatabaseAdapter.getAlarmSchedules();
-        if(alarmSchedules.size()==0) {
+        if(alarmSchedules.size() == 0) {
             Log.i(TAG, "No alarm schedules");
            createNewAlarm();
         } else {
@@ -150,13 +149,14 @@ public class SchedulesListActivity extends ListActivity {
     private void deleteSchedule(int position){
         ScheduledAlarmEditor scheduledAlarmEditor = new ScheduledAlarmEditor(this);
         scheduledAlarmEditor.deleteAlarm(alarmSchedules.get(position));
-        int deletedAlarmUID = alarmSchedules.get(position).getUID();
+        AlarmSchedule deletedAlarmSchedule = alarmSchedules.get(position);
+        int deletedAlarmUID = deletedAlarmSchedule.getUID();
         int currentlyRunningAlarm = Utils.getRunningScheduledAlarm(this);
         if(deletedAlarmUID == currentlyRunningAlarm){
-            new RepeatingAlarmController(this).cancelAlarm();
+            new ScheduledRepeatingAlarm(this, deletedAlarmSchedule).cancelAlarm();
         }
         //If deleting the last alarm set listadapter to null
-        if(position==0&&alarmSchedules.size()==1){
+        if(position == 0&&alarmSchedules.size() == 1){
             Log.i(TAG, "Deleting the last alarmSchedule");
             alarmSchedules.clear();
             alarmScheduleListAdapter.clear();

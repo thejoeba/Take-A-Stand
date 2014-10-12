@@ -49,7 +49,6 @@ public class AlarmReceiver
                 Utils.setRunningScheduledAlarm(mContext, -1);
                 Log.i(TAG, "Alarm day is over.");
                 Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
-                Utils.notifyImageUpdate(mContext);
             }
         } else {
             Log.i(TAG, "AlarmSchedule is null");

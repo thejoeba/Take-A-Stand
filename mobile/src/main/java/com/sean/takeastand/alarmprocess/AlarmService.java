@@ -28,8 +28,8 @@ public class AlarmService extends Service{
     private static final String TAG = "AlarmService";
     //Change to 60000 after testing
     private final long oneMinuteMillis = 60000;
-    private final long fiveSecondsMillis = 5000;
-    private final long thirtySecondsMillis = 10000;
+
+
     private Handler mHandler;
     private Context mContext;
     private AlarmSchedule mCurrentAlarmSchedule;
@@ -52,7 +52,6 @@ public class AlarmService extends Service{
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         }
         Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_TIME_TO_STAND);
-        Utils.notifyImageUpdate(mContext);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -96,9 +95,9 @@ public class AlarmService extends Service{
             cancelNotification();
             Toast.makeText(mContext, "Good job!", Toast.LENGTH_SHORT).show();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            mHandler.postDelayed(stoodUp, fiveSecondsMillis);
+            long fiveSeconds = 5 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(stoodUp, fiveSeconds);
             Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_STOOD_UP);
-            Utils.notifyImageUpdate(mContext);
         }
     };
 
@@ -108,7 +107,7 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "oneMinuteReceiver");
             cancelNotification();
-            setOneMinuteAlarm(mContext);
+            setShortBreakAlarm(mContext);
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             //End service
             AlarmService.this.stopSelf();
@@ -121,7 +120,7 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "fiveMinuteReceiver");
             cancelNotification();
-            setFiveMinuteAlarm(mContext);
+            setLongBreakAlarm(mContext);
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             //End service
             AlarmService.this.stopSelf();
@@ -171,7 +170,8 @@ public class AlarmService extends Service{
         public void run() {
             AlarmService.this.stopSelf();
             setStoodUpAlarm(mContext);
-            mHandler.postDelayed(changeImage, thirtySecondsMillis);
+            long thirtySeconds = 30 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(changeImage, thirtySeconds);
         }
     };
 
@@ -179,7 +179,6 @@ public class AlarmService extends Service{
         @Override
         public void run() {
             Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
-            Utils.notifyImageUpdate(mContext);
             //End this service
             AlarmService.this.stopSelf();
         }
@@ -241,34 +240,33 @@ public class AlarmService extends Service{
         }
     }
 
-    private void setOneMinuteAlarm(Context context){
-        RepeatingAlarmController repeatingAlarmController;
-        if(mCurrentAlarmSchedule==null){
-            repeatingAlarmController = new RepeatingAlarmController(context);
+    private void setShortBreakAlarm(Context context){
+        RepeatingAlarm repeatingAlarm;
+        if(mCurrentAlarmSchedule == null){
+            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
         } else {
-            repeatingAlarmController = new RepeatingAlarmController(context, mCurrentAlarmSchedule);
+            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
         }
-        repeatingAlarmController.setOneMinuteAlarm();
+        repeatingAlarm.setShortBreakAlarm();
     }
 
-    private void setFiveMinuteAlarm(Context context){
-        RepeatingAlarmController repeatingAlarmController;
-        if(mCurrentAlarmSchedule==null){
-            repeatingAlarmController = new RepeatingAlarmController(context);
+    private void setLongBreakAlarm(Context context){
+        RepeatingAlarm repeatingAlarm;
+        if(mCurrentAlarmSchedule == null){
+            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
         } else {
-            repeatingAlarmController = new RepeatingAlarmController(context, mCurrentAlarmSchedule);
+            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
         }
-        repeatingAlarmController.setFiveMinuteAlarm();
+        repeatingAlarm.setLongBreakAlarm();
     }
 
     private void setStoodUpAlarm(Context context){
-        RepeatingAlarmController repeatingAlarmController;
-        if(mCurrentAlarmSchedule==null){
-            repeatingAlarmController = new RepeatingAlarmController(context);
-            repeatingAlarmController.setNonScheduleRepeatingAlarm();
+        RepeatingAlarm repeatingAlarm;
+        if(mCurrentAlarmSchedule == null){
+            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
         } else {
-            repeatingAlarmController = new RepeatingAlarmController(context, mCurrentAlarmSchedule);
-            repeatingAlarmController.setNewScheduledRepeatingAlarm();
+            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
         }
+        repeatingAlarm.setRepeatingAlarm();
     }
 }

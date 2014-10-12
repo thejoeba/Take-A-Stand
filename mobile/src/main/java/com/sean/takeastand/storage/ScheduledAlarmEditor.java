@@ -6,8 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
-import com.sean.takeastand.alarmprocess.RepeatingAlarmController;
+import com.sean.takeastand.alarmprocess.RepeatingAlarm;
 import com.sean.takeastand.alarmprocess.StartScheduleReceiver;
 import com.sean.takeastand.util.Utils;
 
@@ -53,7 +54,7 @@ public class ScheduledAlarmEditor {
                             Utils.convertToCalendarTime(startTime), Utils.convertToCalendarTime(endTime),
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
-                    new RepeatingAlarmController(mContext, newAlarmSchedule).setNewScheduledRepeatingAlarm();
+                    new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
                 }
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");
@@ -83,7 +84,7 @@ public class ScheduledAlarmEditor {
                             Utils.convertToCalendarTime(startTime), Utils.convertToCalendarTime(endTime),
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
-                    new RepeatingAlarmController(mContext, newAlarmSchedule).setNewScheduledRepeatingAlarm();
+                    new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
                 }
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");

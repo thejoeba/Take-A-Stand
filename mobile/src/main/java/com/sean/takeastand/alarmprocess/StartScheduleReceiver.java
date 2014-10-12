@@ -36,7 +36,6 @@ public class StartScheduleReceiver extends BroadcastReceiver
                 if(todayAlarm.getActivated()){
                     setFirstAlarm(context, todayAlarm);
                     Utils.setCurrentMainActivityImage(context, Constants.SCHEDULE_RUNNING);
-                    Utils.notifyImageUpdate(context);
                 } else {
                     Log.i(TAG, "Today's alarm is not activated.");
                 }
@@ -51,7 +50,7 @@ public class StartScheduleReceiver extends BroadcastReceiver
 
     private void setFirstAlarm(Context context, AlarmSchedule alarmSchedule)
     {
-        new RepeatingAlarmController(context, alarmSchedule).setNewScheduledRepeatingAlarm();
+        new ScheduledRepeatingAlarm(context, alarmSchedule).setRepeatingAlarm();
     }
 
     /*
