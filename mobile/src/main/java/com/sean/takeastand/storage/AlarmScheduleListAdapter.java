@@ -1,3 +1,5 @@
+
+
 package com.sean.takeastand.storage;
 
 import android.content.Context;
@@ -9,8 +11,6 @@ import android.widget.TextView;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Utils;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -51,7 +51,7 @@ public class AlarmScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
 
         }
         initializeTextViews(rowView);
-        setText(rowView, mAlarmSchedules, position);
+        setText(mAlarmSchedules, position);
         return rowView;
     }
 
@@ -71,7 +71,7 @@ public class AlarmScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         txtSaturday = (TextView)view.findViewById(R.id.rowSaturday);
     }
 
-    private void setText(View view, ArrayList<AlarmSchedule> alarmSchedules, int position){
+    private void setText(ArrayList<AlarmSchedule> alarmSchedules, int position){
         AlarmSchedule alarmSchedule = alarmSchedules.get(position);
         txtTitle.setText(alarmSchedule.getTitle());
         txtActivated.setText("Activated: " + Boolean.toString(alarmSchedule.getActivated()));

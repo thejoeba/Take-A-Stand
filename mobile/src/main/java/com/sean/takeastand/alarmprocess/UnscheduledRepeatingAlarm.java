@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014 Sean Allen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 package com.sean.takeastand.alarmprocess;
 
 import android.app.AlarmManager;
@@ -8,7 +25,6 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -55,8 +71,8 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
 
     @Override
     public void setLongBreakAlarm() {
-        long alarmTimeInMillis = 5 * Constants.secondsInMinute * Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
+        long alarmTimeInMillis = 1 * Constants.secondsInMinute * Constants.millisecondsInSecond;
+        long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
         setAlarm(triggerTime);
@@ -88,9 +104,6 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     }
 
     private void updateStatusImage(){
-        if(Utils.getCurrentImageStatus(mContext) == Constants.NO_ALARM_RUNNING ||
-                Utils.getCurrentImageStatus(mContext) == Constants.NON_SCHEDULE_ALARM_RUNNING){
-            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
-        }
+        Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_ALARM_RUNNING);
     }
 }

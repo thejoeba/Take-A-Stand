@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014 Sean Allen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 package com.sean.takeastand.ui;
 
 import android.app.Dialog;
@@ -12,10 +29,10 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 
-import com.sean.takeastand.storage.AlarmSchedule;
-import com.sean.takeastand.storage.ScheduledAlarmEditor;
-import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
 import com.sean.takeastand.R;
+import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
+import com.sean.takeastand.storage.ScheduledAlarmEditor;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
@@ -63,8 +80,7 @@ public class ScheduleCreatorActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_schedule);
         if(getIntent().hasExtra(Constants.SELECTED_ALARM_SCHEDULE)){
-            mAlarmSchedule =
-                    (AlarmSchedule)getIntent().getParcelableExtra(Constants.SELECTED_ALARM_SCHEDULE);
+            mAlarmSchedule = getIntent().getParcelableExtra(Constants.SELECTED_ALARM_SCHEDULE);
         }
         mArrayPosition = getIntent().getIntExtra(Constants.EDITED_ALARM_POSITION, -1);
         initializeViewsAndButtons();
@@ -103,7 +119,7 @@ public class ScheduleCreatorActivity
             timeNow += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
             btnStartTime.setText(timeNow);
             String endTime;
-            if( ( Calendar.HOUR_OF_DAY + NUMBER_HOURS_TO_ADD ) >23){
+            if( ( calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD ) >23){
                 endTime = Integer.toString(NUMBER_HOURS_TO_ADD - 1);
             } else {
                 endTime= Integer.toString(calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD);

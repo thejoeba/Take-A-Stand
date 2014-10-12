@@ -1,15 +1,31 @@
+/*
+ * Copyright (C) 2014 Sean Allen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.sean.takeastand.ui;
 
 /**
  * Created by Sean on 2014-09-03.
  */
+
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +33,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.sean.takeastand.R;
-import com.sean.takeastand.alarmprocess.AlarmService;
+import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -27,9 +44,8 @@ public class ImageStatusFragment
         extends Fragment
 {
     private ImageView statusImage;
+    private TextView txtTap;
     private static final String TAG = "ImageStatusFragment";
-    private static final String CURRENT_IMAGE_STATE = "CurrentImageStatus";
-    private static final String SHARED_PREFERENCES_NAME = "CurrentStatusFragmentSharedP";
     private Context mContext;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle)
@@ -39,7 +55,8 @@ public class ImageStatusFragment
         View view = layoutInflater.inflate(R.layout.fragment_main_image_status, viewGroup, false);
         statusImage = (ImageView)view.findViewById(R.id.statusImage);
         statusImage.setOnClickListener(imageListener);
-        updateImage();
+        txtTap = (TextView)view.findViewById(R.id.tap_to_set);
+        updateLayout();
         registerReceivers();
         return view;
     }
@@ -54,24 +71,28 @@ public class ImageStatusFragment
     public void onResume() {
         super.onResume();
         registerReceivers();
-        updateImage();
+        updateLayout();
     }
 
     @Override
     public void onStart() {
-        updateImage();
+        updateLayout();
         super.onStart();
     }
 
     private void switchStatus(){
+        UnscheduledRepeatingAlarm unscheduledRepeatingAlarm =
+                new UnscheduledRepeatingAlarm(getActivity());
         int imageStatus = Utils.getCurrentImageStatus(getActivity());
         if(imageStatus == Constants.NO_ALARM_RUNNING){
             Utils.setCurrentMainActivityImage(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
+            unscheduledRepeatingAlarm.setRepeatingAlarm();
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
            Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
            endAlarmService();
+           unscheduledRepeatingAlarm.cancelAlarm();
         }
-        updateImage();
+        updateLayout();
     }
 
     private void endAlarmService(){
@@ -79,26 +100,32 @@ public class ImageStatusFragment
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
-    private void updateImage(){
+    private void updateLayout(){
         int imageStatus = Utils.getCurrentImageStatus(getActivity());
         if(imageStatus == Constants.NO_ALARM_RUNNING) {
             statusImage.setImageResource(R.drawable.alarm_image_inactive);
             statusImage.setOnClickListener(imageListener);
+            txtTap.setText(R.string.tap_to_start);
         } else if(imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING){
             statusImage.setImageResource(R.drawable.alarm_image_active);
             statusImage.setOnClickListener(imageListener);
+            txtTap.setText(R.string.tap_to_stop);
         } else if(imageStatus == Constants.SCHEDULE_RUNNING) {
             statusImage.setImageResource(R.drawable.alarm_schedule_running);
             statusImage.setOnClickListener(null);
+            txtTap.setText("");
         } else if( imageStatus == Constants.SCHEDULE_TIME_TO_STAND){
             statusImage.setImageResource(R.drawable.alarm_schedule_passed);
             statusImage.setOnClickListener(null);
+            txtTap.setText("");
         } else if( imageStatus == Constants.SCHEDULE_STOOD_UP) {
             statusImage.setImageResource(R.drawable.alarm_schedule_stood);
             statusImage.setOnClickListener(null);
+            txtTap.setText("");
         } else {
             statusImage.setImageResource(R.drawable.alarm_image_inactive);
             statusImage.setOnClickListener(imageListener);
+            txtTap.setText(R.string.tap_to_start);
         }
     }
 
@@ -117,7 +144,7 @@ public class ImageStatusFragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "UpdatingImage");
-            updateImage();
+            updateLayout();
         }
     };
 

@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Sean Allen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.sean.takeastand.alarmprocess;
 
 import android.app.Notification;
@@ -14,11 +30,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sean.takeastand.ui.MainActivity;
-import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.ui.MainActivity;
+import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+
+import java.util.Random;
 
 /**
  * Created by Sean on 2014-09-18.
@@ -93,7 +111,7 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
             cancelNotification();
-            Toast.makeText(mContext, "Good job!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, praiseForUser(), Toast.LENGTH_SHORT).show();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             long fiveSeconds = 5 * Constants.millisecondsInSecond;
             mHandler.postDelayed(stoodUp, fiveSeconds);
@@ -170,15 +188,19 @@ public class AlarmService extends Service{
         public void run() {
             AlarmService.this.stopSelf();
             setStoodUpAlarm(mContext);
-            long thirtySeconds = 30 * Constants.millisecondsInSecond;
-            mHandler.postDelayed(changeImage, thirtySeconds);
+            long fifteenSeconds = 15 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(changeImage, fifteenSeconds);
         }
     };
 
     private Runnable changeImage= new Runnable() {
         @Override
         public void run() {
-            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+            if(mCurrentAlarmSchedule==null){
+                Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_ALARM_RUNNING);
+            } else {
+                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+            }
             //End this service
             AlarmService.this.stopSelf();
         }
@@ -228,6 +250,8 @@ public class AlarmService extends Service{
                         .addAction(android.R.drawable.btn_default, "5 More Minutes",
                                 fiveMinutePendingIntent)
                         .setTicker("Time to stand up"))
+                        .addLine("Time to stand up: " + mNotifTimePassed +
+                                setMinutes(mNotifTimePassed))
                 .build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
     }
@@ -269,4 +293,19 @@ public class AlarmService extends Service{
         }
         repeatingAlarm.setRepeatingAlarm();
     }
+
+    private String praiseForUser(){
+        String[] praise = {
+                getResources().getString(R.string.praise1),
+                getResources().getString(R.string.praise2),
+                getResources().getString(R.string.praise3),
+                getResources().getString(R.string.praise4),
+                getResources().getString(R.string.praise5),
+                getResources().getString(R.string.praise6)
+        };
+        Random random = new Random(System.currentTimeMillis());
+        int randomNumber = random.nextInt(praise.length);
+        return praise[randomNumber];
+    }
+
 }

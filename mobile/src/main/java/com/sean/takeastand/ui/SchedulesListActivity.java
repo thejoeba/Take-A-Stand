@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014 Sean Allen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 package com.sean.takeastand.ui;
 
 import android.app.ListActivity;
@@ -9,16 +26,15 @@ import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
-import com.sean.takeastand.alarmprocess.RepeatingAlarm;
+import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.AlarmScheduleListAdapter;
 import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
-import com.sean.takeastand.R;
 import com.sean.takeastand.storage.ScheduledAlarmEditor;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -36,7 +52,6 @@ public class SchedulesListActivity extends ListActivity {
     private AlarmScheduleListAdapter alarmScheduleListAdapter;
     private  ArrayList<AlarmSchedule> alarmSchedules;
     private static final String EDIT_SCHEDULE = "edit";
-    private View mContextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +121,6 @@ public class SchedulesListActivity extends ListActivity {
         super.onCreateContextMenu(menu, view, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.list_context_menu, menu);
-        mContextView = view;
     }
 
     //Respond to the user selecting an item within the context menu
