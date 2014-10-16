@@ -20,7 +20,10 @@ package com.sean.takeastand.util;
  * Created by Sean on 2014-10-04.
  */
 public final class Constants {
-
+    /*
+    Eventually will break some of these off into more defined classes.
+    Break the status ints off into a ALARM_STATUS class.
+     */
     public static final String ALARM_SCHEDULE = "CurrentAlarmSchedule";
     public static final String ALARM_UID = "AlarmUID";
     public static final int secondsInMinute = 60;

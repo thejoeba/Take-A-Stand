@@ -22,6 +22,15 @@ import android.os.Parcelable;
 
 import java.util.Calendar;
 
+/* This class is used for storing alarm schedule data and returning the data via “get” methods.
+Once an alarm schedule object is created its data cannot be modified, thus preventing any corruption
+of data.  This object is passed throughout the day between the ScheduledRepeatingAlarm, the
+AlarmReceiver and the AlarmService, so ensuring its data is not changed is important.  The
+AlarmSchedule is initially created by the AlarmsDatabaseAdapter in its getAlarmSchedules method.
+This method is typically called by StartScheduleReceiver and then passed into the
+ScheduledRepeatingAlarm, in which it circulates between the previously mentioned classes
+until the schedule reaches its end time. */
+
 /**
  * Created by Sean on 2014-10-03.
  */

@@ -31,19 +31,17 @@ import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+/* All the alarm schedules are saved in a SQLite database.  This class provides methods for
+communicating with the SQLite database in order to retrieve, edit, and delete information.  */
 
-/*
-Note because SQL does not have a boolean datatype, for the variables of activated,
-and the days of the week, 1 indicates activated/used, 0 =unactivated/unused
- */
-public class AlarmsDatabaseAdapter
+public class ScheduleDatabaseAdapter
 {
 
     private static final String TAG = "Database Adapter: ";
     private Context mContext;
 
 
-    public AlarmsDatabaseAdapter(Context context)
+    public ScheduleDatabaseAdapter(Context context)
     {
         mContext = context;
     }
@@ -53,8 +51,8 @@ public class AlarmsDatabaseAdapter
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
         Log.i(TAG, "new alarm: new database row");
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        SQLiteDatabase localSQLiteDatabase = alarmsSQLHelper.getWritableDatabase();
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put("activated", Utils.convertBooleanToInt(activated));
         databaseInfo.put("alert_type", alertType);
@@ -71,22 +69,22 @@ public class AlarmsDatabaseAdapter
         databaseInfo.put("saturday", Utils.convertBooleanToInt(saturday));
         long l = localSQLiteDatabase.insert("alarms_table", null, databaseInfo);
         localSQLiteDatabase.close();
-        alarmsSQLHelper.close();
+        scheduleSQLHelper.close();
         return l;
     }
 
     public int deleteAlarm(int rowID)
     {
         Log.i(TAG, "delete alarm: delete database row");
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        SQLiteDatabase alarmsDatabase = alarmsSQLHelper.getWritableDatabase();
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase alarmsDatabase = scheduleSQLHelper.getWritableDatabase();
         //Need to create a string array for the whereArgs, which determine row(s) to update
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(rowID);
-        int count = alarmsDatabase.delete(AlarmsSQLHelper.TABLE_MAIN,
-                AlarmsSQLHelper.UID + " = ?", arrayOfString);
+        int count = alarmsDatabase.delete(ScheduleSQLHelper.TABLE_MAIN,
+                ScheduleSQLHelper.UID + " = ?", arrayOfString);
         alarmsDatabase.close();
-        alarmsSQLHelper.close();
+        scheduleSQLHelper.close();
         return  count;
     }
 
@@ -95,36 +93,36 @@ public class AlarmsDatabaseAdapter
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday, int rowID)
     {
         Log.i(TAG, "edit alarm: edit database row");
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        SQLiteDatabase alarmsDatabase = alarmsSQLHelper.getWritableDatabase();
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase alarmsDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
-        databaseInfo.put(AlarmsSQLHelper.ACTIVATED, Utils.convertBooleanToInt(activated));
-        databaseInfo.put(AlarmsSQLHelper.ALERT_TYPE, alertType);
-        databaseInfo.put(AlarmsSQLHelper.START_TIME, startTime);
-        databaseInfo.put(AlarmsSQLHelper.END_TIME, endTime);
-        databaseInfo.put(AlarmsSQLHelper.FREQUENCY, frequency);
-        databaseInfo.put(AlarmsSQLHelper.TITLE, title);
-        databaseInfo.put(AlarmsSQLHelper.SUNDAY, Utils.convertBooleanToInt(sunday));
-        databaseInfo.put(AlarmsSQLHelper.MONDAY, Utils.convertBooleanToInt(monday));
-        databaseInfo.put(AlarmsSQLHelper.TUESDAY, Utils.convertBooleanToInt(tuesday));
-        databaseInfo.put(AlarmsSQLHelper.WEDNESDAY, Utils.convertBooleanToInt(wednesday));
-        databaseInfo.put(AlarmsSQLHelper.THURSDAY, Utils.convertBooleanToInt(thursday));
-        databaseInfo.put(AlarmsSQLHelper.FRIDAY, Utils.convertBooleanToInt(friday));
-        databaseInfo.put(AlarmsSQLHelper.SATURDAY, Utils.convertBooleanToInt(saturday));
+        databaseInfo.put(ScheduleSQLHelper.ACTIVATED, Utils.convertBooleanToInt(activated));
+        databaseInfo.put(ScheduleSQLHelper.ALERT_TYPE, alertType);
+        databaseInfo.put(ScheduleSQLHelper.START_TIME, startTime);
+        databaseInfo.put(ScheduleSQLHelper.END_TIME, endTime);
+        databaseInfo.put(ScheduleSQLHelper.FREQUENCY, frequency);
+        databaseInfo.put(ScheduleSQLHelper.TITLE, title);
+        databaseInfo.put(ScheduleSQLHelper.SUNDAY, Utils.convertBooleanToInt(sunday));
+        databaseInfo.put(ScheduleSQLHelper.MONDAY, Utils.convertBooleanToInt(monday));
+        databaseInfo.put(ScheduleSQLHelper.TUESDAY, Utils.convertBooleanToInt(tuesday));
+        databaseInfo.put(ScheduleSQLHelper.WEDNESDAY, Utils.convertBooleanToInt(wednesday));
+        databaseInfo.put(ScheduleSQLHelper.THURSDAY, Utils.convertBooleanToInt(thursday));
+        databaseInfo.put(ScheduleSQLHelper.FRIDAY, Utils.convertBooleanToInt(friday));
+        databaseInfo.put(ScheduleSQLHelper.SATURDAY, Utils.convertBooleanToInt(saturday));
         //Need to create a string array for the whereArgs, which determine row(s) to update
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(rowID);
-        int count = alarmsDatabase.update(AlarmsSQLHelper.TABLE_MAIN, databaseInfo,
-                AlarmsSQLHelper.UID + "=? ", arrayOfString);
+        int count = alarmsDatabase.update(ScheduleSQLHelper.TABLE_MAIN, databaseInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         alarmsDatabase.close();
-        alarmsSQLHelper.close();
+        scheduleSQLHelper.close();
         return count;
     }
 
     public ArrayList<AlarmSchedule> getAlarmSchedules() {
         ArrayList<AlarmSchedule> alarmSchedules = new ArrayList<AlarmSchedule>();
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        Cursor cursor = alarmsSQLHelper.getWritableDatabase().query(AlarmsSQLHelper.TABLE_MAIN,
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        Cursor cursor = scheduleSQLHelper.getWritableDatabase().query(ScheduleSQLHelper.TABLE_MAIN,
                 null, null, null, null, null, null);
         cursor.moveToFirst();
         //Check to make sure there is a row; this prevents IndexOutOfBoundsException
@@ -149,7 +147,7 @@ public class AlarmsDatabaseAdapter
                 alarmSchedules.add(alarmSchedule);
             } while (cursor.moveToNext());
         }
-        alarmsSQLHelper.close();
+        scheduleSQLHelper.close();
         cursor.close();
         return alarmSchedules;
     }
@@ -157,11 +155,11 @@ public class AlarmsDatabaseAdapter
     public boolean[] getAlreadyTakenAlarmDays(){
         //If 0 it is unactivated, if 1 it is activated
         boolean[] activatedDays = {false, false, false, false, false, false, false};
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        String[] columns = {AlarmsSQLHelper.SUNDAY, AlarmsSQLHelper.MONDAY,
-                AlarmsSQLHelper.TUESDAY, AlarmsSQLHelper.WEDNESDAY, AlarmsSQLHelper.THURSDAY,
-                AlarmsSQLHelper.FRIDAY, AlarmsSQLHelper.SATURDAY};
-        Cursor cursor = alarmsSQLHelper.getWritableDatabase().query(AlarmsSQLHelper.TABLE_MAIN,
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        String[] columns = {ScheduleSQLHelper.SUNDAY, ScheduleSQLHelper.MONDAY,
+                ScheduleSQLHelper.TUESDAY, ScheduleSQLHelper.WEDNESDAY, ScheduleSQLHelper.THURSDAY,
+                ScheduleSQLHelper.FRIDAY, ScheduleSQLHelper.SATURDAY};
+        Cursor cursor = scheduleSQLHelper.getWritableDatabase().query(ScheduleSQLHelper.TABLE_MAIN,
                 columns, null, null, null, null, null);
         if(cursor != null && cursor.getCount() > 0){
             cursor.moveToFirst();
@@ -176,27 +174,27 @@ public class AlarmsDatabaseAdapter
             } while(cursor.moveToNext());
             cursor.close();
         }
-        alarmsSQLHelper.close();
+        scheduleSQLHelper.close();
         return activatedDays;
     }
 
     public int getLastRowID(){
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        String selectQuery = "SELECT  * FROM " + AlarmsSQLHelper.TABLE_MAIN + " ORDER BY " +
-                AlarmsSQLHelper.UID + " DESC LIMIT 1;";
-        Cursor cursor = alarmsSQLHelper.getWritableDatabase().rawQuery(selectQuery, null);
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        String selectQuery = "SELECT  * FROM " + ScheduleSQLHelper.TABLE_MAIN + " ORDER BY " +
+                ScheduleSQLHelper.UID + " DESC LIMIT 1;";
+        Cursor cursor = scheduleSQLHelper.getWritableDatabase().rawQuery(selectQuery, null);
         cursor.moveToFirst();
         int lastRowID = cursor.getInt(0);
-        alarmsSQLHelper.close();
+        scheduleSQLHelper.close();
         cursor.close();
         return lastRowID;
     }
 
     public int getCount()
     {
-        AlarmsSQLHelper alarmsSQLHelper = new AlarmsSQLHelper(mContext);
-        int count = alarmsSQLHelper.getWritableDatabase().query("alarms_table", new String[] { "_id" }, null, null, null, null, null).getCount();
-        alarmsSQLHelper.close();
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        int count = scheduleSQLHelper.getWritableDatabase().query("alarms_table", new String[] { "_id" }, null, null, null, null, null).getCount();
+        scheduleSQLHelper.close();
         return count;
     }
 
@@ -215,7 +213,11 @@ public class AlarmsDatabaseAdapter
     *
     *
      */
-    public class AlarmsSQLHelper
+    /*
+    Note because SQL does not have a boolean datatype, for the variables of activated,
+    and the days of the week, 1 indicates activated/used, 0 =unactivated/unused
+    */
+    public class ScheduleSQLHelper
             extends SQLiteOpenHelper
     {
         private static final String DATABASE_NAME = "alarms_database";
@@ -237,9 +239,9 @@ public class AlarmsDatabaseAdapter
         private static final String SATURDAY = "saturday";
 
 
-        private AlarmsSQLHelper(Context context)
+        private ScheduleSQLHelper(Context context)
         {
-            super(context, AlarmsSQLHelper.DATABASE_NAME, null, DATABASE_VERSION);
+            super(context, ScheduleSQLHelper.DATABASE_NAME, null, DATABASE_VERSION);
         }
 
 
@@ -247,14 +249,14 @@ public class AlarmsDatabaseAdapter
         {
             try
             {
-                sQLiteDatabase.execSQL("CREATE TABLE " + AlarmsSQLHelper.TABLE_MAIN + " (" + AlarmsSQLHelper.UID
-                        + " INTEGER PRIMARY KEY AUTOINCREMENT, " + AlarmsSQLHelper.ACTIVATED + " INTEGER, " +
-                        AlarmsSQLHelper.ALERT_TYPE + " TEXT, " + AlarmsSQLHelper.START_TIME + " TEXT, " +
-                        AlarmsSQLHelper.END_TIME + " TEXT, " + AlarmsSQLHelper.FREQUENCY + " INTEGER, " +
-                        AlarmsSQLHelper.TITLE + " TEXT, " + AlarmsSQLHelper.SUNDAY + " INTEGER, " +
-                        AlarmsSQLHelper.MONDAY + " INTEGER, " + AlarmsSQLHelper.TUESDAY + " INTEGER, " +
-                        AlarmsSQLHelper.WEDNESDAY + " INTEGER, " + AlarmsSQLHelper.THURSDAY + " INTEGER, " +
-                        AlarmsSQLHelper.FRIDAY + " INTEGER, " + AlarmsSQLHelper.SATURDAY + " INTEGER);");
+                sQLiteDatabase.execSQL("CREATE TABLE " + ScheduleSQLHelper.TABLE_MAIN + " (" + ScheduleSQLHelper.UID
+                        + " INTEGER PRIMARY KEY AUTOINCREMENT, " + ScheduleSQLHelper.ACTIVATED + " INTEGER, " +
+                        ScheduleSQLHelper.ALERT_TYPE + " TEXT, " + ScheduleSQLHelper.START_TIME + " TEXT, " +
+                        ScheduleSQLHelper.END_TIME + " TEXT, " + ScheduleSQLHelper.FREQUENCY + " INTEGER, " +
+                        ScheduleSQLHelper.TITLE + " TEXT, " + ScheduleSQLHelper.SUNDAY + " INTEGER, " +
+                        ScheduleSQLHelper.MONDAY + " INTEGER, " + ScheduleSQLHelper.TUESDAY + " INTEGER, " +
+                        ScheduleSQLHelper.WEDNESDAY + " INTEGER, " + ScheduleSQLHelper.THURSDAY + " INTEGER, " +
+                        ScheduleSQLHelper.FRIDAY + " INTEGER, " + ScheduleSQLHelper.SATURDAY + " INTEGER);");
             }
             catch (Exception localException)
             {
@@ -267,7 +269,7 @@ public class AlarmsDatabaseAdapter
         {
             try
             {
-                sQLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AlarmsSQLHelper.TABLE_MAIN);
+                sQLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ScheduleSQLHelper.TABLE_MAIN);
                 onCreate(sQLiteDatabase);
             }
             catch (Exception localException)

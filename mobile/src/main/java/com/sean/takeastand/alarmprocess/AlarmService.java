@@ -38,10 +38,31 @@ import com.sean.takeastand.util.Utils;
 
 import java.util.Random;
 
+/*This class is started by the AlarmReceiver once it receives an intent that it is time for the
+user to stand.  This class takes care of notifying the user and waiting for their response.  It
+creates a notification that indicates that it is time to stand up and that has two buttons for
+the user to choose “stood” or “delay.” It updates the notification, minus any initial sound or
+vibration, every minute in order for ticker text to remind the user that they need to stand up,
+and for users who are away from their phone or with their phone on silent, how long ago they were
+supposed to get up.  This class also notifies the ImageStatusFragment to change to the relevant
+images. */
+
 /**
  * Created by Sean on 2014-09-18.
  */
 public class AlarmService extends Service{
+
+    /*Note that more testing will have to be done to confirm that the LED light is not showing
+    after 1 minute.
+
+    Control LED lights directly with:
+
+    android.provider.Settings.System.putInt(getContentResolver(), "notification_light_pulse", 1);
+    1 - indicate on state 0 - indicate off state
+
+    Have the AlarmService run this while a notification button has not been selected.
+    Maybe use a handler that posts this thread until something cancels it.
+    That way LED runs even while notification canceled and updated again each minute*/
 
     private static final String TAG = "AlarmService";
     //Change to 60000 after testing
@@ -65,6 +86,7 @@ public class AlarmService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "AlarmService started");
+        sendNotification();
         mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
         if(intent.hasExtra(Constants.ALARM_SCHEDULE)){
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
@@ -214,6 +236,50 @@ public class AlarmService extends Service{
 
     }
 
+    private void sendNotification(){
+        NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
+                Context.NOTIFICATION_SERVICE);
+
+        //Make intents
+        Intent launchActivity = new Intent(mContext, MainActivity.class);
+        PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(mContext, 0,
+                launchActivity, 0);
+        Intent stoodUpIntent = new Intent("StoodUp");
+        PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+                stoodUpIntent, 0);
+        Intent oneMinuteIntent = new Intent("OneMinute");
+        PendingIntent oneMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
+                oneMinuteIntent, 0);
+        Intent fiveMinuteIntent = new Intent("FiveMinute");
+        PendingIntent fiveMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
+                fiveMinuteIntent, 0);
+        long[] vibrationPattern = {(long)500, (long)750};
+
+        Notification alarmNotification = new Notification.InboxStyle(
+                new Notification.Builder(mContext)
+                        .setContentTitle("Take A Stand")
+                        .setContentText("Time to stand up")
+                        .setContentIntent(launchActivityPendingIntent)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setAutoCancel(false)
+                        .setOngoing(true)
+                        .addAction(android.R.drawable.btn_default, "Stood Up", stoodUpPendingIntent)
+                        .addAction(android.R.drawable.btn_default, "1 More Minute",
+                                oneMinutePendingIntent)
+                        .addAction(android.R.drawable.btn_default, "5 More Minutes",
+                                fiveMinutePendingIntent)
+                        //Both vibrate and set lights will be optional in the future.
+                        .setVibrate(vibrationPattern)
+                        .setLights(238154000, 1000, 4000)
+                        .setTicker("Time to stand up"))
+                .build();
+        notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
+    }
+
+    /*
+    Maybe the LED light will work if instead of cancelling the notification you just update it.
+    The question is will the ticker text display if only updating it?
+     */
     private void updateNotification(){
         mNotifTimePassed ++;
         Log.i(TAG, "time since first notification: " + mNotifTimePassed + setMinutes(mNotifTimePassed));
@@ -249,6 +315,7 @@ public class AlarmService extends Service{
                                 oneMinutePendingIntent)
                         .addAction(android.R.drawable.btn_default, "5 More Minutes",
                                 fiveMinutePendingIntent)
+                        .setLights(238154000, 1000, 4000)
                         .setTicker("Time to stand up"))
                         .addLine("Time to stand up: " + mNotifTimePassed +
                                 setMinutes(mNotifTimePassed))
@@ -281,7 +348,7 @@ public class AlarmService extends Service{
         } else {
             repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
         }
-        repeatingAlarm.setLongBreakAlarm();
+        repeatingAlarm.delayAlarm();
     }
 
     private void setStoodUpAlarm(Context context){

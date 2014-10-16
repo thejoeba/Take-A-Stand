@@ -36,6 +36,14 @@ import com.sean.takeastand.util.Utils;
 
 import java.util.Calendar;
 
+/* This class receives the alarm intent that is set by the RepeatingAlarm class and that is sent by
+ the Android system’s AlarmManager class.  This alarm notification signals that the
+ application needs to notify the user that it is time to stand up.  This class starts the
+ AlarmService class which takes care of managing the process of notifying the user that it is time
+ to stand up and also waits for the user’s response.  The AlarmReceiver class is used for both
+ unscheduled alarms and scheduled alarms.  For scheduled alarms it checks to
+ see if it now past the end time for the schedule and ends the repeating alarm process, if it is. */
+
 public class AlarmReceiver
         extends BroadcastReceiver
 {
@@ -51,13 +59,8 @@ public class AlarmReceiver
         Log.i(TAG, "AlarmReceiver received intent");
         mContext = context;
         AlarmSchedule currentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
-        //If the alarmSchedule is still running, send a notification that it is time
-        //to stand up and start the service that listens for the user response.
         if(currentAlarmSchedule!=null){
             if(!hasEndTimePassed(currentAlarmSchedule.getEndTime())){
-                sendNotification();
-                //currentAlarmSchedule.getAlarmType if vibrate, vibrate, some kind of sound, make that
-                //sound
                 Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
                 serviceStartIntent.putExtra(Constants.ALARM_SCHEDULE, currentAlarmSchedule);
                 mContext.startService(serviceStartIntent);
@@ -69,46 +72,9 @@ public class AlarmReceiver
             }
         } else {
             Log.i(TAG, "AlarmSchedule is null");
-            sendNotification();
             Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
             mContext.startService(serviceStartIntent);
         }
-    }
-
-    private void sendNotification(){
-        NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
-                Context.NOTIFICATION_SERVICE);
-
-        //Make intents
-        Intent launchActivity = new Intent(mContext, MainActivity.class);
-        PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(mContext, 0,
-                launchActivity, 0);
-        Intent stoodUpIntent = new Intent("StoodUp");
-        PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                stoodUpIntent, 0);
-        Intent oneMinuteIntent = new Intent("OneMinute");
-        PendingIntent oneMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                oneMinuteIntent, 0);
-        Intent fiveMinuteIntent = new Intent("FiveMinute");
-        PendingIntent fiveMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                fiveMinuteIntent, 0);
-
-        Notification alarmNotification = new Notification.InboxStyle(
-                new Notification.Builder(mContext)
-                        .setContentTitle("Take A Stand")
-                        .setContentText("Time to stand up")
-                        .setContentIntent(launchActivityPendingIntent)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setAutoCancel(false)
-                        .setOngoing(true)
-                        .addAction(android.R.drawable.btn_default, "Stood Up", stoodUpPendingIntent)
-                        .addAction(android.R.drawable.btn_default, "1 More Minute",
-                                oneMinutePendingIntent)
-                        .addAction(android.R.drawable.btn_default, "5 More Minutes",
-                                fiveMinutePendingIntent)
-                        .setTicker("Time to stand up"))
-                .build();
-        notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
     }
 
     private boolean hasEndTimePassed(Calendar endTime){

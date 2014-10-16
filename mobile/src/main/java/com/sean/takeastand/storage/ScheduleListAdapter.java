@@ -14,10 +14,13 @@ import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;
 
+/* This class is responsible for setting up the views and their characteristics that each row will
+have in the ScheduleListActivity.  */
+
 /**
  * Created by Sean on 2014-10-05.
  */
-public class AlarmScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
+public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
 
     private ArrayList<AlarmSchedule> mAlarmSchedules;
     private Context mContext;
@@ -35,7 +38,7 @@ public class AlarmScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private TextView txtFriday;
     private TextView txtSaturday;
 
-    public AlarmScheduleListAdapter(Context context, int resource, ArrayList<AlarmSchedule> alarmSchedules) {
+    public ScheduleListAdapter(Context context, int resource, ArrayList<AlarmSchedule> alarmSchedules) {
         super(context, resource, alarmSchedules);
         mAlarmSchedules = alarmSchedules;
         mContext = context;

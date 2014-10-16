@@ -32,21 +32,29 @@ import java.util.Calendar;
 /**
  * Created by Sean on 2014-09-03.
  */
-public class ScheduledAlarmEditor {
+public class ScheduleEditor {
 
     private static final String TAG = "ScheduledAlarmEditor";
-    private AlarmsDatabaseAdapter alarmsDatabaseAdapter;
+    private ScheduleDatabaseAdapter scheduleDatabaseAdapter;
     private Context mContext;
 
+    /* This class is responsible for coordinating the creation, editing, and deletion of scheduled
+    alarms.  For example, if a new alarm is created, then this class will make sure that the daily
+    repeating alarm that is received by the StartScheduleReceiver is set, that a new alarm is saved
+    in the SQLite database and that if the alarm happens to be today and the start time has passed
+    but the end time has not, to start a ScheduledRepeatingAlarm right away.  In addition to new
+    alarms, it also manages the editing of alarms, and the deletion of alarms. */
 
-    public ScheduledAlarmEditor(Context context)
+    public ScheduleEditor(Context context)
     {
         mContext = context;
-        alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(context);
+        scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(context);
     }
+
     /*
-    This method will be used by the activity class in order to know which checkboxes to make
-    checkable
+    In the future, need to edit alarm schedule to check if end time is after midnight
+    and set if starttime has started and is today, and endtime is within same time time period
+    even if next day, perhaps for nighttime office workers
      */
 
 
@@ -54,11 +62,11 @@ public class ScheduledAlarmEditor {
                             String title, boolean sunday, boolean monday, boolean tuesday,
                             boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
-       alarmsDatabaseAdapter.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
+       scheduleDatabaseAdapter.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
                 sunday, monday, tuesday, wednesday, thursday, friday, saturday);
         if (activated)
         {
-            int UID = new AlarmsDatabaseAdapter(mContext).getLastRowID();
+            int UID = new ScheduleDatabaseAdapter(mContext).getLastRowID();
             setDailyRepeatingAlarm(UID, startTime);
             //If new alarm is meant to run this day
             if(Utils.isTodayActivated(sunday, monday, tuesday, wednesday, thursday, friday, saturday)){
@@ -84,7 +92,7 @@ public class ScheduledAlarmEditor {
                           boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday,
                           int rowID){
 
-        alarmsDatabaseAdapter.editAlarm(activated, alarmType,startTime, endTime, frequency, title,
+        scheduleDatabaseAdapter.editAlarm(activated, alarmType,startTime, endTime, frequency, title,
                 sunday, monday, tuesday, wednesday, thursday, friday, saturday, rowID);
         cancelDailyRepeatingAlarm(rowID);
         if (activated)
@@ -109,7 +117,7 @@ public class ScheduledAlarmEditor {
 
     public void deleteAlarm(AlarmSchedule alarmSchedule){
         cancelDailyRepeatingAlarm(alarmSchedule.getUID());
-        alarmsDatabaseAdapter.deleteAlarm(alarmSchedule.getUID());
+        scheduleDatabaseAdapter.deleteAlarm(alarmSchedule.getUID());
     }
 
     private void setDailyRepeatingAlarm(int UID, String time){

@@ -33,9 +33,9 @@ import android.widget.ListView;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.storage.AlarmSchedule;
-import com.sean.takeastand.storage.AlarmScheduleListAdapter;
-import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
-import com.sean.takeastand.storage.ScheduledAlarmEditor;
+import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
+import com.sean.takeastand.storage.ScheduleEditor;
+import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -44,12 +44,12 @@ import java.util.ArrayList;
 /**
  * Created by Sean on 2014-09-21.
  */
-public class SchedulesListActivity extends ListActivity {
+public class ScheduleListActivity extends ListActivity {
 
     private static final String TAG = "SchedulesListActivity";
     private static final int REQUEST_CODE = 1;
     private ImageView imgAddAlarm;
-    private AlarmScheduleListAdapter alarmScheduleListAdapter;
+    private ScheduleListAdapter scheduleListAdapter;
     private  ArrayList<AlarmSchedule> alarmSchedules;
     private static final String EDIT_SCHEDULE = "edit";
 
@@ -70,21 +70,21 @@ public class SchedulesListActivity extends ListActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(alarmScheduleListAdapter == null){
-            alarmScheduleListAdapter =
-                    new AlarmScheduleListAdapter(this, android.R.id.list, alarmSchedules);
-            setListAdapter(alarmScheduleListAdapter);
-            alarmScheduleListAdapter.notifyDataSetChanged();
+        if(scheduleListAdapter == null){
+            scheduleListAdapter =
+                    new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
+            setListAdapter(scheduleListAdapter);
+            scheduleListAdapter.notifyDataSetChanged();
         } else {
-            alarmScheduleListAdapter.notifyDataSetChanged();
+            scheduleListAdapter.notifyDataSetChanged();
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
-        int numberOfAlarms = alarmsDatabaseAdapter.getCount();
+        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
+        int numberOfAlarms = scheduleDatabaseAdapter.getCount();
         if(requestCode == REQUEST_CODE){
             if(resultCode ==  -1&& numberOfAlarms == 0){
                 finish();
@@ -107,10 +107,10 @@ public class SchedulesListActivity extends ListActivity {
                 }
                 //Needs to be reinitialized to prevent null pointer exception (is not initialized
                 //if launches the activity);
-                alarmScheduleListAdapter =
-                        new AlarmScheduleListAdapter(this, android.R.id.list, alarmSchedules);
-                setListAdapter(alarmScheduleListAdapter);
-                alarmScheduleListAdapter.notifyDataSetChanged();
+                scheduleListAdapter =
+                        new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
+                setListAdapter(scheduleListAdapter);
+                scheduleListAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -140,16 +140,16 @@ public class SchedulesListActivity extends ListActivity {
     }
 
     private void launchEditIfNoAlarms(){
-        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
-        alarmSchedules = alarmsDatabaseAdapter.getAlarmSchedules();
+        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
+        alarmSchedules = scheduleDatabaseAdapter.getAlarmSchedules();
         if(alarmSchedules.size() == 0) {
             Log.i(TAG, "No alarm schedules");
            createNewAlarm();
         } else {
             Log.i(TAG, "AlarmSchedule ArrayList size: " + Integer.toString(alarmSchedules.size()));
-            alarmScheduleListAdapter =
-                    new AlarmScheduleListAdapter(this, android.R.id.list, alarmSchedules);
-            setListAdapter(alarmScheduleListAdapter);
+            scheduleListAdapter =
+                    new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
+            setListAdapter(scheduleListAdapter);
         }
     }
 
@@ -161,8 +161,8 @@ public class SchedulesListActivity extends ListActivity {
     };
 
     private void deleteSchedule(int position){
-        ScheduledAlarmEditor scheduledAlarmEditor = new ScheduledAlarmEditor(this);
-        scheduledAlarmEditor.deleteAlarm(alarmSchedules.get(position));
+        ScheduleEditor scheduleEditor = new ScheduleEditor(this);
+        scheduleEditor.deleteAlarm(alarmSchedules.get(position));
         AlarmSchedule deletedAlarmSchedule = alarmSchedules.get(position);
         int deletedAlarmUID = deletedAlarmSchedule.getUID();
         int currentlyRunningAlarm = Utils.getRunningScheduledAlarm(this);
@@ -173,11 +173,11 @@ public class SchedulesListActivity extends ListActivity {
         if(position == 0&&alarmSchedules.size() == 1){
             Log.i(TAG, "Deleting the last alarmSchedule");
             alarmSchedules.clear();
-            alarmScheduleListAdapter.clear();
+            scheduleListAdapter.clear();
             setListAdapter(null);
         } else {
             alarmSchedules.remove(position);
-            alarmScheduleListAdapter.notifyDataSetChanged();
+            scheduleListAdapter.notifyDataSetChanged();
         }
         //Service needs to cancel any running alarms and notifications it is currently managing
         Intent informServiceOfDeletion = new Intent(Constants.ALARM_SCHEDULE_DELETED);
@@ -186,7 +186,7 @@ public class SchedulesListActivity extends ListActivity {
     }
 
     private void createNewAlarm(){
-        Intent intent = new Intent(SchedulesListActivity.this, ScheduleCreatorActivity.class);
+        Intent intent = new Intent(ScheduleListActivity.this, ScheduleCreatorActivity.class);
         intent.putExtra(EDIT_SCHEDULE, false);
         startActivityForResult(intent, REQUEST_CODE);
     }

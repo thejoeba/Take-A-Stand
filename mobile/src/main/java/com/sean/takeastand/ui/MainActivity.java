@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
     {
         switch(item.getItemId()){
             case R.id.schedules:
-                Intent intent = new Intent(this, SchedulesListActivity.class);
+                Intent intent = new Intent(this, ScheduleListActivity.class);
                 startActivity(intent);
                 break;
         }

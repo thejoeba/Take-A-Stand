@@ -165,4 +165,11 @@ public final class Utils {
         return sharedPreferences.getInt(Constants.MAIN_IMAGE_STATUS, 1);
     }
 
+    public static String correctMinuteFormat(String minute){
+        if(minute.length()==1){
+            minute = "0" + minute;
+        }
+        return minute;
+    }
+
 }

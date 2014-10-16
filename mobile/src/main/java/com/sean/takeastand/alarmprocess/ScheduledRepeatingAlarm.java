@@ -28,6 +28,14 @@ import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
+/* This class is responsible for setting the next repeating alarm that is part of a schedule.  It
+does this by setting an inexact alarm in the future based on the user defined time period
+(“the frequency” in the alarm schedule) and uses the Android System’s AlarmManager class to do so.
+This class is also responsible for setting the delay alarm, when the user is not quite ready to
+stand up; for implementing the “break” element, for users who need to stop receiving stand up
+notifications for a certain amount of time; and for the canceling of the alarm, which used at
+different points throughout the app. */
+
 /**
  * Created by Sean on 2014-10-11.
  */
@@ -51,7 +59,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     @Override
     public void setRepeatingAlarm() {
         //In future will check mAlarmSchedule.alarmType() and set alarm accordingly
-        double alarmPeriodMinutes = .5;  //In future will check mAlarmSchedule.getFrequency() and set
+        double alarmPeriodMinutes = 20;  //In future will check mAlarmSchedule.getFrequency() and set
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
                 Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
@@ -77,8 +85,8 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     }
 
     @Override
-    public void setLongBreakAlarm() {
-        long alarmTimeInMillis = 1 * Constants.secondsInMinute * Constants.millisecondsInSecond;
+    public void delayAlarm() {
+        long alarmTimeInMillis = 5 * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
@@ -96,6 +104,12 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         Log.i(TAG, "Alarm canceled");
         Toast.makeText(mContext, "Alarm Canceled", Toast.LENGTH_LONG).show();
         Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
+        Utils.setRunningScheduledAlarm(mContext, -1);
+    }
+
+    @Override
+    public void takeBreak() {
+
     }
 
     private void setAlarm(long triggerTime){

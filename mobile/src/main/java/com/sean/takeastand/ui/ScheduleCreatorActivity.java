@@ -31,8 +31,8 @@ import android.widget.ToggleButton;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
-import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
-import com.sean.takeastand.storage.ScheduledAlarmEditor;
+import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
+import com.sean.takeastand.storage.ScheduleEditor;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
@@ -116,7 +116,7 @@ public class ScheduleCreatorActivity
         if(mAlarmSchedule==null){
             Calendar calendar = Calendar.getInstance();
             String timeNow = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
-            timeNow += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
+            timeNow += ":" + Utils.correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
             btnStartTime.setText(timeNow);
             String endTime;
             if( ( calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD ) >23){
@@ -124,7 +124,7 @@ public class ScheduleCreatorActivity
             } else {
                 endTime= Integer.toString(calendar.get(Calendar.HOUR_OF_DAY) + NUMBER_HOURS_TO_ADD);
             }
-            endTime += ":" + correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
+            endTime += ":" + Utils.correctMinuteFormat(Integer.toString(calendar.get(Calendar.MINUTE)));
             btnEndTime.setText(endTime);
         } else {
             btnStartTime.setText(Utils.calendarToTimeString(mAlarmSchedule.getStartTime()));
@@ -192,12 +192,7 @@ public class ScheduleCreatorActivity
         }
     };
 
-    private String correctMinuteFormat(String minute){
-        if(minute.length()==1){
-            minute = "0" + minute;
-        }
-        return minute;
-    }
+
 
     public void showNumberPickerDialog()
     {
@@ -297,11 +292,11 @@ public class ScheduleCreatorActivity
         int frequency = getFrequency();
         String title = getAlarmTitle();
         boolean[] checkedDays = getCheckedDays();
-        ScheduledAlarmEditor scheduledAlarmEditor = new ScheduledAlarmEditor(this);
-        scheduledAlarmEditor.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
+        ScheduleEditor scheduleEditor = new ScheduleEditor(this);
+        scheduleEditor.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
                         checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
                         checkedDays[4], checkedDays[5], checkedDays[6]);
-        mAlarmSchedule = new AlarmSchedule(new AlarmsDatabaseAdapter(this).getLastRowID(),
+        mAlarmSchedule = new AlarmSchedule(new ScheduleDatabaseAdapter(this).getLastRowID(),
                         activated, alarmType, Utils.convertToCalendarTime(startTime),
                         Utils.convertToCalendarTime(endTime), frequency, title,
                         checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3], checkedDays[4],
@@ -317,8 +312,8 @@ public class ScheduleCreatorActivity
         String title = getAlarmTitle();
         boolean[] checkedDays = getCheckedDays();
         int UID = mAlarmSchedule.getUID();
-        ScheduledAlarmEditor scheduledAlarmEditor = new ScheduledAlarmEditor(this);
-        scheduledAlarmEditor.editAlarm(activated, startTime, endTime, frequency, title,
+        ScheduleEditor scheduleEditor = new ScheduleEditor(this);
+        scheduleEditor.editAlarm(activated, startTime, endTime, frequency, title,
                 alarmType, checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
                 checkedDays[4], checkedDays[5], checkedDays[6], UID);
         mAlarmSchedule = new AlarmSchedule(UID, activated, alarmType, Utils.convertToCalendarTime(startTime),
@@ -351,8 +346,8 @@ public class ScheduleCreatorActivity
 
     private void setAvailableCheckboxes(){
         //If the day already is used by another alarm schedule, do not allow it to be checkable
-        AlarmsDatabaseAdapter alarmsDatabaseAdapter = new AlarmsDatabaseAdapter(this);
-        boolean[] activatedDays = alarmsDatabaseAdapter.getAlreadyTakenAlarmDays();
+        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
+        boolean[] activatedDays = scheduleDatabaseAdapter.getAlreadyTakenAlarmDays();
         if(activatedDays[0]){
             //If mAlarmSchedule == null, then this is a new schedule, so it couldn't be
             // //responsible for this day being activated already
