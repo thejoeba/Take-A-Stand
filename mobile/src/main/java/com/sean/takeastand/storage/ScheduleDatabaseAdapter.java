@@ -119,6 +119,190 @@ public class ScheduleDatabaseAdapter
         return count;
     }
 
+    public int updateActivated(int UID, boolean activated) {
+        Log.i(TAG, "Updating Activated");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.ACTIVATED, Utils.convertBooleanToInt(activated));
+        //Need to create a string array for the whereArgs, which determine row(s) to update
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateAlertType(int UID, int[] alertTypes) {
+        Log.i(TAG, "Updating AlertTypes");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.ALERT_TYPE, Utils.convertIntArrayToString(alertTypes));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateStartTime(int UID, String startTime) {
+        Log.i(TAG, "Updating StartTime");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.START_TIME, startTime);
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateEndTime(int UID, String endTime) {
+        Log.i(TAG, "Updating EndTime");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.END_TIME, endTime);
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateFrequency(int UID, int frequency) {
+        Log.i(TAG, "Updating Frequency");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.FREQUENCY, frequency);
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateTitle(int UID, String title) {
+        Log.i(TAG, "Updating Title");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.TITLE, title);
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+
+    public int updateSunday(int UID, boolean sunday) {
+        Log.i(TAG, "Updating Sunday");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.SUNDAY, Utils.convertBooleanToInt(sunday));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateMonday(int UID, boolean monday) {
+        Log.i(TAG, "Updating Monday");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.MONDAY, Utils.convertBooleanToInt(monday));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateTuesday(int UID, boolean tuesday) {
+        Log.i(TAG, "Updating Tuesday");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.TUESDAY, Utils.convertBooleanToInt(tuesday));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateWednesday(int UID, boolean wednesday) {
+        Log.i(TAG, "Updating Wednesday");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.WEDNESDAY, Utils.convertBooleanToInt(wednesday));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateThursday(int UID, boolean thursday) {
+        Log.i(TAG, "Updating Thursday");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.THURSDAY, Utils.convertBooleanToInt(thursday));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateFriday(int UID, boolean friday) {
+        Log.i(TAG, "Updating Friday");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.FRIDAY, Utils.convertBooleanToInt(friday));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
+    public int updateSaturday(int UID, boolean saturday) {
+        Log.i(TAG, "Updating Saturday");
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
+        ContentValues updatedInfo = new ContentValues();
+        updatedInfo.put(ScheduleSQLHelper.SATURDAY, Utils.convertBooleanToInt(saturday));
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        scheduleDatabase.close();
+        scheduleSQLHelper.close();
+        return count;
+    }
+
     public ArrayList<AlarmSchedule> getAlarmSchedules() {
         ArrayList<AlarmSchedule> alarmSchedules = new ArrayList<AlarmSchedule>();
         ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);

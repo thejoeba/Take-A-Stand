@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.alarmprocess.StartScheduleReceiver;
@@ -28,9 +29,14 @@ import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 import java.util.Calendar;
+/* This class is responsible for coordinating the creation, editing, and deletion of scheduled
+    alarms.  For example, if a new alarm is created, then this class will make sure that the daily
+    repeating alarm that is received by the StartScheduleReceiver is set, that a new alarm is saved
+    in the SQLite database and that if the alarm happens to be today and the start time has passed
+    but the end time has not, to start a ScheduledRepeatingAlarm right away.  In addition to new
+    alarms, it also manages the editing of alarms, and the deletion of alarms.
 
-/**
- * Created by Sean on 2014-09-03.
+    Created by Sean on 2014-09-03.
  */
 public class ScheduleEditor {
 
@@ -38,12 +44,7 @@ public class ScheduleEditor {
     private ScheduleDatabaseAdapter scheduleDatabaseAdapter;
     private Context mContext;
 
-    /* This class is responsible for coordinating the creation, editing, and deletion of scheduled
-    alarms.  For example, if a new alarm is created, then this class will make sure that the daily
-    repeating alarm that is received by the StartScheduleReceiver is set, that a new alarm is saved
-    in the SQLite database and that if the alarm happens to be today and the start time has passed
-    but the end time has not, to start a ScheduledRepeatingAlarm right away.  In addition to new
-    alarms, it also manages the editing of alarms, and the deletion of alarms. */
+
 
     public ScheduleEditor(Context context)
     {
@@ -87,32 +88,171 @@ public class ScheduleEditor {
         }
     }
 
-    public void editAlarm(boolean activated, String startTime, String endTime, int frequency,
-                          String title, String alarmType, boolean sunday, boolean monday,
-                          boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday,
-                          int rowID){
 
-        scheduleDatabaseAdapter.editAlarm(activated, alarmType,startTime, endTime, frequency, title,
-                sunday, monday, tuesday, wednesday, thursday, friday, saturday, rowID);
-        cancelDailyRepeatingAlarm(rowID);
-        if (activated)
-        {
-            setDailyRepeatingAlarm(rowID, startTime);
-            //If new alarm is meant to run this day
-            if(Utils.isTodayActivated(sunday, monday, tuesday, wednesday, thursday, friday, saturday)){
-                if(checkToSetRepeatingAlarm(startTime, endTime)){
-                    //Because we are within an if statement where activated is true, put true in place
-                    //of activated
-                    AlarmSchedule newAlarmSchedule = new AlarmSchedule(rowID, true, alarmType,
-                            Utils.convertToCalendarTime(startTime), Utils.convertToCalendarTime(endTime),
-                            frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
-                            saturday);
-                    new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
-                }
-            } else {
-                Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");
+
+    public void editActivated(boolean activated, Calendar startTime, Calendar endTime, int UID,
+                              AlarmSchedule alarmSchedule){
+        if(activated){
+            setDailyRepeatingAlarm(UID, Utils.calendarToTimeString(startTime));
+
+            Calendar rightNow = Calendar.getInstance();
+            if(startTime.before(rightNow)&&endTime.after(rightNow)) {
+                new ScheduledRepeatingAlarm(mContext, alarmSchedule).setRepeatingAlarm();
+                Toast.makeText(mContext, "Schedule is running right now.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            cancelDailyRepeatingAlarm(UID);
+            //scheduleDatabaseAdapter.updateActivated
+            if(UID == Utils.getRunningScheduledAlarm(mContext)){
+                new ScheduledRepeatingAlarm(mContext, alarmSchedule).cancelAlarm();
+                Toast.makeText(mContext, "Currently running scheduled has ended.",
+                        Toast.LENGTH_SHORT).show();
             }
         }
+        scheduleDatabaseAdapter.updateActivated(UID, activated);
+    }
+
+    public void editAlertType(int[] alerts, int UID, AlarmSchedule alarmSchedule){
+        if(UID == Utils.getRunningScheduledAlarm(mContext)){
+            ScheduledRepeatingAlarm scheduledRepeatingAlarm = new ScheduledRepeatingAlarm(mContext,
+                    alarmSchedule);
+            scheduledRepeatingAlarm.cancelAlarm();
+            scheduledRepeatingAlarm.setRepeatingAlarm();
+            Toast.makeText(mContext, "Currently running schedule updated.",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(mContext, "Changes saved.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        scheduleDatabaseAdapter.updateAlertType(UID, alerts);
+    }
+
+    public void editStartTime(Calendar startTime, Calendar endTime, boolean alarmToday, int UID,
+                               AlarmSchedule alarmSchedule){
+        if(alarmToday){
+            Calendar rightNow = Calendar.getInstance();
+            if(startTime.after(rightNow)){
+                if(UID == Utils.getRunningScheduledAlarm(mContext)){
+                    new ScheduledRepeatingAlarm(mContext, alarmSchedule).cancelAlarm();
+                    Toast.makeText(mContext, "Schedule set to begin later today.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            } else if (startTime.before(rightNow) && endTime.after(rightNow)){
+                ScheduledRepeatingAlarm scheduledRepeatingAlarm =
+                        new ScheduledRepeatingAlarm(mContext, alarmSchedule);
+                scheduledRepeatingAlarm.cancelAlarm();
+                scheduledRepeatingAlarm.setRepeatingAlarm();
+                Toast.makeText(mContext, "Schedule updated and running now.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(mContext, "Changes saved.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        cancelDailyRepeatingAlarm(UID);
+        setDailyRepeatingAlarm(UID, Utils.calendarToTimeString(startTime));
+        scheduleDatabaseAdapter.updateStartTime(UID, Utils.calendarToTimeString(startTime));
+    }
+
+    public void editEndTime(Calendar endTime, Calendar startTime, boolean alarmToday, int UID,
+                            AlarmSchedule alarmSchedule){
+        if(alarmToday){
+            Calendar rightNow = Calendar.getInstance();
+            if(endTime.before(rightNow)){
+                if(UID == Utils.getRunningScheduledAlarm(mContext)){
+                    new ScheduledRepeatingAlarm(mContext, alarmSchedule).cancelAlarm();
+                    Toast.makeText(mContext, "Current schedule is now over.",
+                            Toast.LENGTH_SHORT).show();
+                } else if (endTime.after(rightNow) && startTime.before(rightNow)){
+                    ScheduledRepeatingAlarm scheduledRepeatingAlarm =
+                             new ScheduledRepeatingAlarm(mContext, alarmSchedule);
+                    scheduledRepeatingAlarm.cancelAlarm();
+                    scheduledRepeatingAlarm.setRepeatingAlarm();
+                    Toast.makeText(mContext, "Current running schedule updated.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            Toast.makeText(mContext, "Changes saved.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        scheduleDatabaseAdapter.updateEndTime(UID, Utils.calendarToTimeString(endTime));
+    }
+
+    public void editFrequency(int frequency, int UID, AlarmSchedule alarmSchedule){
+        if(UID == Utils.getRunningScheduledAlarm(mContext)){
+            ScheduledRepeatingAlarm scheduledRepeatingAlarm =
+                    new ScheduledRepeatingAlarm(mContext, alarmSchedule);
+            scheduledRepeatingAlarm.cancelAlarm();
+            scheduledRepeatingAlarm.setRepeatingAlarm();
+            Toast.makeText(mContext, "Current running schedule updated.",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(mContext, "New frequency saved.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        scheduleDatabaseAdapter.updateFrequency(UID, frequency);
+    }
+
+    public void editDays(int weekday, boolean status, int UID, AlarmSchedule alarmSchedule){
+        if(weekday == Utils.getTodayWeekday()){
+            if(status){
+                Calendar rightNow = Calendar.getInstance();
+                if(alarmSchedule.getStartTime().before(rightNow) &&
+                        alarmSchedule.getEndTime().after(rightNow)){
+                    ScheduledRepeatingAlarm scheduledRepeatingAlarm =
+                            new ScheduledRepeatingAlarm(mContext, alarmSchedule);
+                    scheduledRepeatingAlarm.cancelAlarm();
+                    scheduledRepeatingAlarm.setRepeatingAlarm();
+                    Toast.makeText(mContext, "Today's schedule now running.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Calendar rightNow = Calendar.getInstance();
+                if(alarmSchedule.getStartTime().before(rightNow) &&
+                        alarmSchedule.getEndTime().after(rightNow)){
+                    ScheduledRepeatingAlarm scheduledRepeatingAlarm =
+                            new ScheduledRepeatingAlarm(mContext, alarmSchedule);
+                    scheduledRepeatingAlarm.cancelAlarm();
+                    Toast.makeText(mContext, "Today's schedule cancelled.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            Toast.makeText(mContext, "Weekday saved.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        switch (weekday){
+            case 1:
+                scheduleDatabaseAdapter.updateSunday(UID, status);
+                break;
+            case 2:
+                scheduleDatabaseAdapter.updateMonday(UID, status);
+                break;
+            case 3:
+                scheduleDatabaseAdapter.updateTuesday(UID, status);
+                break;
+            case 4:
+                scheduleDatabaseAdapter.updateWednesday(UID, status);
+                break;
+            case 5:
+                scheduleDatabaseAdapter.updateThursday(UID, status);
+                break;
+            case 6:
+                scheduleDatabaseAdapter.updateFriday(UID, status);
+                break;
+            case 7:
+                scheduleDatabaseAdapter.updateSaturday(UID, status);
+                break;
+            default:
+                Log.i(TAG, "Weekday does not fall between 1 and 7");
+        }
+
+    }
+
+    public void editTitle(int UID, String title){
+        scheduleDatabaseAdapter.updateTitle(UID, title);
     }
 
     public void deleteAlarm(AlarmSchedule alarmSchedule){

@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.ScheduleCreatorActivity"></activity>
-        <activity android:name=".ui.ScheduleListActivity"></activity>
+        <activity android:name=".ui.ScheduleListActivity" android:windowSoftInputMode="adjustPan">
+        </activity>
         <receiver android:name=".alarmprocess.AlarmReceiver" ></receiver>
         <receiver android:name=".alarmprocess.StartScheduleReceiver" ></receiver>
         <service android:name=".alarmprocess.AlarmService"></service>

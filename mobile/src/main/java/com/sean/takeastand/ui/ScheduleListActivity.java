@@ -17,6 +17,7 @@
 
 package com.sean.takeastand.ui;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,27 +30,33 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.ExpandableAdapter;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.storage.ScheduleEditor;
 import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.ArrayList;
 
 /**
  * Created by Sean on 2014-09-21.
  */
-public class ScheduleListActivity extends ListActivity {
+public class ScheduleListActivity extends ListActivity
+        implements TimePickerFragment.EditButtonDialogListener,
+        NumberPicker.OnValueChangeListener{
 
     private static final String TAG = "SchedulesListActivity";
     private static final int REQUEST_CODE = 1;
     private ImageView imgAddAlarm;
     private ScheduleListAdapter scheduleListAdapter;
+    private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> alarmSchedules;
     private static final String EDIT_SCHEDULE = "edit";
 
@@ -60,11 +67,17 @@ public class ScheduleListActivity extends ListActivity {
 
         //Deleting the database each time only during testing
         //deleteDatabase("alarms_database");
-        launchEditIfNoAlarms();
         imgAddAlarm = (ImageView)this.findViewById(R.id.btn_add_alarm);
         imgAddAlarm.setOnClickListener(addAlarmOnClickListener);
         ListView listView = getListView();
         registerForContextMenu(listView);
+
+        //removeKeyboardStart();
+    }
+
+    private void removeKeyboardStart()
+    {
+        getWindow().setSoftInputMode(3);
     }
 
     @Override
@@ -73,11 +86,17 @@ public class ScheduleListActivity extends ListActivity {
         if(scheduleListAdapter == null){
             scheduleListAdapter =
                     new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
-            setListAdapter(scheduleListAdapter);
-            scheduleListAdapter.notifyDataSetChanged();
+            //setListAdapter(scheduleListAdapter);
+            //scheduleListAdapter.notifyDataSetChanged();
         } else {
-            scheduleListAdapter.notifyDataSetChanged();
+            //scheduleListAdapter.notifyDataSetChanged();
         }
+        alarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
+        scheduleListAdapter =
+                new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
+        Log.i(TAG, Integer.toString(scheduleListAdapter.getCount()));
+        expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
+        setListAdapter(expandableAdapter);
     }
 
     @Override
@@ -109,8 +128,10 @@ public class ScheduleListActivity extends ListActivity {
                 //if launches the activity);
                 scheduleListAdapter =
                         new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
-                setListAdapter(scheduleListAdapter);
-                scheduleListAdapter.notifyDataSetChanged();
+                //setListAdapter(scheduleListAdapter);
+                //scheduleListAdapter.notifyDataSetChanged();
+                expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
+                setListAdapter(expandableAdapter);
             }
         }
     }
@@ -139,19 +160,6 @@ public class ScheduleListActivity extends ListActivity {
         }
     }
 
-    private void launchEditIfNoAlarms(){
-        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
-        alarmSchedules = scheduleDatabaseAdapter.getAlarmSchedules();
-        if(alarmSchedules.size() == 0) {
-            Log.i(TAG, "No alarm schedules");
-           createNewAlarm();
-        } else {
-            Log.i(TAG, "AlarmSchedule ArrayList size: " + Integer.toString(alarmSchedules.size()));
-            scheduleListAdapter =
-                    new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
-            setListAdapter(scheduleListAdapter);
-        }
-    }
 
     private View.OnClickListener addAlarmOnClickListener = new View.OnClickListener() {
         @Override
@@ -198,5 +206,15 @@ public class ScheduleListActivity extends ListActivity {
         intent.putExtra(Constants.SELECTED_ALARM_SCHEDULE, selectedAlarm);
         intent.putExtra(Constants.EDITED_ALARM_POSITION, position);
         startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    @Override
+    public void onTimeSelected(String time) {
+
+    }
+
+    @Override
+    public void onValueChange(NumberPicker numberPicker, int i, int i2) {
+
     }
 }

@@ -313,9 +313,9 @@ public class ScheduleCreatorActivity
         boolean[] checkedDays = getCheckedDays();
         int UID = mAlarmSchedule.getUID();
         ScheduleEditor scheduleEditor = new ScheduleEditor(this);
-        scheduleEditor.editAlarm(activated, startTime, endTime, frequency, title,
-                alarmType, checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
-                checkedDays[4], checkedDays[5], checkedDays[6], UID);
+        //scheduleEditor.editAlarm(activated, startTime, endTime, frequency, title,
+                //alarmType, checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3],
+                //checkedDays[4], checkedDays[5], checkedDays[6], UID);
         mAlarmSchedule = new AlarmSchedule(UID, activated, alarmType, Utils.convertToCalendarTime(startTime),
                         Utils.convertToCalendarTime(endTime), frequency, title,
                         checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3], checkedDays[4],

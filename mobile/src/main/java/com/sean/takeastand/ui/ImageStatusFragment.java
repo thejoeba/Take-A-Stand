@@ -58,6 +58,8 @@ public class ImageStatusFragment
         txtTap = (TextView)view.findViewById(R.id.tap_to_set);
         updateLayout();
         registerReceivers();
+        //If stuck on a non-click listener view uncomment the below line:
+        //Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
         return view;
     }
 
@@ -102,30 +104,47 @@ public class ImageStatusFragment
 
     private void updateLayout(){
         int imageStatus = Utils.getCurrentImageStatus(getActivity());
-        if(imageStatus == Constants.NO_ALARM_RUNNING) {
-            statusImage.setImageResource(R.drawable.alarm_image_inactive);
-            statusImage.setOnClickListener(imageListener);
-            txtTap.setText(R.string.tap_to_start);
-        } else if(imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING){
-            statusImage.setImageResource(R.drawable.alarm_image_active);
-            statusImage.setOnClickListener(imageListener);
-            txtTap.setText(R.string.tap_to_stop);
-        } else if(imageStatus == Constants.SCHEDULE_RUNNING) {
-            statusImage.setImageResource(R.drawable.alarm_schedule_running);
-            statusImage.setOnClickListener(null);
-            txtTap.setText("");
-        } else if( imageStatus == Constants.SCHEDULE_TIME_TO_STAND){
-            statusImage.setImageResource(R.drawable.alarm_schedule_passed);
-            statusImage.setOnClickListener(null);
-            txtTap.setText("");
-        } else if( imageStatus == Constants.SCHEDULE_STOOD_UP) {
-            statusImage.setImageResource(R.drawable.alarm_schedule_stood);
-            statusImage.setOnClickListener(null);
-            txtTap.setText("");
-        } else {
-            statusImage.setImageResource(R.drawable.alarm_image_inactive);
-            statusImage.setOnClickListener(imageListener);
-            txtTap.setText(R.string.tap_to_start);
+        switch (imageStatus){
+            case Constants.NO_ALARM_RUNNING:
+                statusImage.setImageResource(R.drawable.alarm_image_inactive);
+                statusImage.setOnClickListener(imageListener);
+                txtTap.setText(R.string.tap_to_start);
+                break;
+            case Constants.NON_SCHEDULE_ALARM_RUNNING:
+                statusImage.setImageResource(R.drawable.alarm_unscheduled_running);
+                statusImage.setOnClickListener(imageListener);
+                txtTap.setText(R.string.tap_to_stop);
+                break;
+            case Constants.NON_SCHEDULE_TIME_TO_STAND:
+                statusImage.setImageResource(R.drawable.alarm_unscheduled_passed);
+                statusImage.setOnClickListener(imageListener);
+                txtTap.setText(R.string.tap_to_stop);
+                break;
+            case Constants.NON_SCHEDULE_STOOD_UP:
+                statusImage.setImageResource(R.drawable.alarm_unscheduled_stood);
+                statusImage.setOnClickListener(imageListener);
+                txtTap.setText(R.string.praise1);
+                break;
+            case Constants.SCHEDULE_RUNNING:
+                statusImage.setImageResource(R.drawable.alarm_schedule_running);
+                statusImage.setOnClickListener(null);
+                txtTap.setText("");
+                break;
+            case Constants.SCHEDULE_TIME_TO_STAND:
+                statusImage.setImageResource(R.drawable.alarm_schedule_passed);
+                statusImage.setOnClickListener(null);
+                txtTap.setText("");
+                break;
+            case Constants.SCHEDULE_STOOD_UP:
+                statusImage.setImageResource(R.drawable.alarm_schedule_stood);
+                statusImage.setOnClickListener(null);
+                txtTap.setText(R.string.praise1);
+                break;
+            default:
+                statusImage.setImageResource(R.drawable.alarm_image_inactive);
+                statusImage.setOnClickListener(imageListener);
+                txtTap.setText(R.string.tap_to_start);
+                break;
         }
     }
 

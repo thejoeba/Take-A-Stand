@@ -172,4 +172,30 @@ public final class Utils {
         return minute;
     }
 
+    public static String convertIntArrayToString(int[] array){
+        if(array.length==4){
+            String intArrayString = "";
+            for (int i = 0; i < array.length; i++){
+                intArrayString += i + "-";
+            }
+            return intArrayString;
+        } else {
+            return "";
+        }
+
+    }
+
+    public static int[] convertStringToIntArray(String string){
+        if(string.length()==8){
+            int[] intArray = new int[8];
+            for (int i = 0; i < string.length(); i++) {
+                if((string.charAt(i) >= '0') && (string.charAt(i) <= '9'))
+                intArray[i] = Character.digit(string.charAt(i), 10);
+            }
+            return intArray;
+        } else {
+            return null;
+        }
+    }
+
 }

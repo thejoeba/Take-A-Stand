@@ -91,7 +91,11 @@ public class AlarmService extends Service{
         if(intent.hasExtra(Constants.ALARM_SCHEDULE)){
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         }
-        Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_TIME_TO_STAND);
+        if(mCurrentAlarmSchedule==null){
+            Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_TIME_TO_STAND);
+        } else {
+            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_TIME_TO_STAND);
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -135,9 +139,13 @@ public class AlarmService extends Service{
             cancelNotification();
             Toast.makeText(mContext, praiseForUser(), Toast.LENGTH_SHORT).show();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            long fiveSeconds = 5 * Constants.millisecondsInSecond;
-            mHandler.postDelayed(stoodUp, fiveSeconds);
-            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_STOOD_UP);
+            long tenSeconds = 10 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(stoodUp, tenSeconds);
+            if(mCurrentAlarmSchedule==null){
+                Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_STOOD_UP);
+            } else {
+                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_STOOD_UP);
+            }
         }
     };
 
@@ -263,15 +271,16 @@ public class AlarmService extends Service{
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setAutoCancel(false)
                         .setOngoing(true)
-                        .addAction(android.R.drawable.btn_default, "Stood Up", stoodUpPendingIntent)
-                        .addAction(android.R.drawable.btn_default, "1 More Minute",
+                        .addAction(R.drawable.ic_action_done, "Stood", stoodUpPendingIntent)
+                        .addAction(R.drawable.ic_action_time, "1 Min",
                                 oneMinutePendingIntent)
-                        .addAction(android.R.drawable.btn_default, "5 More Minutes",
+                        .addAction(R.drawable.ic_action_time, "5 Min",
                                 fiveMinutePendingIntent)
                         //Both vibrate and set lights will be optional in the future.
                         .setVibrate(vibrationPattern)
                         .setLights(238154000, 1000, 4000)
                         .setTicker("Time to stand up"))
+                        .addLine("Time to stand up")
                 .build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
     }
@@ -310,10 +319,10 @@ public class AlarmService extends Service{
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setAutoCancel(false)
                         .setOngoing(true)
-                        .addAction(android.R.drawable.btn_default, "Stood Up", stoodUpPendingIntent)
-                        .addAction(android.R.drawable.btn_default, "1 More Minute",
+                        .addAction(R.drawable.ic_action_done, "Stood", stoodUpPendingIntent)
+                        .addAction(R.drawable.ic_action_time, "1 Min",
                                 oneMinutePendingIntent)
-                        .addAction(android.R.drawable.btn_default, "5 More Minutes",
+                        .addAction(R.drawable.ic_action_time, "5 Min",
                                 fiveMinutePendingIntent)
                         .setLights(238154000, 1000, 4000)
                         .setTicker("Time to stand up"))

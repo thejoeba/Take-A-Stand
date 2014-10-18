@@ -42,8 +42,10 @@ public final class Constants {
     public static final String MAIN_IMAGE_STATUS = "MainActivityDrawing";
     public static final int NO_ALARM_RUNNING = 1;
     public static final int NON_SCHEDULE_ALARM_RUNNING = 2;
-    public static final int SCHEDULE_RUNNING = 3;
-    public static final int SCHEDULE_TIME_TO_STAND = 4;
-    public static final int SCHEDULE_STOOD_UP = 5;
+    public static final int NON_SCHEDULE_TIME_TO_STAND = 3;
+    public static final int NON_SCHEDULE_STOOD_UP = 4;
+    public static final int SCHEDULE_RUNNING = 5;
+    public static final int SCHEDULE_TIME_TO_STAND = 6;
+    public static final int SCHEDULE_STOOD_UP = 7;
     public static final String INTENT_MAIN_IMAGE = "UpdateMainImage";
 }
