@@ -12,4 +12,5 @@
     <string name="praise4">Excellent!</string>
     <string name="praise5">Wonderful!</string>
     <string name="praise6">Right on!</string>
+    <string name="select_frequency">Select Frequency</string>
 </resources>

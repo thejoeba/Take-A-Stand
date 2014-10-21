@@ -14,6 +14,10 @@
         android:layout_marginRight="15dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="4dp">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:id="@+id/touchInterceptor"></FrameLayout>
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -58,7 +62,9 @@
         android:id="@+id/bottomContainer"
         android:layout_below="@id/topContainer"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp">
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="-20dp"
+        >
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,23 +78,27 @@
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chbxVibrate"
-                android:layout_toLeftOf="@+id/chbxLED"
-                android:layout_marginRight="10dp"
-                android:text="Vibrate"/>
+                android:id="@+id/chbxLED"
+                android:layout_toLeftOf="@+id/chbxVibrate"
+                android:layout_marginRight="16dp"
+                android:text="LED"
+                android:textSize="14sp"/>
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chbxLED"
+                android:id="@+id/chbxVibrate"
                 android:layout_centerHorizontal="true"
-                android:text="LED"/>
+                android:text="Vibrate"
+                android:textSize="14sp"/>
+
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/chbxSound"
-                android:layout_toRightOf="@id/chbxLED"
+                android:layout_toRightOf="@id/chbxVibrate"
                 android:layout_marginLeft="10dp"
-                android:text="Sound"/>
+                android:text="Sound"
+                android:textSize="14sp"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

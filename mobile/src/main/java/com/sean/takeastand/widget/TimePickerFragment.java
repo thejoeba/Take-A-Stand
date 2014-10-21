@@ -16,16 +16,23 @@
 
 package com.sean.takeastand.widget;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TimePicker;
 
+import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+
+import java.util.ArrayList;
 
 /**
  * Created by Sean on 2014-09-03.
@@ -35,12 +42,28 @@ public class TimePickerFragment
         implements TimePickerDialog.OnTimeSetListener
 {
     private static final String TAG = "TimePickerFragment";
+    private int mPosition;
+    private boolean mStartTime;
+    private EditButtonDialogListener mListener;
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        try {
+            mListener = (EditButtonDialogListener)activity;
+        }
+        catch (final ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
+        }
+        super.onAttach(activity);
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle bundle)
     {
-        boolean startOrEnd = getArguments().getBoolean("StartOrEndButton", true);
-        if(startOrEnd){
+        mStartTime = getArguments().getBoolean("StartOrEndButton", true);
+        mPosition = getArguments().getInt("Position");
+        if(mStartTime){
             String startTime = getArguments().getString(Constants.START_TIME_ARG);
             Log.i(TAG, Integer.toString(Utils.readHourFromString(startTime)));
             return new TimePickerDialog(getActivity(), this, Utils.readHourFromString(startTime),
@@ -63,8 +86,15 @@ public class TimePickerFragment
 
     public void onTimeSet(TimePicker timePicker, int hour, int minute)
     {
-        ((EditButtonDialogListener)getActivity()).onTimeSelected(Integer.toString(hour) + ":"
+        Intent intent = new Intent("TimePicker");
+        intent.putExtra("TimeSelected", Integer.toString(hour)+ ":" + correctMinuteFormat(Integer.toString(minute)));
+        intent.putExtra("Position", mPosition);
+        intent.putExtra("StartTime", mStartTime);
+        LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+        Log.i(TAG, Integer.toString(mPosition));
+        mListener.onTimeSelected(Integer.toString(hour) + ":"
                 + correctMinuteFormat(Integer.toString(minute)));
+
     }
 
     public static abstract interface EditButtonDialogListener

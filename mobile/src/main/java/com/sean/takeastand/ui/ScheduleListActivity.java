@@ -17,9 +17,11 @@
 
 package com.sean.takeastand.ui;
 
-import android.app.Activity;
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -48,9 +50,7 @@ import java.util.ArrayList;
 /**
  * Created by Sean on 2014-09-21.
  */
-public class ScheduleListActivity extends ListActivity
-        implements TimePickerFragment.EditButtonDialogListener,
-        NumberPicker.OnValueChangeListener{
+public class ScheduleListActivity extends ListActivity {
 
     private static final String TAG = "SchedulesListActivity";
     private static final int REQUEST_CODE = 1;
@@ -97,45 +97,8 @@ public class ScheduleListActivity extends ListActivity
         Log.i(TAG, Integer.toString(scheduleListAdapter.getCount()));
         expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
         setListAdapter(expandableAdapter);
+        registerReceivers();
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
-        int numberOfAlarms = scheduleDatabaseAdapter.getCount();
-        if(requestCode == REQUEST_CODE){
-            if(resultCode ==  -1&& numberOfAlarms == 0){
-                finish();
-            } else {
-                if (intent.getStringExtra(Constants.ACTIVITY_RESULT).equals("save")) {
-                    Log.i(TAG, "Created/Edited Alarm has been saved");
-                    AlarmSchedule editedAlarm =
-                            intent.getParcelableExtra(Constants.EDITED_ALARM_SCHEDULE);
-                    if (intent.getBooleanExtra(Constants.NEW_ALARM_SCHEDULE, true)) {
-                        Log.i(TAG, "New Alarm added.");
-                        alarmSchedules.add(editedAlarm);
-                    } else {
-                        int arrayPosition = intent.getIntExtra(Constants.EDITED_ALARM_POSITION, -1);
-                        if(arrayPosition!=-1){
-                            alarmSchedules.remove(arrayPosition);
-                            alarmSchedules.add(arrayPosition, editedAlarm);
-                            Log.i(TAG, "Alarm " + arrayPosition + " edited.");
-                        }
-                    }
-                }
-                //Needs to be reinitialized to prevent null pointer exception (is not initialized
-                //if launches the activity);
-                scheduleListAdapter =
-                        new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
-                //setListAdapter(scheduleListAdapter);
-                //scheduleListAdapter.notifyDataSetChanged();
-                expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
-                setListAdapter(expandableAdapter);
-            }
-        }
-    }
-
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
@@ -160,13 +123,19 @@ public class ScheduleListActivity extends ListActivity
         }
     }
 
-
     private View.OnClickListener addAlarmOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             createNewAlarm();
         }
     };
+
+    private void registerReceivers(){
+        LocalBroadcastManager.getInstance(this).registerReceiver(timePickerReceiver,
+                new IntentFilter("TimePicker"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(numberPickerReceiver,
+                new IntentFilter("NumberPicker"));
+    }
 
     private void deleteSchedule(int position){
         ScheduleEditor scheduleEditor = new ScheduleEditor(this);
@@ -208,13 +177,21 @@ public class ScheduleListActivity extends ListActivity
         startActivityForResult(intent, REQUEST_CODE);
     }
 
-    @Override
-    public void onTimeSelected(String time) {
+    private BroadcastReceiver timePickerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Received timePicker intent");
+            scheduleListAdapter.updateStartEndTime(intent.getStringExtra("TimeSelected"),
+                    intent.getIntExtra("Position", -1));
+        }
+    };
 
-    }
+    private BroadcastReceiver numberPickerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            scheduleListAdapter.updateFrequency(intent.getIntExtra("NewFrequency", -1),
+                    intent.getIntExtra("Position", -1));
+        }
+    };
 
-    @Override
-    public void onValueChange(NumberPicker numberPicker, int i, int i2) {
-
-    }
 }

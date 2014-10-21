@@ -253,6 +253,8 @@ public class ScheduleEditor {
 
     public void editTitle(int UID, String title){
         scheduleDatabaseAdapter.updateTitle(UID, title);
+        //No toast because this will be saved for each character and user can see that it has
+        //changed
     }
 
     public void deleteAlarm(AlarmSchedule alarmSchedule){
