@@ -30,6 +30,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.NumberPicker;
@@ -85,7 +86,7 @@ public class ScheduleListActivity extends ListActivity {
         super.onResume();
         if(scheduleListAdapter == null){
             scheduleListAdapter =
-                    new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
+                    new ScheduleListAdapter(this, android.R.id.list, alarmSchedules, getLayoutInflater());
             //setListAdapter(scheduleListAdapter);
             //scheduleListAdapter.notifyDataSetChanged();
         } else {
@@ -93,7 +94,7 @@ public class ScheduleListActivity extends ListActivity {
         }
         alarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
         scheduleListAdapter =
-                new ScheduleListAdapter(this, android.R.id.list, alarmSchedules);
+                new ScheduleListAdapter(this, android.R.id.list, alarmSchedules, getLayoutInflater());
         Log.i(TAG, Integer.toString(scheduleListAdapter.getCount()));
         expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
         setListAdapter(expandableAdapter);
@@ -131,6 +132,10 @@ public class ScheduleListActivity extends ListActivity {
     };
 
     private void registerReceivers(){
+        LocalBroadcastManager.getInstance(this).registerReceiver(deleteScheduleReceiver,
+                new IntentFilter("Delete"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(titleChangeReceiver,
+                new IntentFilter("TitleChange"));
         LocalBroadcastManager.getInstance(this).registerReceiver(timePickerReceiver,
                 new IntentFilter("TimePicker"));
         LocalBroadcastManager.getInstance(this).registerReceiver(numberPickerReceiver,
@@ -176,6 +181,21 @@ public class ScheduleListActivity extends ListActivity {
         intent.putExtra(Constants.EDITED_ALARM_POSITION, position);
         startActivityForResult(intent, REQUEST_CODE);
     }
+
+    private BroadcastReceiver deleteScheduleReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            scheduleListAdapter.removeAlarm(intent.getIntExtra("Row", -1));
+        }
+    };
+
+    private BroadcastReceiver titleChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            scheduleListAdapter.updateTitle(intent.getStringExtra("NewTitle"),
+                    intent.getIntExtra("Position", -1));
+        }
+    };
 
     private BroadcastReceiver timePickerReceiver = new BroadcastReceiver() {
         @Override

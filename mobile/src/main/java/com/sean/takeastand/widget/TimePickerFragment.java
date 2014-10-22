@@ -44,19 +44,6 @@ public class TimePickerFragment
     private static final String TAG = "TimePickerFragment";
     private int mPosition;
     private boolean mStartTime;
-    private EditButtonDialogListener mListener;
-
-
-    @Override
-    public void onAttach(Activity activity) {
-        try {
-            mListener = (EditButtonDialogListener)activity;
-        }
-        catch (final ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
-        }
-        super.onAttach(activity);
-    }
 
     @Override
     public Dialog onCreateDialog(Bundle bundle)
@@ -65,12 +52,10 @@ public class TimePickerFragment
         mPosition = getArguments().getInt("Position");
         if(mStartTime){
             String startTime = getArguments().getString(Constants.START_TIME_ARG);
-            Log.i(TAG, Integer.toString(Utils.readHourFromString(startTime)));
             return new TimePickerDialog(getActivity(), this, Utils.readHourFromString(startTime),
                     Utils.readMinutesFromString(startTime), DateFormat.is24HourFormat(getActivity()));
         } else {
             String endTime = getArguments().getString(Constants.END_TIME_ARG);
-            Log.i(TAG, Integer.toString(Utils.readHourFromString(endTime)));
             return new TimePickerDialog(getActivity(), this, Utils.readHourFromString(endTime),
                     Utils.readMinutesFromString(endTime), DateFormat.is24HourFormat(getActivity()));
         }
@@ -91,14 +76,5 @@ public class TimePickerFragment
         intent.putExtra("Position", mPosition);
         intent.putExtra("StartTime", mStartTime);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
-        Log.i(TAG, Integer.toString(mPosition));
-        mListener.onTimeSelected(Integer.toString(hour) + ":"
-                + correctMinuteFormat(Integer.toString(minute)));
-
-    }
-
-    public static abstract interface EditButtonDialogListener
-    {
-        public abstract void onTimeSelected(String paramString);
     }
 }

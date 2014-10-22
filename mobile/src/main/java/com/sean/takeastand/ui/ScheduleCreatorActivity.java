@@ -42,10 +42,8 @@ import java.util.Calendar;
 /**
  * Created by Sean on 2014-09-03.
  */
-public class ScheduleCreatorActivity
-        extends FragmentActivity
-        implements TimePickerFragment.EditButtonDialogListener,
-        NumberPicker.OnValueChangeListener
+public class ScheduleCreatorActivity extends FragmentActivity
+    implements NumberPicker.OnValueChangeListener
 {
 
     /*
@@ -199,15 +197,13 @@ public class ScheduleCreatorActivity
         final Dialog numberPickerDialog = new Dialog(this);
         numberPickerDialog.setTitle("NumberPicker");
         numberPickerDialog.setContentView(R.layout.dialog_number_picker);
-        Button btnCancelNp = (Button) numberPickerDialog.findViewById(R.id.btnCancelNp);
-        Button btnSaveNp = (Button) numberPickerDialog.findViewById(R.id.btnSaveNp);
         final NumberPicker numberPicker = (NumberPicker) numberPickerDialog.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(100);
         numberPicker.setMinValue(5);
         numberPicker.setValue(Integer.valueOf((btnFrequency.getText()).toString()));
         numberPicker.setWrapSelectorWheel(false);
         numberPicker.setOnValueChangedListener(this);
-        btnSaveNp.setOnClickListener(new View.OnClickListener()
+        /*btnSaveNp.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v) {
@@ -222,7 +218,7 @@ public class ScheduleCreatorActivity
                 numberPickerDialog.dismiss();
             }
         });
-        numberPickerDialog.show();
+        numberPickerDialog.show();*/
     }
 
     @Override
@@ -232,10 +228,6 @@ public class ScheduleCreatorActivity
 
 
 
-    @Override
-    public void onTimeSelected(String time) {
-        setButton(time);
-    }
 
     public void setButton(String time)
     {

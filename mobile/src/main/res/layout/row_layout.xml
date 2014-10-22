@@ -10,49 +10,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/topContainer"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="4dp">
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="17dp"
+        android:layout_marginBottom="0dp">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:id="@+id/touchInterceptor"></FrameLayout>
-        <EditText
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Title"
+            android:text="Schedule 1"
             android:textColor="@color/Gray"
             android:id="@+id/editTitle"
             android:ems="7"
-            android:textSize="24sp"/>
+            android:textSize="24sp"
+            android:layout_marginTop="12dp"/>
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="dummy"
             android:id="@+id/btnActivated"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="-4dp"
-            android:layout_marginRight="10dp"/>
+            android:layout_marginRight="60dp"/>
         <View
             android:layout_width="match_parent"
-            android:layout_height="35dp"
+            android:layout_height="20dp"
             android:id="@+id/clickToExpand"
             android:layout_below="@id/btnActivated"
-            android:layout_marginTop="-4dp"
+            android:layout_marginTop="2dp"
             android:layout_marginRight="22dp"/>
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/trashCan"
-            android:layout_below="@id/btnActivated"
+            android:id="@+id/deleteButton"
             android:src="@drawable/ic_action_discard"
-            android:layout_marginTop="-2dp"
+            android:layout_marginTop="10dp"
             android:layout_alignParentRight="true"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             android:background="@color/LightGrey"
             android:layout_below="@id/btnActivated"/>
     </RelativeLayout>
@@ -61,7 +60,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/bottomContainer"
         android:layout_below="@id/topContainer"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="12dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="-20dp"
         >
@@ -69,19 +68,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/firstRow">
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/secondRow"
-            android:layout_below="@id/firstRow">
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/chbxLED"
                 android:layout_toLeftOf="@+id/chbxVibrate"
-                android:layout_marginRight="16dp"
-                android:text="LED"
+                android:layout_marginRight="11dp"
+                android:text="LED Light"
                 android:textSize="14sp"/>
             <CheckBox
                 android:layout_width="wrap_content"
@@ -90,7 +83,6 @@
                 android:layout_centerHorizontal="true"
                 android:text="Vibrate"
                 android:textSize="14sp"/>
-
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -111,69 +103,89 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/thirdRow"
-            android:layout_below="@id/secondRow"
-            android:layout_marginTop="8dp">
-            <TextView
+            android:id="@+id/secondRow"
+            android:layout_below="@id/firstRow"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="33dp"
+            android:layout_marginRight="33dp">
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Frequency"
-                android:layout_marginLeft="33dp"
-                android:id="@+id/txtFrequency"/>
-            <TextView
+                android:id="@+id/frequency">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Frequency"
+                    android:id="@+id/txtFrequency"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/txtFrequency"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="12dp"
+                    android:id="@+id/txtFrequencyValue"
+                    android:text = "20"
+                    android:textSize="17sp"
+                    android:textColor="@color/DarkDarkGray"
+                    />
+            </RelativeLayout>
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start Time"
                 android:layout_centerHorizontal="true"
-                android:id="@+id/txtStartTime"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="End Time"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="33dp"
-                android:id="@+id/txtEndTime"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/fourthRow"
-            android:layout_below="@id/thirdRow"
-            android:layout_marginTop="3dp">
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginLeft="35dp"
-                android:id="@+id/btnFrequency"
-                android:text = "20"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_centerHorizontal="true"
-                android:id="@+id/btnStartTime"
-                android:text = "8:00"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:id="@+id/btnEndTime"
-                android:layout_marginRight="35dp"
-                android:text = "5:00"/>
+                android:id="@+id/startTime">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Time"
+                    android:id="@+id/txtStartTime"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/txtStartTime"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="12dp"
+                    android:id="@+id/txtStartTimeValue"
+                    android:text = "8:00"
+                    android:textSize="17sp"
+                    android:textColor="@color/DarkDarkGray"/>
+            </RelativeLayout>
+            <RelativeLayout
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_alignParentRight="true"
+                android:id="@+id/endTime">
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="End Time"
+                   android:id="@+id/txtEndTime"/>
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_centerHorizontal="true"
+                   android:layout_marginTop="12dp"
+                   android:layout_below="@id/txtEndTime"
+                   android:id="@+id/txtEndTimeValue"
+                   android:text = "5:00"
+                   android:textSize="17sp"
+                   android:textColor="@color/DarkDarkGray"/>
+            </RelativeLayout>
         </RelativeLayout>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="10dp"
             android:background="@color/LightGrey"
-            android:layout_below="@id/fourthRow"
+            android:layout_below="@id/secondRow"
             android:layout_marginRight="15dp"
             android:layout_marginLeft="15dp"
             android:layout_centerHorizontal="true"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/fifthRow"
-            android:layout_below="@id/fourthRow"
+            android:id="@+id/thirdRow"
+            android:layout_below="@id/secondRow"
             android:layout_marginTop="18dp">
             <TextView
                 android:textSize="14.0sp"
@@ -235,8 +247,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/sixthRow"
-            android:layout_below="@id/fifthRow">
+            android:id="@+id/fourthRow"
+            android:layout_below="@id/thirdRow">
             <CheckBox
                 android:gravity="center"
                 android:id="@+id/chbxWed"

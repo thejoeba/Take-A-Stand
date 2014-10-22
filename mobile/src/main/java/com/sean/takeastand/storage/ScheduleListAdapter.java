@@ -3,14 +3,13 @@
 package com.sean.takeastand.storage;
 
 import android.app.Activity;
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,17 +17,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,17 +47,18 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
 
     private ArrayList<AlarmSchedule> mAlarmSchedules;
     private Context mContext;
-    private EditText scheduleName;
+    private TextView txtTitle;
     private ToggleButton btnActivated;
+    private ImageView deleteButton;
     private CheckBox chBxLED;
     private CheckBox chBxVibrate;
     private CheckBox chBxSound;
-    //Eventually change the below three buttons to stylized textViews with onclicklisteners
-    //Black/Grey, largish-medium text, with a background of transparent blue that fades away
-    //which indicates that it is clickable
-    private Button btnFrequency;
-    private Button btnStartTime;
-    private Button btnEndTime;
+    private RelativeLayout frequencyLayout;
+    private RelativeLayout startTimeLayout;
+    private RelativeLayout endTimeLayout;
+    private TextView txtFrequencyValue;
+    private TextView txtStartTimeValue;
+    private TextView txtEndTimeValue;
     private CheckBox chBxSunday;
     private CheckBox chBxMonday;
     private CheckBox chBxTuesday;
@@ -64,12 +69,14 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private boolean mStartEndButtonSelected;
     private int mPosition;
     private final String TAG = "ScheduleListAdapter";
-    private Button btnTimeSelected;
+    private LayoutInflater mLayoutInflater;
 
-    public ScheduleListAdapter(Context context, int resource, ArrayList<AlarmSchedule> alarmSchedules) {
+    public ScheduleListAdapter(Context context, int resource, ArrayList<AlarmSchedule> alarmSchedules,
+                               LayoutInflater layoutInflater) {
         super(context, resource, alarmSchedules);
         mAlarmSchedules = alarmSchedules;
         mContext = context;
+        mLayoutInflater = layoutInflater;
     }
 
     @Override
@@ -88,14 +95,18 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     }
 
     private void initializeViewsAndButtons(View view, int position){
-        scheduleName = (EditText)view.findViewById(R.id.editTitle);
+        txtTitle = (TextView)view.findViewById(R.id.editTitle);
         btnActivated = (ToggleButton)view.findViewById(R.id.btnActivated);
+        deleteButton = (ImageView)view.findViewById(R.id.deleteButton);
         chBxLED = (CheckBox)view.findViewById(R.id.chbxLED);
         chBxVibrate = (CheckBox)view.findViewById(R.id.chbxVibrate);
         chBxSound = (CheckBox)view.findViewById(R.id.chbxSound);
-        btnFrequency = (Button)view.findViewById(R.id.btnFrequency);
-        btnStartTime = (Button)view.findViewById(R.id.btnStartTime);
-        btnEndTime = (Button)view.findViewById(R.id.btnEndTime);
+        frequencyLayout = (RelativeLayout)view.findViewById(R.id.frequency);
+        startTimeLayout = (RelativeLayout)view.findViewById(R.id.startTime);
+        endTimeLayout = (RelativeLayout)view.findViewById(R.id.endTime);
+        txtFrequencyValue = (TextView)view.findViewById(R.id.txtFrequencyValue);
+        txtStartTimeValue = (TextView)view.findViewById(R.id.txtStartTimeValue);
+        txtEndTimeValue = (TextView)view.findViewById(R.id.txtEndTimeValue);
         chBxSunday = (CheckBox)view.findViewById(R.id.chbxSun);
         chBxMonday = (CheckBox)view.findViewById(R.id.chbxMon);
         chBxTuesday = (CheckBox)view.findViewById(R.id.chbxTue);
@@ -105,21 +116,24 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         chBxSaturday = (CheckBox)view.findViewById(R.id.chbxSat);
         setOnClickListeners();
         addPositionTags(position);
-        removeEditTextFocus(view);
     }
 
     private void setTextAndStatus(ArrayList<AlarmSchedule> alarmSchedules, int position){
         AlarmSchedule alarmSchedule = alarmSchedules.get(position);
-        scheduleName.setHint(alarmSchedule.getTitle());
+        txtTitle.setText(alarmSchedule.getTitle());
+        if((alarmSchedule.getTitle()).equals("")){
+            int schedulePosition = position + 1;
+            txtTitle.setText("Schedule " + schedulePosition);
+        }
         btnActivated.setChecked(alarmSchedule.getActivated());
         //txtAlertType.setText(alarmSchedule.getAlertType());
         //defaults are true-true-false
         chBxLED.setChecked(true);
         chBxVibrate.setChecked(true);
         chBxSound.setChecked(false);
-        btnFrequency.setText(Integer.toString(alarmSchedule.getFrequency()));
-        btnStartTime.setText(Utils.calendarToTimeString(alarmSchedule.getStartTime()));
-        btnEndTime.setText(Utils.calendarToTimeString(alarmSchedule.getEndTime()));
+        txtFrequencyValue.setText(Integer.toString(alarmSchedule.getFrequency()));
+        txtStartTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getStartTime()));
+        txtEndTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getEndTime()));
         chBxSunday.setChecked(alarmSchedule.getSunday());
         chBxMonday.setChecked(alarmSchedule.getMonday());
         chBxTuesday.setChecked(alarmSchedule.getTuesday());
@@ -131,14 +145,18 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     }
 
     private void addPositionTags(int position){
-        scheduleName.setTag(position);
+        txtTitle.setTag(position);
         btnActivated.setTag(position);
+        deleteButton.setTag(position);
         chBxLED.setTag(position);
         chBxVibrate.setTag(position);
         chBxSound.setTag(position);
-        btnFrequency.setTag(position);
-        btnStartTime.setTag(position);
-        btnEndTime.setTag(position); chBxSunday.setTag(position);
+        frequencyLayout.setTag(position);
+        startTimeLayout.setTag(position);
+        endTimeLayout.setTag(position);
+        txtFrequencyValue.setTag(position);
+        txtStartTimeValue.setTag(position);
+        txtEndTimeValue.setTag(position); chBxSunday.setTag(position);
         chBxMonday.setTag(position);
         chBxTuesday.setTag(position);
         chBxWednesday.setTag(position);
@@ -148,14 +166,15 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     }
 
     private void setOnClickListeners(){
-        scheduleName.addTextChangedListener(titleTextWatcher);
+        txtTitle.setOnClickListener(titleListener);
         btnActivated.setOnClickListener(activatedListener);
+        deleteButton.setOnClickListener(deleteListener);
         chBxLED.setOnClickListener(alertTypeListener);
         chBxVibrate.setOnClickListener(alertTypeListener);
         chBxSound.setOnClickListener(alertTypeListener);
-        btnFrequency.setOnClickListener(frequencyListener);
-        btnStartTime.setOnClickListener(startTimeListener);
-        btnEndTime.setOnClickListener(endTimeListener);
+        frequencyLayout.setOnClickListener(frequencyListener);
+        startTimeLayout.setOnClickListener(startTimeListener);
+        endTimeLayout.setOnClickListener(endTimeListener);
         chBxSunday.setOnClickListener(checkedDayListener);
         chBxMonday.setOnClickListener(checkedDayListener);
         chBxTuesday.setOnClickListener(checkedDayListener);
@@ -165,20 +184,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         chBxSaturday.setOnClickListener(checkedDayListener);
     }
 
-    private TextWatcher titleTextWatcher = new TextWatcher(){
+    private View.OnClickListener titleListener = new View.OnClickListener() {
         @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-            Log.i(TAG, charSequence.toString());
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-
+        public void onClick(View view) {
+            showTitleDialog(view);
         }
     };
 
@@ -189,6 +198,13 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             boolean isActivated = activated.isChecked();
             int position = (Integer)view.getTag();
             Log.i(TAG, position + ".) Activated: " + Boolean.toString(isActivated));
+        }
+    };
+
+    private View.OnClickListener deleteListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View view) {
+            showDeleteDialog(view);
         }
     };
 
@@ -271,20 +287,92 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         }
     };
 
+    private void showDeleteDialog(View view){
+        final ImageView deleteButton = (ImageView)view;
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setMessage("Are you sure that you want to delete " +
+                txtTitle.getText().toString() + "?");
+        builder.setTitle("Delete " + txtTitle.getText().toString());
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent("Delete");
+                intent.putExtra("Row", (Integer)deleteButton.getTag());
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, "Cancel");
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private View dialogView;
+    private TextView selectedTitle;
+
+    private void showTitleDialog(View view){
+        selectedTitle = (TextView)view;
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        LayoutInflater inflater = mLayoutInflater;
+        dialogView = inflater.inflate(R.layout.dialog_edit_text, null);
+        builder.setView(dialogView);
+        EditText editText = (EditText)dialogView.findViewById(R.id.editText);
+        String currentTitle = selectedTitle.getText().toString();
+        if(currentTitle.startsWith("Schedule ")){
+            editText.setHint(currentTitle);
+        } else {
+            editText.setText(currentTitle);
+            editText.setSelection(currentTitle.length());
+        }
+        builder.setMessage("New Title");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                EditText editText = (EditText)dialogView.findViewById(R.id.editText);
+                Intent intent = new Intent("TitleChange");
+                intent.putExtra("NewTitle", editText.getText().toString());
+                intent.putExtra("Position", (Integer) selectedTitle.getTag());
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, "Cancel");
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    //Only used for below method
+    private RelativeLayout timeSelected;
+    private TextView txtTimeSelected;
     private void showTimePickerDialog(View view)
     {
         Bundle args = new Bundle();
         args.putBoolean("StartOrEndButton", mStartEndButtonSelected);
-        btnTimeSelected = (Button)view;
-        if(btnTimeSelected==null){
-            Log.i(TAG, "btnTimeSelected is null");
+        RelativeLayout timeSelected = (RelativeLayout)view;
+
+        if(timeSelected==null){
+            Log.i(TAG, "txtTimeSelected is null");
         }
         if(mStartEndButtonSelected){
-            args.putString(Constants.START_TIME_ARG, btnTimeSelected.getText().toString());
+            txtTimeSelected = (TextView)timeSelected.findViewById(R.id.txtStartTimeValue);
+            args.putString(Constants.START_TIME_ARG, txtTimeSelected.getText().toString());
                     //Utils.calendarToTimeString(mAlarmSchedules.get(mPosition).getStartTime()));
         } else {
+            TextView txtTimeSelected = (TextView)timeSelected.findViewById(R.id.txtEndTimeValue);
             args.putString(Constants.END_TIME_ARG,
-                    btnTimeSelected.getText().toString());
+                    txtTimeSelected.getText().toString());
         }
         args.putInt("Position", (Integer) view.getTag());
         TimePickerFragment timePickerFragment = new TimePickerFragment();
@@ -294,46 +382,64 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
 
     }
 
+    //Used only below
+
+    private NumberPicker numberPicker;
+    private RelativeLayout selectedFrequencyView;
+    private TextView selectedFrequencyValue;
+
     private void showNumberPickerDialog(View view)
     {
-        final Button btnFrequencySelected = (Button)view;
-        final Dialog numberPickerDialog = new Dialog(mContext);
-        numberPickerDialog.setTitle(mContext.getString(R.string.select_frequency));
-        numberPickerDialog.setContentView(R.layout.dialog_number_picker);
-        Button btnCancelNp = (Button) numberPickerDialog.findViewById(R.id.btnCancelNp);
-        Button btnSaveNp = (Button) numberPickerDialog.findViewById(R.id.btnSaveNp);
-        final NumberPicker numberPicker = (NumberPicker) numberPickerDialog.findViewById(R.id.numberPicker);
+        selectedFrequencyView = (RelativeLayout)view;
+        selectedFrequencyValue = (TextView)selectedFrequencyView.findViewById(R.id.txtFrequencyValue);
+        LayoutInflater inflater = mLayoutInflater;
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
+        builder.setView(dialogView);
+        numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(100);
         numberPicker.setMinValue(5);
-        numberPicker.setValue(Integer.valueOf(btnFrequencySelected.getText().toString()));
+        numberPicker.setValue(Integer.valueOf(selectedFrequencyValue.getText().toString()));
         numberPicker.setWrapSelectorWheel(false);
-        //numberPicker.setOnValueChangedListener(ScheduleListActivity.class);
-        btnSaveNp.setOnClickListener(new View.OnClickListener()
-        {
+
+        builder.setMessage("Select Frequency");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                btnFrequencySelected.setText(String.valueOf(numberPicker.getValue()));
+            public void onClick(DialogInterface dialogInterface, int i) {
+                selectedFrequencyValue = (TextView)selectedFrequencyView.findViewById(R.id.txtFrequencyValue);
+                selectedFrequencyValue.setText(String.valueOf(numberPicker.getValue()));
                 Intent intent = new Intent("NumberPicker");
                 intent.putExtra("NewFrequency", numberPicker.getValue());
-                intent.putExtra("Position", (Integer)btnFrequencySelected.getTag());
+                intent.putExtra("Position", (Integer) selectedFrequencyView.getTag());
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-                numberPickerDialog.dismiss();
+                dialogInterface.dismiss();
             }
         });
-        btnCancelNp.setOnClickListener(new View.OnClickListener()
-        {
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                numberPickerDialog.dismiss();
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, "Cancel");
+                dialogInterface.dismiss();
             }
         });
-        numberPickerDialog.show();
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    public void removeAlarm(int position){
+        Log.i(TAG, "Deleting alarm schedule at position " + position);
+    }
+
+
+    //This method is called by SchedulesListActivity after showTitleDialog is called here
+    public void updateTitle(String newTitle, int position){
+        selectedTitle.setText(newTitle);
     }
 
     //This method is called by SchedulesListActivity after showTimePickerDialog is called here
     public void updateStartEndTime(String paramString, int position) {
         Log.i(TAG, paramString + " " + position);
-        btnTimeSelected.setText(paramString);
+        txtTimeSelected.setText(paramString);
         //saveStartEndTime is called here
     }
 
@@ -348,7 +454,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         AlarmSchedule previousAlarmSchedule = mAlarmSchedules.get(mPosition);
         if (mStartEndButtonSelected)
         {
-            btnStartTime.setText(time);
+            txtStartTimeValue.setText(time);
             Calendar startTime = Utils.convertToCalendarTime(time);
             AlarmSchedule currentAlarmSchedule = new AlarmSchedule(previousAlarmSchedule.getUID(),
                     previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
@@ -364,7 +470,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                             previousAlarmSchedule.getSaturday()),previousAlarmSchedule.getUID(),
                             currentAlarmSchedule);
         } else {
-            btnEndTime.setText(time);
+            txtEndTimeValue.setText(time);
         }
     }
 
@@ -446,30 +552,5 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 chBxSaturday.setEnabled(true);
             }
         }
-    }
-
-    //At the moment this doesn't seem to be working
-    private void removeEditTextFocus(View view){
-        //This sets it so that when you touch the middle of the screen the focus is taken
-        //away from the EditText, otherwise EditText is constantly flashing and keyboard won't go
-        //away
-        FrameLayout touchInterceptor = (FrameLayout)view.findViewById(R.id.touchInterceptor);
-        touchInterceptor.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (scheduleName.isFocused()) {
-                        Rect outRect = new Rect();
-                        scheduleName.getGlobalVisibleRect(outRect);
-                        if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
-                            scheduleName.clearFocus();
-                            InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                        }
-                    }
-                }
-                return false;
-            }
-        });
     }
 }
