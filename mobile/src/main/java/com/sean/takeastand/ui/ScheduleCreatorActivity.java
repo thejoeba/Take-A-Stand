@@ -32,7 +32,6 @@ import android.widget.ToggleButton;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
-import com.sean.takeastand.storage.ScheduleEditor;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
@@ -245,10 +244,10 @@ public class ScheduleCreatorActivity extends FragmentActivity
         {
             boolean newAlarm;
             if(mAlarmSchedule==null){
-                saveNewAlarm();
+                //saveNewAlarm();
                 newAlarm = true;
             } else {
-                editAlarm();
+                //editAlarm();
                 newAlarm = false;
             }
             Intent intent = new Intent();
@@ -276,7 +275,7 @@ public class ScheduleCreatorActivity extends FragmentActivity
         }
     };
 
-    private void saveNewAlarm(){
+    /*private void saveNewAlarm(){
         boolean activated = isAlarmActivated();
         String alarmType = "";
         String startTime = getStartTime();
@@ -293,9 +292,9 @@ public class ScheduleCreatorActivity extends FragmentActivity
                         Utils.convertToCalendarTime(endTime), frequency, title,
                         checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3], checkedDays[4],
                         checkedDays[5], checkedDays[6]);
-    }
+    }*/
 
-    private void editAlarm(){
+    /*private void editAlarm(){
         boolean activated = isAlarmActivated();
         String alarmType = "";
         String startTime = getStartTime();
@@ -312,7 +311,7 @@ public class ScheduleCreatorActivity extends FragmentActivity
                         Utils.convertToCalendarTime(endTime), frequency, title,
                         checkedDays[0], checkedDays[1], checkedDays[2], checkedDays[3], checkedDays[4],
                         checkedDays[5], checkedDays[6]);
-    }
+    }*/
 
     private boolean isAlarmActivated(){
         return btnActivated.isChecked();

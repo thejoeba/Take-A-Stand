@@ -36,9 +36,12 @@ until the schedule reaches its end time. */
  */
 public class AlarmSchedule implements Parcelable {
 
+
+    //ToDo: storage is getting to complicated and too many lines of code, add setter methods
+
     private int UID;
     private boolean activated;
-    private String alertType;
+    private int[] alertType = {0, 0, 0};
     private Calendar startTime;
     private Calendar endTime;
     private int frequency;
@@ -53,7 +56,7 @@ public class AlarmSchedule implements Parcelable {
 
     //This constructor is the only way for the class variables to be initialized
     //This class was intentionally restricted, so it could not be modified after creation
-    public AlarmSchedule(int UID, boolean activated, String alertType, Calendar startTime, Calendar endTime,
+    public AlarmSchedule(int UID, boolean activated, int[] alertType, Calendar startTime, Calendar endTime,
                          int frequency, String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday){
         this.UID = UID;
@@ -85,7 +88,9 @@ public class AlarmSchedule implements Parcelable {
         friday = arrayBooleans[6];
         saturday = arrayBooleans[7];
         UID = inParcel.readInt();
-        alertType = inParcel.readString();
+        alertType[0] = inParcel.readInt();
+        alertType[1] = inParcel.readInt();
+        alertType[2] = inParcel.readInt();
         title = inParcel.readString();
         startTime = Calendar.getInstance();
         startTime.setTimeInMillis(Long.decode(inParcel.readString()));
@@ -106,7 +111,9 @@ public class AlarmSchedule implements Parcelable {
                                     thursday, friday, saturday};
         outParcel.writeBooleanArray(arrayBooleans);
         outParcel.writeInt(UID);
-        outParcel.writeString(alertType);
+        outParcel.writeInt(alertType[0]);
+        outParcel.writeInt(alertType[1]);
+        outParcel.writeInt(alertType[2]);
         outParcel.writeString(title);
         outParcel.writeString(Long.toString(startTime.getTimeInMillis()));
         outParcel.writeString(Long.toString(endTime.getTimeInMillis()));
@@ -134,7 +141,7 @@ public class AlarmSchedule implements Parcelable {
         return activated;
     }
 
-    public String getAlertType(){
+    public int[] getAlertType(){
         return alertType;
     }
 

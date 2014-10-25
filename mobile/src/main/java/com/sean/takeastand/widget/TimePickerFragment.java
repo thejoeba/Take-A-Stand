@@ -16,7 +16,6 @@
 
 package com.sean.takeastand.widget;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
@@ -24,15 +23,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.widget.Button;
 import android.widget.TimePicker;
 
-import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
-
-import java.util.ArrayList;
 
 /**
  * Created by Sean on 2014-09-03.

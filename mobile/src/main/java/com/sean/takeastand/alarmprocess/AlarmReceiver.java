@@ -20,17 +20,12 @@ package com.sean.takeastand.alarmprocess;
  * Created by Sean on 2014-09-03.
  */
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
-import com.sean.takeastand.ui.MainActivity;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 

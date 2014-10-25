@@ -30,10 +30,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
@@ -44,7 +42,6 @@ import com.sean.takeastand.storage.ScheduleEditor;
 import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
-import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.ArrayList;
 

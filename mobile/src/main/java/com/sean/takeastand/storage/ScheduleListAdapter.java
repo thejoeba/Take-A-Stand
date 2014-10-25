@@ -7,20 +7,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
@@ -31,8 +26,6 @@ import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,7 +60,6 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private CheckBox chBxFriday;
     private CheckBox chBxSaturday;
     private boolean mStartEndButtonSelected;
-    private int mPosition;
     private final String TAG = "ScheduleListAdapter";
     private LayoutInflater mLayoutInflater;
 
@@ -88,7 +80,6 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             rowView = inflater.inflate(R.layout.row_layout, null);
 
         }
-        mPosition = position;
         initializeViewsAndButtons(rowView, position);
         setTextAndStatus(mAlarmSchedules, position);
         return rowView;
@@ -126,11 +117,11 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             txtTitle.setText("Schedule " + schedulePosition);
         }
         btnActivated.setChecked(alarmSchedule.getActivated());
-        //txtAlertType.setText(alarmSchedule.getAlertType());
-        //defaults are true-true-false
-        chBxLED.setChecked(true);
-        chBxVibrate.setChecked(true);
-        chBxSound.setChecked(false);
+        int[] alertType = alarmSchedule.getAlertType();
+        Log.i(TAG, alertType.toString());
+        chBxLED.setChecked(Utils.convertIntToBoolean(alertType[0]));
+        chBxVibrate.setChecked(Utils.convertIntToBoolean((alertType[1])));
+        chBxSound.setChecked(Utils.convertIntToBoolean(alertType[2]));
         txtFrequencyValue.setText(Integer.toString(alarmSchedule.getFrequency()));
         txtStartTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getStartTime()));
         txtEndTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getEndTime()));
@@ -197,6 +188,17 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             ToggleButton activated = (ToggleButton)view;
             boolean isActivated = activated.isChecked();
             int position = (Integer)view.getTag();
+            AlarmSchedule previousAlarmSchedule = mAlarmSchedules.get(position);
+            AlarmSchedule newAlarmSchedule = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                    isActivated, previousAlarmSchedule.getAlertType(),
+                    previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                    previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                    previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                    previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                    previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                    previousAlarmSchedule.getSaturday());
+            ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+            scheduleEditor.editActivated(newAlarmSchedule);
             Log.i(TAG, position + ".) Activated: " + Boolean.toString(isActivated));
         }
     };
@@ -214,14 +216,47 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             CheckBox checkBox = (CheckBox) view;
             boolean isChecked = checkBox.isChecked();
             int position = (Integer) view.getTag();
+            AlarmSchedule previousAlarmSchedule = mAlarmSchedules.get(position);
+            int[] alertType = previousAlarmSchedule.getAlertType();
+            ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
             switch (view.getId()) {
                 case R.id.chbxLED:
+                    alertType[0] = Utils.convertBooleanToInt(isChecked);
+                    AlarmSchedule newAlarmScheduleLED = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                            previousAlarmSchedule.getActivated(), alertType,
+                            previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                            previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                            previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                            previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                            previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                            previousAlarmSchedule.getSaturday());
+                    scheduleEditor.editAlertType(newAlarmScheduleLED);
                     Log.i(TAG, position + ".) LED is checked: " + Boolean.toString(isChecked));
                     break;
                 case R.id.chbxVibrate:
+                    alertType[1] = Utils.convertBooleanToInt(isChecked);
+                    AlarmSchedule newAlarmScheduleVibrate = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                            previousAlarmSchedule.getActivated(), alertType,
+                            previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                            previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                            previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                            previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                            previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                            previousAlarmSchedule.getSaturday());
+                    scheduleEditor.editAlertType(newAlarmScheduleVibrate);
                     Log.i(TAG, position + ".) Vibrate is checked: " + Boolean.toString(isChecked));
                     break;
                 case R.id.chbxSound:
+                    alertType[2] = Utils.convertBooleanToInt(isChecked);
+                    AlarmSchedule newAlarmScheduleSound = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                            previousAlarmSchedule.getActivated(), alertType,
+                            previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                            previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                            previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                            previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                            previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                            previousAlarmSchedule.getSaturday());
+                    scheduleEditor.editAlertType(newAlarmScheduleSound);
                     Log.i(TAG, position + ".) Sound is checked: " + Boolean.toString(isChecked));
                     break;
             }
@@ -250,7 +285,6 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
 
         @Override
         public void onClick(View view) {
-            //Have to set before because only final variable can be used in
             showNumberPickerDialog(view);
         }
     };
@@ -261,27 +295,43 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             CheckBox checkBox = (CheckBox)view;
             boolean isChecked = checkBox.isChecked();
             int position = (Integer)view.getTag();
+            AlarmSchedule previousAlarmSchedule = mAlarmSchedules.get(position);
+            ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
             switch (view.getId()){
                 case R.id.chbxSun:
                     Log.i(TAG, position + ".) Sunday is checked: " + Boolean.toString(isChecked));
+                    scheduleEditor.editDays(Calendar.SUNDAY, isChecked,
+                            newWeekDaySchedule(Calendar.SUNDAY, previousAlarmSchedule, isChecked));
                     break;
                 case R.id.chbxMon:
                     Log.i(TAG, position + ".) Monday is checked: " + Boolean.toString(isChecked));
+                    scheduleEditor.editDays(Calendar.MONDAY, isChecked,
+                            newWeekDaySchedule(Calendar.MONDAY, previousAlarmSchedule, isChecked));
                     break;
                 case R.id.chbxTue:
                     Log.i(TAG, position + ".) Tuesday is checked: " + Boolean.toString(isChecked));
+                    scheduleEditor.editDays(Calendar.TUESDAY, isChecked,
+                            newWeekDaySchedule(Calendar.TUESDAY, previousAlarmSchedule, isChecked));
                     break;
                 case R.id.chbxWed:
                     Log.i(TAG, position + ".) Wednesday is checked: " + Boolean.toString(isChecked));
+                    scheduleEditor.editDays(Calendar.WEDNESDAY, isChecked,
+                            newWeekDaySchedule(Calendar.WEDNESDAY, previousAlarmSchedule, isChecked));
                     break;
                 case R.id.chbxThu:
                     Log.i(TAG, position + ".) Thursday is checked: " + Boolean.toString(isChecked));
+                    scheduleEditor.editDays(Calendar.THURSDAY, isChecked,
+                            newWeekDaySchedule(Calendar.THURSDAY, previousAlarmSchedule, isChecked));
                     break;
                 case R.id.chbxFri:
                     Log.i(TAG, position + ".) Friday is checked: " + Boolean.toString(isChecked));
+                    scheduleEditor.editDays(Calendar.FRIDAY, isChecked,
+                            newWeekDaySchedule(Calendar.FRIDAY, previousAlarmSchedule, isChecked));
                     break;
                 case R.id.chbxSat:
                     Log.i(TAG, position + ".) Saturday is checked: " + Boolean.toString(isChecked));
+                    scheduleEditor.editDays(Calendar.SATURDAY, isChecked,
+                            newWeekDaySchedule(Calendar.SATURDAY, previousAlarmSchedule, isChecked));
                     break;
             }
         }
@@ -354,13 +404,13 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     }
 
     //Only used for below method
-    private RelativeLayout timeSelected;
+
     private TextView txtTimeSelected;
     private void showTimePickerDialog(View view)
     {
+        RelativeLayout timeSelected = (RelativeLayout)view;
         Bundle args = new Bundle();
         args.putBoolean("StartOrEndButton", mStartEndButtonSelected);
-        RelativeLayout timeSelected = (RelativeLayout)view;
 
         if(timeSelected==null){
             Log.i(TAG, "txtTimeSelected is null");
@@ -368,11 +418,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(mStartEndButtonSelected){
             txtTimeSelected = (TextView)timeSelected.findViewById(R.id.txtStartTimeValue);
             args.putString(Constants.START_TIME_ARG, txtTimeSelected.getText().toString());
-                    //Utils.calendarToTimeString(mAlarmSchedules.get(mPosition).getStartTime()));
         } else {
-            TextView txtTimeSelected = (TextView)timeSelected.findViewById(R.id.txtEndTimeValue);
-            args.putString(Constants.END_TIME_ARG,
-                    txtTimeSelected.getText().toString());
+            Log.i(TAG, "End time selected");
+            txtTimeSelected = (TextView)timeSelected.findViewById(R.id.txtEndTimeValue);
+            args.putString(Constants.END_TIME_ARG, txtTimeSelected.getText().toString());
         }
         args.putInt("Position", (Integer) view.getTag());
         TimePickerFragment timePickerFragment = new TimePickerFragment();
@@ -401,7 +450,6 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         numberPicker.setMinValue(5);
         numberPicker.setValue(Integer.valueOf(selectedFrequencyValue.getText().toString()));
         numberPicker.setWrapSelectorWheel(false);
-
         builder.setMessage("Select Frequency");
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -434,43 +482,62 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     //This method is called by SchedulesListActivity after showTitleDialog is called here
     public void updateTitle(String newTitle, int position){
         selectedTitle.setText(newTitle);
+        ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+        scheduleEditor.editTitle(mAlarmSchedules.get(position).getUID(), newTitle);
     }
 
     //This method is called by SchedulesListActivity after showTimePickerDialog is called here
-    public void updateStartEndTime(String paramString, int position) {
-        Log.i(TAG, paramString + " " + position);
-        txtTimeSelected.setText(paramString);
-        //saveStartEndTime is called here
+    public void updateStartEndTime(String newStartTime, int position) {
+        Log.i(TAG, newStartTime + " " + position);
+        txtTimeSelected.setText(newStartTime);
+        saveStartEndTime(newStartTime, position);
     }
 
     //This method is called by SchedulesListActivity after showNumberPickerDialog is called here
     public void updateFrequency(int frequency, int position){
         Log.i(TAG, "New frequency: " + frequency + " Position: " + position);
+        AlarmSchedule previousAlarmSchedule = mAlarmSchedules.get(position);
+        AlarmSchedule newAlarmSchedule = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(), frequency,
+                previousAlarmSchedule.getTitle(), previousAlarmSchedule.getSunday(),
+                previousAlarmSchedule.getMonday(), previousAlarmSchedule.getTuesday(),
+                previousAlarmSchedule.getWednesday(), previousAlarmSchedule.getThursday(),
+                previousAlarmSchedule.getFriday(), previousAlarmSchedule.getSaturday());
+        ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+        scheduleEditor.editFrequency(newAlarmSchedule);
     }
     //Use the below method in onTimeSelected
-    private void saveStartEndTime(String time)
+    private void saveStartEndTime(String time, int position)
     {
         ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
-        AlarmSchedule previousAlarmSchedule = mAlarmSchedules.get(mPosition);
+        AlarmSchedule previousAlarmSchedule = mAlarmSchedules.get(position);
         if (mStartEndButtonSelected)
         {
             txtStartTimeValue.setText(time);
             Calendar startTime = Utils.convertToCalendarTime(time);
-            AlarmSchedule currentAlarmSchedule = new AlarmSchedule(previousAlarmSchedule.getUID(),
+            AlarmSchedule newAlarmSchedule = new AlarmSchedule(previousAlarmSchedule.getUID(),
                     previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
                     startTime, previousAlarmSchedule.getEndTime(), previousAlarmSchedule.getFrequency(),
                     previousAlarmSchedule.getTitle(), previousAlarmSchedule.getSunday(),
                     previousAlarmSchedule.getMonday(), previousAlarmSchedule.getTuesday(),
                     previousAlarmSchedule.getWednesday(), previousAlarmSchedule.getThursday(),
                     previousAlarmSchedule.getFriday(), previousAlarmSchedule.getSaturday());
-            scheduleEditor.editStartTime(startTime, previousAlarmSchedule.getEndTime(),
-                    Utils.isTodayActivated(previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
-                            previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
-                            previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
-                            previousAlarmSchedule.getSaturday()),previousAlarmSchedule.getUID(),
-                            currentAlarmSchedule);
+            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
+            scheduleEditor.editStartTime(todayActivated,newAlarmSchedule);
+            Log.i(TAG, "start time");
         } else {
             txtEndTimeValue.setText(time);
+            Calendar endTime = Utils.convertToCalendarTime(time);
+            AlarmSchedule newAlarmSchedule = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                    previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                    previousAlarmSchedule.getStartTime(), endTime, previousAlarmSchedule.getFrequency(),
+                    previousAlarmSchedule.getTitle(), previousAlarmSchedule.getSunday(),
+                    previousAlarmSchedule.getMonday(), previousAlarmSchedule.getTuesday(),
+                    previousAlarmSchedule.getWednesday(), previousAlarmSchedule.getThursday(),
+                    previousAlarmSchedule.getFriday(), previousAlarmSchedule.getSaturday());
+            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
+            scheduleEditor.editEndTime(todayActivated, newAlarmSchedule);
         }
     }
 
@@ -551,6 +618,85 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 chBxSaturday.setChecked(true);
                 chBxSaturday.setEnabled(true);
             }
+        }
+    }
+
+    private AlarmSchedule newWeekDaySchedule(int day, AlarmSchedule previousAlarmSchedule, boolean
+                                             isChecked){
+        switch (day){
+            case Calendar.SUNDAY:
+                AlarmSchedule newAlarmScheduleSun = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                        previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                        previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                        previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                        isChecked, previousAlarmSchedule.getMonday(),
+                        previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                        previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                        previousAlarmSchedule.getSaturday());
+                return newAlarmScheduleSun;
+            case Calendar.MONDAY:
+                AlarmSchedule newAlarmScheduleMon = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                        previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                        previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                        previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                        previousAlarmSchedule.getSunday(), isChecked,
+                        previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                        previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                        previousAlarmSchedule.getSaturday());
+                return newAlarmScheduleMon;
+            case Calendar.TUESDAY:
+                AlarmSchedule newAlarmScheduleTue = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                        previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                        previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                        previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                        previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                        isChecked, previousAlarmSchedule.getWednesday(),
+                        previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                        previousAlarmSchedule.getSaturday());
+                return newAlarmScheduleTue;
+            case Calendar.WEDNESDAY:
+                AlarmSchedule newAlarmScheduleWed = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                        previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                        previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                        previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                        previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                        previousAlarmSchedule.getTuesday(), isChecked,
+                        previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                        previousAlarmSchedule.getSaturday());
+                return newAlarmScheduleWed;
+            case Calendar.THURSDAY:
+                AlarmSchedule newAlarmScheduleThurs = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                        previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                        previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                        previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                        previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                        previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                        isChecked, previousAlarmSchedule.getFriday(),
+                        previousAlarmSchedule.getSaturday());
+                return newAlarmScheduleThurs;
+            case Calendar.FRIDAY:
+                AlarmSchedule newAlarmScheduleFri = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                        previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                        previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                        previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                        previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                        previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                        previousAlarmSchedule.getThursday(), isChecked,
+                        previousAlarmSchedule.getSaturday());
+                return newAlarmScheduleFri;
+            case Calendar.SATURDAY:
+                AlarmSchedule newAlarmScheduleSat = new AlarmSchedule(previousAlarmSchedule.getUID(),
+                        previousAlarmSchedule.getActivated(), previousAlarmSchedule.getAlertType(),
+                        previousAlarmSchedule.getStartTime(), previousAlarmSchedule.getEndTime(),
+                        previousAlarmSchedule.getFrequency(), previousAlarmSchedule.getTitle(),
+                        previousAlarmSchedule.getSunday(), previousAlarmSchedule.getMonday(),
+                        previousAlarmSchedule.getTuesday(), previousAlarmSchedule.getWednesday(),
+                        previousAlarmSchedule.getThursday(), previousAlarmSchedule.getFriday(),
+                        isChecked);
+                return newAlarmScheduleSat;
+            default:
+                Log.i(TAG, "New day value is not 1 through 7");
+                return null;
         }
     }
 }

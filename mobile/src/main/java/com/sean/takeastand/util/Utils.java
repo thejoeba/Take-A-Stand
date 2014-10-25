@@ -22,6 +22,8 @@ import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.sean.takeastand.storage.AlarmSchedule;
+
 import java.util.Calendar;
 
 /**
@@ -127,6 +129,27 @@ public final class Utils {
         }
     }
 
+    public static boolean isTodayActivated(AlarmSchedule alarmSchedule){
+        switch(getTodayWeekday()){
+            case 1:
+                return alarmSchedule.getSunday();
+            case 2:
+                return alarmSchedule.getMonday();
+            case 3:
+                return alarmSchedule.getTuesday();
+            case 4:
+                return alarmSchedule.getWednesday();
+            case 5:
+                return alarmSchedule.getThursday();
+            case 6:
+                return alarmSchedule.getFriday();
+            case 7:
+                return alarmSchedule.getSaturday();
+            default:
+                return false;
+        }
+    }
+
     public static void setRunningScheduledAlarm(Context context, int uid){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
@@ -170,7 +193,7 @@ public final class Utils {
     }
 
     public static String convertIntArrayToString(int[] array){
-        if(array.length==4){
+        if(array.length==3){
             String intArrayString = "";
             for (int i = 0; i < array.length; i++){
                 intArrayString += i + "-";
@@ -183,11 +206,11 @@ public final class Utils {
     }
 
     public static int[] convertStringToIntArray(String string){
-        if(string.length()==8){
+        if(string.length()==6){
             int[] intArray = new int[8];
             for (int i = 0; i < string.length(); i++) {
-                if((string.charAt(i) >= '0') && (string.charAt(i) <= '9'))
-                intArray[i] = Character.digit(string.charAt(i), 10);
+                if((string.charAt(i) >= '0') && (string.charAt(i) <= '7'))
+                intArray[i] = Character.digit(string.charAt(i), 8);
             }
             return intArray;
         } else {

@@ -46,7 +46,7 @@ public class ScheduleDatabaseAdapter
         mContext = context;
     }
 
-    public long newAlarm(boolean activated, String alertType, String startTime, String endTime, int frequency,
+    public long newAlarm(boolean activated, int[] alertType, String startTime, String endTime, int frequency,
                          String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
@@ -55,7 +55,7 @@ public class ScheduleDatabaseAdapter
         SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put("activated", Utils.convertBooleanToInt(activated));
-        databaseInfo.put("alert_type", alertType);
+        databaseInfo.put("alert_type", Utils.convertIntArrayToString(alertType));
         databaseInfo.put("start_time", startTime);
         databaseInfo.put("end_time", endTime);
         databaseInfo.put("frequency", frequency);
@@ -88,7 +88,8 @@ public class ScheduleDatabaseAdapter
         return  count;
     }
 
-    public int editAlarm(boolean activated, String alertType, String startTime, String endTime, int frequency,
+    //This method may be deletable; no longer used in interactive listview
+    public int editAlarm(boolean activated, int[] alertType, String startTime, String endTime, int frequency,
                          String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday, int rowID)
     {
@@ -97,7 +98,7 @@ public class ScheduleDatabaseAdapter
         SQLiteDatabase alarmsDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(ScheduleSQLHelper.ACTIVATED, Utils.convertBooleanToInt(activated));
-        databaseInfo.put(ScheduleSQLHelper.ALERT_TYPE, alertType);
+        databaseInfo.put(ScheduleSQLHelper.ALERT_TYPE, Utils.convertIntArrayToString(alertType));
         databaseInfo.put(ScheduleSQLHelper.START_TIME, startTime);
         databaseInfo.put(ScheduleSQLHelper.END_TIME, endTime);
         databaseInfo.put(ScheduleSQLHelper.FREQUENCY, frequency);
@@ -128,7 +129,8 @@ public class ScheduleDatabaseAdapter
         //Need to create a string array for the whereArgs, which determine row(s) to update
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -142,7 +144,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.ALERT_TYPE, Utils.convertIntArrayToString(alertTypes));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -156,7 +159,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.START_TIME, startTime);
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -170,7 +174,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.END_TIME, endTime);
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -184,7 +189,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.FREQUENCY, frequency);
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -198,7 +204,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.TITLE, title);
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -213,7 +220,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.SUNDAY, Utils.convertBooleanToInt(sunday));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -227,7 +235,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.MONDAY, Utils.convertBooleanToInt(monday));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -241,7 +250,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.TUESDAY, Utils.convertBooleanToInt(tuesday));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -255,7 +265,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.WEDNESDAY, Utils.convertBooleanToInt(wednesday));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -269,7 +280,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.THURSDAY, Utils.convertBooleanToInt(thursday));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -283,7 +295,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.FRIDAY, Utils.convertBooleanToInt(friday));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -297,7 +310,8 @@ public class ScheduleDatabaseAdapter
         updatedInfo.put(ScheduleSQLHelper.SATURDAY, Utils.convertBooleanToInt(saturday));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
-        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo, ScheduleSQLHelper.UID + "=? ", arrayOfString);
+        int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
+                ScheduleSQLHelper.UID + "=? ", arrayOfString);
         scheduleDatabase.close();
         scheduleSQLHelper.close();
         return count;
@@ -314,7 +328,7 @@ public class ScheduleDatabaseAdapter
             do {
                 int UID = cursor.getInt(0);
                 boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
-                String alertType = cursor.getString(2);
+                int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
                 Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
                 Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4));
                 int frequency = cursor.getInt(5);
@@ -326,8 +340,9 @@ public class ScheduleDatabaseAdapter
                 boolean thursday = Utils.convertIntToBoolean(cursor.getInt(11));
                 boolean friday = Utils.convertIntToBoolean(cursor.getInt(12));
                 boolean saturday = Utils.convertIntToBoolean(cursor.getInt(13));
-                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, alertType, startTime, endTime,
-                        frequency, title, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
+                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, alertType,
+                        startTime, endTime, frequency, title, sunday, monday, tuesday, wednesday,
+                        thursday, friday, saturday);
                 alarmSchedules.add(alarmSchedule);
             } while (cursor.moveToNext());
         }
@@ -377,7 +392,8 @@ public class ScheduleDatabaseAdapter
     public int getCount()
     {
         ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
-        int count = scheduleSQLHelper.getWritableDatabase().query("alarms_table", new String[] { "_id" }, null, null, null, null, null).getCount();
+        int count = scheduleSQLHelper.getWritableDatabase().query("alarms_table", new String[]
+                { "_id" }, null, null, null, null, null).getCount();
         scheduleSQLHelper.close();
         return count;
     }

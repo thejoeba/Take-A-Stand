@@ -180,6 +180,8 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "User switched off the repeating alarm");
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+            mHandler.removeCallbacks(stoodUp);
+            mHandler.removeCallbacks(changeImage);
             cancelNotification();
             //End this service
             AlarmService.this.stopSelf();

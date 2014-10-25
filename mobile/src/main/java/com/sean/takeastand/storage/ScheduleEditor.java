@@ -40,7 +40,7 @@ import java.util.Calendar;
  */
 public class ScheduleEditor {
 
-    private static final String TAG = "ScheduledAlarmEditor";
+    private static final String TAG = "ScheduleEditor";
     private ScheduleDatabaseAdapter scheduleDatabaseAdapter;
     private Context mContext;
 
@@ -59,7 +59,7 @@ public class ScheduleEditor {
      */
 
 
-    public void newAlarm(boolean activated,  String alarmType, String startTime, String endTime, int frequency,
+    public void newAlarm(boolean activated,  int[] alarmType, String startTime, String endTime, int frequency,
                             String title, boolean sunday, boolean monday, boolean tuesday,
                             boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
@@ -90,11 +90,12 @@ public class ScheduleEditor {
 
 
 
-    public void editActivated(boolean activated, Calendar startTime, Calendar endTime, int UID,
-                              AlarmSchedule alarmSchedule){
-        if(activated){
+    public void editActivated(AlarmSchedule alarmSchedule){
+        int UID = alarmSchedule.getUID();
+        Calendar startTime = alarmSchedule.getStartTime();
+        Calendar endTime = alarmSchedule.getEndTime();
+        if(alarmSchedule.getActivated()){
             setDailyRepeatingAlarm(UID, Utils.calendarToTimeString(startTime));
-
             Calendar rightNow = Calendar.getInstance();
             if(startTime.before(rightNow)&&endTime.after(rightNow)) {
                 new ScheduledRepeatingAlarm(mContext, alarmSchedule).setRepeatingAlarm();
@@ -103,18 +104,17 @@ public class ScheduleEditor {
             }
         } else {
             cancelDailyRepeatingAlarm(UID);
-            //scheduleDatabaseAdapter.updateActivated
             if(UID == Utils.getRunningScheduledAlarm(mContext)){
                 new ScheduledRepeatingAlarm(mContext, alarmSchedule).cancelAlarm();
                 Toast.makeText(mContext, "Currently running scheduled has ended.",
                         Toast.LENGTH_SHORT).show();
             }
         }
-        scheduleDatabaseAdapter.updateActivated(UID, activated);
+        scheduleDatabaseAdapter.updateActivated(UID, alarmSchedule.getActivated());
     }
 
-    public void editAlertType(int[] alerts, int UID, AlarmSchedule alarmSchedule){
-        if(UID == Utils.getRunningScheduledAlarm(mContext)){
+    public void editAlertType(AlarmSchedule alarmSchedule){
+        if(alarmSchedule.getUID() == Utils.getRunningScheduledAlarm(mContext)){
             ScheduledRepeatingAlarm scheduledRepeatingAlarm = new ScheduledRepeatingAlarm(mContext,
                     alarmSchedule);
             scheduledRepeatingAlarm.cancelAlarm();
@@ -125,11 +125,13 @@ public class ScheduleEditor {
             Toast.makeText(mContext, "Changes saved.",
                     Toast.LENGTH_SHORT).show();
         }
-        scheduleDatabaseAdapter.updateAlertType(UID, alerts);
+        scheduleDatabaseAdapter.updateAlertType(alarmSchedule.getUID(),alarmSchedule.getAlertType());
     }
 
-    public void editStartTime(Calendar startTime, Calendar endTime, boolean alarmToday, int UID,
-                               AlarmSchedule alarmSchedule){
+    public void editStartTime(boolean alarmToday, AlarmSchedule alarmSchedule){
+        int UID = alarmSchedule.getUID();
+        Calendar startTime = alarmSchedule.getStartTime();
+        Calendar endTime = alarmSchedule.getEndTime();
         if(alarmToday){
             Calendar rightNow = Calendar.getInstance();
             if(startTime.after(rightNow)){
@@ -155,9 +157,12 @@ public class ScheduleEditor {
         scheduleDatabaseAdapter.updateStartTime(UID, Utils.calendarToTimeString(startTime));
     }
 
-    public void editEndTime(Calendar endTime, Calendar startTime, boolean alarmToday, int UID,
-                            AlarmSchedule alarmSchedule){
+    public void editEndTime(boolean alarmToday, AlarmSchedule alarmSchedule){
+        int UID = alarmSchedule.getUID();
+        Calendar endTime = alarmSchedule.getEndTime();
+        Calendar startTime = alarmSchedule.getStartTime();
         if(alarmToday){
+
             Calendar rightNow = Calendar.getInstance();
             if(endTime.before(rightNow)){
                 if(UID == Utils.getRunningScheduledAlarm(mContext)){
@@ -180,8 +185,8 @@ public class ScheduleEditor {
         scheduleDatabaseAdapter.updateEndTime(UID, Utils.calendarToTimeString(endTime));
     }
 
-    public void editFrequency(int frequency, int UID, AlarmSchedule alarmSchedule){
-        if(UID == Utils.getRunningScheduledAlarm(mContext)){
+    public void editFrequency(AlarmSchedule alarmSchedule){
+        if(alarmSchedule.getUID() == Utils.getRunningScheduledAlarm(mContext)){
             ScheduledRepeatingAlarm scheduledRepeatingAlarm =
                     new ScheduledRepeatingAlarm(mContext, alarmSchedule);
             scheduledRepeatingAlarm.cancelAlarm();
@@ -192,10 +197,10 @@ public class ScheduleEditor {
             Toast.makeText(mContext, "New frequency saved.",
                     Toast.LENGTH_SHORT).show();
         }
-        scheduleDatabaseAdapter.updateFrequency(UID, frequency);
+        scheduleDatabaseAdapter.updateFrequency(alarmSchedule.getUID(), alarmSchedule.getFrequency());
     }
 
-    public void editDays(int weekday, boolean status, int UID, AlarmSchedule alarmSchedule){
+    public void editDays(int weekday, boolean status, AlarmSchedule alarmSchedule){
         if(weekday == Utils.getTodayWeekday()){
             if(status){
                 Calendar rightNow = Calendar.getInstance();
@@ -223,6 +228,7 @@ public class ScheduleEditor {
             Toast.makeText(mContext, "Weekday saved.",
                     Toast.LENGTH_SHORT).show();
         }
+        int UID = alarmSchedule.getUID();
         switch (weekday){
             case 1:
                 scheduleDatabaseAdapter.updateSunday(UID, status);
@@ -253,8 +259,7 @@ public class ScheduleEditor {
 
     public void editTitle(int UID, String title){
         scheduleDatabaseAdapter.updateTitle(UID, title);
-        //No toast because this will be saved for each character and user can see that it has
-        //changed
+        //No toast because user can see that it has changed
     }
 
     public void deleteAlarm(AlarmSchedule alarmSchedule){
@@ -263,7 +268,6 @@ public class ScheduleEditor {
     }
 
     private void setDailyRepeatingAlarm(int UID, String time){
-        Log.i(TAG, "Set new daily repeating alarm");
         Intent intent = new Intent(mContext, StartScheduleReceiver.class);
         intent.putExtra(Constants.ALARM_UID, UID);
         PendingIntent pendingIntent =

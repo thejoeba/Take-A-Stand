@@ -144,7 +144,7 @@ public class StartScheduleReceiver extends BroadcastReceiver
                 break;
         }
         //Return a dummy alarmSchedule with a UID of -100 which signals alarm was not found
-        return new AlarmSchedule(-100, false, "", null, null, 0, "", false,
+        return new AlarmSchedule(-100, false, null, null, null, 0, "", false,
                 false, false, false, false, false, false);
 
     }
