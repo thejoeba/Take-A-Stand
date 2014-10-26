@@ -56,26 +56,13 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     @Override
     public void setRepeatingAlarm() {
         //Will check sharedpreferences for user defaults for alarms
-        double alarmPeriodMinutes = 20;  //In future will get from user sharedpreferences
+        double alarmPeriodMinutes = .5;  //In future will get from user sharedpreferences
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
         setAlarm(triggerTime);
-        updateStatusImage();
         Log.i(TAG, "New Non-Scheduled Alarm Set");
-        Toast.makeText(mContext, "Set New Alarm", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void setShortBreakAlarm() {
-        long alarmTimeInMillis = 1 * Constants.secondsInMinute  * Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
-                SystemClock.elapsedRealtime());
-        setAlarm(triggerTime);
-        Log.i(TAG, "Short Break Alarm set");
-        Toast.makeText(mContext, "Set Short Break Alarm", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -86,7 +73,6 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
                 SystemClock.elapsedRealtime());
         setAlarm(triggerTime);
         Log.i(TAG, "Long Break Alarm set");
-        Toast.makeText(mContext, "Set Long Break Alarm", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -115,9 +101,5 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         Intent intent = new Intent(context, AlarmReceiver.class);
         return PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
-    }
-
-    private void updateStatusImage(){
-        Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_ALARM_RUNNING);
     }
 }

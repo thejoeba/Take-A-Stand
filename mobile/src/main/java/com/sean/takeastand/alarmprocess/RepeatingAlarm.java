@@ -26,8 +26,6 @@ public interface RepeatingAlarm
     UnscheduledRepeatingAlarm class, which both implement this interface.  */
     public void setRepeatingAlarm();
 
-    public void setShortBreakAlarm();
-
     public void delayAlarm();
 
     public void cancelAlarm();

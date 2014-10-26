@@ -59,7 +59,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     @Override
     public void setRepeatingAlarm() {
         //In future will check mAlarmSchedule.alarmType() and set alarm accordingly
-        double alarmPeriodMinutes = 20;  //In future will check mAlarmSchedule.getFrequency() and set
+        double alarmPeriodMinutes = .5;  //In future will check mAlarmSchedule.getFrequency() and set
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
                 Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
@@ -68,20 +68,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         //The purpose of this is to have a way of keeping track of which scheduled alarm is running
         //It helps when cancelling a deleted alarm
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
-        updateStatusImage();
         Log.i(TAG, "New Scheduled Repeating Alarm Set");
-        Toast.makeText(mContext, "Set New Alarm", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void setShortBreakAlarm() {
-        long alarmTimeInMillis = 1 * Constants.secondsInMinute  * Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
-                SystemClock.elapsedRealtime());
-        setAlarm(triggerTime);
-        Log.i(TAG, "Short Break Alarm set");
-        Toast.makeText(mContext, "Set Short Break Alarm", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -92,7 +79,6 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
                 SystemClock.elapsedRealtime());
         setAlarm(triggerTime);
         Log.i(TAG, "Long Break Alarm set");
-        Toast.makeText(mContext, "Set Long Break Alarm", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -123,12 +109,5 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         intent.putExtra(Constants.ALARM_SCHEDULE, alarmSchedule);
         return PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
-    }
-
-    private void updateStatusImage(){
-        if(Utils.getCurrentImageStatus(mContext) == Constants.NO_ALARM_RUNNING ||
-                Utils.getCurrentImageStatus(mContext) == Constants.NON_SCHEDULE_ALARM_RUNNING){
-            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
-        }
     }
 }

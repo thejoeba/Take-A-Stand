@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.sean.takeastand.storage.AlarmSchedule;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -174,7 +175,6 @@ public final class Utils {
     }
 
     private static void notifyImageUpdate(Context context){
-        Log.i(TAG, "SendingIntent");
         Intent intent = new Intent(Constants.INTENT_MAIN_IMAGE);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
@@ -196,8 +196,9 @@ public final class Utils {
         if(array.length==3){
             String intArrayString = "";
             for (int i = 0; i < array.length; i++){
-                intArrayString += i + "-";
+                intArrayString += array[i] + "-";
             }
+            Log.i(TAG, intArrayString);
             return intArrayString;
         } else {
             return "";
@@ -207,15 +208,27 @@ public final class Utils {
 
     public static int[] convertStringToIntArray(String string){
         if(string.length()==6){
-            int[] intArray = new int[8];
+            int[] intArray = new int[3];
+            int arrayIndex = 0;
             for (int i = 0; i < string.length(); i++) {
-                if((string.charAt(i) >= '0') && (string.charAt(i) <= '7'))
-                intArray[i] = Character.digit(string.charAt(i), 8);
+                if(Character.isDigit(string.charAt(i))){
+                    intArray[arrayIndex] = string.charAt(i) - '0';
+                    arrayIndex++ ;
+                }
             }
+            Log.i(TAG, Arrays.toString(intArray));
             return intArray;
         } else {
             return null;
         }
+    }
+
+    public static int[] getDefaultAlertType(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        String alertType = sharedPreferences.getString(Constants.USER_ALERT_TYPE, "1-1-0");
+        Log.i(TAG, alertType);
+        return convertStringToIntArray(alertType);
     }
 
 }

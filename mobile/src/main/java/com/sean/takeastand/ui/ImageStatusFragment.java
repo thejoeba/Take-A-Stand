@@ -34,11 +34,15 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sean.takeastand.R;
+import com.sean.takeastand.alarmprocess.AlarmService;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+
+import java.util.Random;
 
 public class ImageStatusFragment
         extends Fragment
@@ -89,10 +93,12 @@ public class ImageStatusFragment
         if(imageStatus == Constants.NO_ALARM_RUNNING){
             Utils.setCurrentMainActivityImage(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
             unscheduledRepeatingAlarm.setRepeatingAlarm();
+            Toast.makeText(mContext, "Stand Reminders On", Toast.LENGTH_LONG).show();
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
            Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
            endAlarmService();
            unscheduledRepeatingAlarm.cancelAlarm();
+            Toast.makeText(mContext, "Stand Reminders Cancelled", Toast.LENGTH_LONG).show();
         }
         updateLayout();
     }
@@ -117,13 +123,15 @@ public class ImageStatusFragment
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_passed);
-                statusImage.setOnClickListener(imageListener);
-                txtTap.setText(R.string.tap_to_stop);
+                statusImage.setOnClickListener(null);
+                txtTap.setText("Time to Stand Up");
                 break;
             case Constants.NON_SCHEDULE_STOOD_UP:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_stood);
-                statusImage.setOnClickListener(imageListener);
-                txtTap.setText(R.string.praise1);
+                statusImage.setOnClickListener(null);
+                String praiseNon = praiseForUser();
+                txtTap.setText(praiseNon);
+                Toast.makeText(mContext, praiseNon, Toast.LENGTH_LONG).show();
                 break;
             case Constants.SCHEDULE_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_schedule_running);
@@ -138,7 +146,9 @@ public class ImageStatusFragment
             case Constants.SCHEDULE_STOOD_UP:
                 statusImage.setImageResource(R.drawable.alarm_schedule_stood);
                 statusImage.setOnClickListener(null);
-                txtTap.setText(R.string.praise1);
+                String praiseSchedule = praiseForUser();
+                txtTap.setText(praiseSchedule);
+                Toast.makeText(mContext, praiseSchedule, Toast.LENGTH_LONG).show();
                 break;
             default:
                 statusImage.setImageResource(R.drawable.alarm_image_inactive);
@@ -148,7 +158,12 @@ public class ImageStatusFragment
         }
     }
 
-
+    private String praiseForUser(){
+        String[] praise = getResources().getStringArray(R.array.praise);
+        Random random = new Random(System.currentTimeMillis());
+        int randomNumber = random.nextInt(praise.length);
+        return praise[randomNumber];
+    }
 
     private void registerReceivers(){
         LocalBroadcastManager.getInstance(getActivity())
@@ -171,6 +186,7 @@ public class ImageStatusFragment
 
         @Override
         public void onClick(View view) {
+            Log.i(TAG, "OnClick");
             switchStatus();
         }
     };

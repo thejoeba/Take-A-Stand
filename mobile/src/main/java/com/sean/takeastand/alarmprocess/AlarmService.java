@@ -52,18 +52,6 @@ images. */
  */
 public class AlarmService extends Service{
 
-    /*Note that more testing will have to be done to confirm that the LED light is not showing
-    after 1 minute.
-
-    Control LED lights directly with:
-
-    android.provider.Settings.System.putInt(getContentResolver(), "notification_light_pulse", 1);
-    1 - indicate on state 0 - indicate off state
-
-    Have the AlarmService run this while a notification button has not been selected.
-    Maybe use a handler that posts this thread until something cancels it.
-    That way LED runs even while notification canceled and updated again each minute*/
-
     private static final String TAG = "AlarmService";
     //Change to 60000 after testing
     private final long oneMinuteMillis = 60000;
@@ -73,6 +61,7 @@ public class AlarmService extends Service{
     private Context mContext;
     private AlarmSchedule mCurrentAlarmSchedule;
     private int mNotifTimePassed = 0;
+    long[] mVibrationPattern = {(long)200, (long)200, (long)200, (long)200};
 
 
     @Override
@@ -109,10 +98,8 @@ public class AlarmService extends Service{
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
                 new IntentFilter("StoodUp"));
-        getApplicationContext().registerReceiver(oneMinuteReceiver,
-                new IntentFilter("OneMinute"));
-        getApplicationContext().registerReceiver(fiveMinuteReceiver,
-                new IntentFilter("FiveMinute"));
+        getApplicationContext().registerReceiver(delayAlarmReceiver,
+                new IntentFilter("DelayAlarm"));
         LocalBroadcastManager.getInstance(AlarmService.this).registerReceiver(endAlarmService,
                 new IntentFilter("userSwitchedOffAlarm"));
         LocalBroadcastManager.getInstance(AlarmService.this).registerReceiver(deletedAlarm,
@@ -121,8 +108,7 @@ public class AlarmService extends Service{
 
     private void unregisterReceivers(){
         getApplicationContext().unregisterReceiver(stoodUpReceiver);
-        getApplicationContext().unregisterReceiver(oneMinuteReceiver);
-        getApplicationContext().unregisterReceiver(fiveMinuteReceiver);
+        getApplicationContext().unregisterReceiver(delayAlarmReceiver);
         LocalBroadcastManager.getInstance(AlarmService.this).unregisterReceiver(endAlarmService);
         LocalBroadcastManager.getInstance(AlarmService.this).unregisterReceiver(deletedAlarm);
     }
@@ -137,10 +123,11 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
             cancelNotification();
-            Toast.makeText(mContext, praiseForUser(), Toast.LENGTH_SHORT).show();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            long tenSeconds = 10 * Constants.millisecondsInSecond;
-            mHandler.postDelayed(stoodUp, tenSeconds);
+            long eightSeconds = 8 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(changeImage, eightSeconds);
+            long fifteenSeconds = 15 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(stoodUp, fifteenSeconds);
             if(mCurrentAlarmSchedule==null){
                 Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_STOOD_UP);
             } else {
@@ -149,26 +136,13 @@ public class AlarmService extends Service{
         }
     };
 
-    private BroadcastReceiver oneMinuteReceiver = new BroadcastReceiver(){
+    private BroadcastReceiver delayAlarmReceiver = new BroadcastReceiver(){
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "oneMinuteReceiver");
+            Log.i(TAG, "delayAlarmReceiver");
             cancelNotification();
-            setShortBreakAlarm(mContext);
-            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            //End service
-            AlarmService.this.stopSelf();
-        }
-    };
-
-    private BroadcastReceiver fiveMinuteReceiver = new BroadcastReceiver(){
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "fiveMinuteReceiver");
-            cancelNotification();
-            setLongBreakAlarm(mContext);
+            delayAlarm(mContext);
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             //End service
             AlarmService.this.stopSelf();
@@ -218,10 +192,10 @@ public class AlarmService extends Service{
     private Runnable stoodUp = new Runnable() {
         @Override
         public void run() {
-            AlarmService.this.stopSelf();
             setStoodUpAlarm(mContext);
-            long fifteenSeconds = 15 * Constants.millisecondsInSecond;
-            mHandler.postDelayed(changeImage, fifteenSeconds);
+            AlarmService.this.stopSelf();
+            Log.i(TAG, "setting new alarm");
+
         }
     };
 
@@ -233,8 +207,7 @@ public class AlarmService extends Service{
             } else {
                 Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             }
-            //End this service
-            AlarmService.this.stopSelf();
+            Log.i(TAG, "changing from stood up image");
         }
     };
 
@@ -249,41 +222,47 @@ public class AlarmService extends Service{
     private void sendNotification(){
         NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
-
-        //Make intents
-        Intent launchActivity = new Intent(mContext, MainActivity.class);
-        PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(mContext, 0,
-                launchActivity, 0);
-        Intent stoodUpIntent = new Intent("StoodUp");
-        PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                stoodUpIntent, 0);
-        Intent oneMinuteIntent = new Intent("OneMinute");
-        PendingIntent oneMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                oneMinuteIntent, 0);
-        Intent fiveMinuteIntent = new Intent("FiveMinute");
-        PendingIntent fiveMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                fiveMinuteIntent, 0);
-        long[] vibrationPattern = {(long)500, (long)750};
-
-        Notification alarmNotification = new Notification.InboxStyle(
-                new Notification.Builder(mContext)
-                        .setContentTitle("Take A Stand")
-                        .setContentText("Time to stand up")
-                        .setContentIntent(launchActivityPendingIntent)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setAutoCancel(false)
-                        .setOngoing(true)
-                        .addAction(R.drawable.ic_action_done, "Stood", stoodUpPendingIntent)
-                        .addAction(R.drawable.ic_action_time, "1 Min",
-                                oneMinutePendingIntent)
-                        .addAction(R.drawable.ic_action_time, "5 Min",
-                                fiveMinutePendingIntent)
-                        //Both vibrate and set lights will be optional in the future.
-                        .setVibrate(vibrationPattern)
-                        .setLights(238154000, 1000, 4000)
-                        .setTicker("Time to stand up"))
-                        .addLine("Time to stand up")
-                .build();
+        PendingIntent[] pendingIntents = makeNotificationIntents();
+        Notification.Builder alarmNotificationBuilder =  new Notification.Builder(mContext);
+        alarmNotificationBuilder
+                .setContentTitle("Take A Stand")
+                .setStyle(new Notification.InboxStyle()
+                        .addLine("Time to Stand Up"))
+                .setContentText("Time to stand up")
+                .setContentIntent(pendingIntents[1])
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
+                .addAction(R.drawable.ic_action_time, "Delay", pendingIntents[2])
+                .setTicker("Time to stand up");
+        //Purpose of below is to figure out what type of user alert to give with the notification
+        //If scheduled, check schedule preferences
+        //If unscheduled, check user defaults
+        if(mCurrentAlarmSchedule!=null){
+            int[] alertType = mCurrentAlarmSchedule.getAlertType();
+            if((alertType[0]) == 1){
+                alarmNotificationBuilder.setLights(238154000, 1000, 4000);
+            }
+            if(alertType[1] == 1){
+                alarmNotificationBuilder.setVibrate(mVibrationPattern);
+            }
+            if(alertType[2] == 1){
+                //Eventually add sound option
+            }
+        } else {
+            int[] alertType = Utils.getDefaultAlertType(mContext);
+            if((alertType[0]) == 1){
+                alarmNotificationBuilder.setLights(238154000, 1000, 4000);
+            }
+            if(alertType[1] == 1){
+                alarmNotificationBuilder.setVibrate(mVibrationPattern);
+            }
+            if(alertType[2] == 1){
+                //Eventually add sound option
+            }
+        }
+        Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
     }
 
@@ -298,40 +277,53 @@ public class AlarmService extends Service{
                 Context.NOTIFICATION_SERVICE);
         //Cancel the previous one so ticker text shows again
         notificationManager.cancel(R.integer.AlarmNotificationID);
-        //Make intents
+        PendingIntent[] pendingIntents = makeNotificationIntents();
+
+        Notification.Builder alarmNotificationBuilder =  new Notification.Builder(mContext);
+        alarmNotificationBuilder
+                .setContentTitle("Take A Stand")
+                .setStyle(new Notification.InboxStyle()
+                        .addLine("Time to stand up: " + mNotifTimePassed +
+                                setMinutes(mNotifTimePassed)))
+                .setContentText("Time to stand up: " + mNotifTimePassed +
+                        setMinutes(mNotifTimePassed))
+                .setContentIntent(pendingIntents[1])
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
+                .addAction(R.drawable.ic_action_time, "Delay", pendingIntents[2])
+                .setTicker("Time to stand up");
+        //Only keep the LED lights going on new notifications if user has them set
+        //Don't vibrate or make a sound
+        if(mCurrentAlarmSchedule!=null){
+            int[] alertType = mCurrentAlarmSchedule.getAlertType();
+            if((alertType[0]) == 1){
+                alarmNotificationBuilder.setLights(238154000, 1000, 4000);
+            }
+        } else {
+            int[] alertType = Utils.getDefaultAlertType(mContext);
+            if((alertType[0]) == 1){
+                alarmNotificationBuilder.setLights(238154000, 1000, 4000);
+            }
+        }
+        Notification alarmNotification = alarmNotificationBuilder.build();
+        notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
+    }
+
+    private PendingIntent[] makeNotificationIntents(){
         Intent launchActivity = new Intent(mContext, MainActivity.class);
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(mContext, 0,
                 launchActivity, 0);
         Intent stoodUpIntent = new Intent("StoodUp");
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(mContext, 0,
                 stoodUpIntent, 0);
-        Intent oneMinuteIntent = new Intent("OneMinute");
-        PendingIntent oneMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                oneMinuteIntent, 0);
-        Intent fiveMinuteIntent = new Intent("FiveMinute");
-        PendingIntent fiveMinutePendingIntent = PendingIntent.getBroadcast(mContext, 0,
-                fiveMinuteIntent, 0);
-
-        Notification alarmNotification = new Notification.InboxStyle(
-                new Notification.Builder(mContext)
-                        .setContentTitle("Take A Stand")
-                        .setContentText("Time to stand up: " + mNotifTimePassed +
-                                setMinutes(mNotifTimePassed))
-                        .setContentIntent(launchActivityPendingIntent)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setAutoCancel(false)
-                        .setOngoing(true)
-                        .addAction(R.drawable.ic_action_done, "Stood", stoodUpPendingIntent)
-                        .addAction(R.drawable.ic_action_time, "1 Min",
-                                oneMinutePendingIntent)
-                        .addAction(R.drawable.ic_action_time, "5 Min",
-                                fiveMinutePendingIntent)
-                        .setLights(238154000, 1000, 4000)
-                        .setTicker("Time to stand up"))
-                        .addLine("Time to stand up: " + mNotifTimePassed +
-                                setMinutes(mNotifTimePassed))
-                .build();
-        notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
+        Intent delayAlarmIntent = new Intent("DelayAlarm");
+        PendingIntent delayAlarmPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+                delayAlarmIntent, 0);
+        PendingIntent[] pendingIntents =
+                {launchActivityPendingIntent, stoodUpPendingIntent, delayAlarmPendingIntent};
+        return pendingIntents;
     }
 
     private String setMinutes(int minutes){
@@ -342,17 +334,7 @@ public class AlarmService extends Service{
         }
     }
 
-    private void setShortBreakAlarm(Context context){
-        RepeatingAlarm repeatingAlarm;
-        if(mCurrentAlarmSchedule == null){
-            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
-        } else {
-            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
-        }
-        repeatingAlarm.setShortBreakAlarm();
-    }
-
-    private void setLongBreakAlarm(Context context){
+    private void delayAlarm(Context context){
         RepeatingAlarm repeatingAlarm;
         if(mCurrentAlarmSchedule == null){
             repeatingAlarm = new UnscheduledRepeatingAlarm(context);
@@ -371,19 +353,4 @@ public class AlarmService extends Service{
         }
         repeatingAlarm.setRepeatingAlarm();
     }
-
-    private String praiseForUser(){
-        String[] praise = {
-                getResources().getString(R.string.praise1),
-                getResources().getString(R.string.praise2),
-                getResources().getString(R.string.praise3),
-                getResources().getString(R.string.praise4),
-                getResources().getString(R.string.praise5),
-                getResources().getString(R.string.praise6)
-        };
-        Random random = new Random(System.currentTimeMillis());
-        int randomNumber = random.nextInt(praise.length);
-        return praise[randomNumber];
-    }
-
 }

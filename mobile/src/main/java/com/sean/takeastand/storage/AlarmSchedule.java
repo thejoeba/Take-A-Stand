@@ -41,7 +41,7 @@ public class AlarmSchedule implements Parcelable {
 
     private int UID;
     private boolean activated;
-    private int[] alertType = {0, 0, 0};
+    private int[] alertType = {1, 1, 0};
     private Calendar startTime;
     private Calendar endTime;
     private int frequency;

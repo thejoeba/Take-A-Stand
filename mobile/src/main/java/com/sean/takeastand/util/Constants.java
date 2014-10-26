@@ -48,4 +48,7 @@ public final class Constants {
     public static final int SCHEDULE_TIME_TO_STAND = 6;
     public static final int SCHEDULE_STOOD_UP = 7;
     public static final String INTENT_MAIN_IMAGE = "UpdateMainImage";
+    public static final String NEW_USER = "NewUser";
+    public static final String USER_ALERT_TYPE = "UserAlertType";
+    public static final String USER_FREQUENCY = "UserFrequency";
 }
