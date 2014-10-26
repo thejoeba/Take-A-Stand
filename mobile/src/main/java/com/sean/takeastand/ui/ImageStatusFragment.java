@@ -96,17 +96,13 @@ public class ImageStatusFragment
             Toast.makeText(mContext, "Stand Reminders On", Toast.LENGTH_LONG).show();
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
            Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
-           endAlarmService();
            unscheduledRepeatingAlarm.cancelAlarm();
             Toast.makeText(mContext, "Stand Reminders Cancelled", Toast.LENGTH_LONG).show();
         }
         updateLayout();
     }
 
-    private void endAlarmService(){
-        Intent intent = new Intent("userSwitchedOffAlarm");
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-    }
+
 
     private void updateLayout(){
         int imageStatus = Utils.getCurrentImageStatus(getActivity());

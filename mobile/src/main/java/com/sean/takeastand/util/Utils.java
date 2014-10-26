@@ -231,4 +231,12 @@ public final class Utils {
         return convertStringToIntArray(alertType);
     }
 
+    public static int getDefaultFrequency(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        int frequency = sharedPreferences.getInt(Constants.USER_FREQUENCY, 20);
+        Log.i(TAG, "Default frequency: " + frequency);
+        return frequency;
+    }
+
 }

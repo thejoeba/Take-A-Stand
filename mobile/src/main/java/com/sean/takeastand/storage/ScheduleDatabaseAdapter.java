@@ -351,6 +351,40 @@ public class ScheduleDatabaseAdapter
         return alarmSchedules;
     }
 
+    public ArrayList<FixedAlarmSchedule> getFixedAlarmSchedules(){
+        ArrayList<FixedAlarmSchedule> fixedAlarmSchedules = new ArrayList<FixedAlarmSchedule>();
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        Cursor cursor = scheduleSQLHelper.getWritableDatabase().query(ScheduleSQLHelper.TABLE_MAIN,
+                null, null, null, null, null, null);
+        cursor.moveToFirst();
+        //Check to make sure there is a row; this prevents IndexOutOfBoundsException
+        if(!(cursor.getCount()==0)){
+            do {
+                int UID = cursor.getInt(0);
+                boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
+                int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
+                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
+                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4));
+                int frequency = cursor.getInt(5);
+                String title = cursor.getString(6);
+                boolean sunday = Utils.convertIntToBoolean(cursor.getInt(7));
+                boolean monday = Utils.convertIntToBoolean(cursor.getInt(8));
+                boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(9));
+                boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(10));
+                boolean thursday = Utils.convertIntToBoolean(cursor.getInt(11));
+                boolean friday = Utils.convertIntToBoolean(cursor.getInt(12));
+                boolean saturday = Utils.convertIntToBoolean(cursor.getInt(13));
+                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, alertType,
+                        startTime, endTime, frequency, title, sunday, monday, tuesday, wednesday,
+                        thursday, friday, saturday);
+                fixedAlarmSchedules.add(new FixedAlarmSchedule(alarmSchedule));
+            } while (cursor.moveToNext());
+        }
+        scheduleSQLHelper.close();
+        cursor.close();
+        return fixedAlarmSchedules;
+    }
+
     public boolean[] getAlreadyTakenAlarmDays(){
         //If 0 it is unactivated, if 1 it is activated
         boolean[] activatedDays = {false, false, false, false, false, false, false};

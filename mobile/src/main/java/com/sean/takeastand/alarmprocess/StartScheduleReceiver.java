@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -58,12 +59,12 @@ public class StartScheduleReceiver extends BroadcastReceiver
     public void onReceive(Context context, Intent intent)
     {
         Log.i(TAG, "StartScheduleReceiver has received an intent");
-        ArrayList<AlarmSchedule> alarmSchedules =
-                new ScheduleDatabaseAdapter(context).getAlarmSchedules();
-        if(!alarmSchedules.isEmpty()){
-            AlarmSchedule todayAlarm = findIfAlarmToday(Utils.getTodayWeekday(),
-                    alarmSchedules, intent.getIntExtra(Constants.ALARM_UID, 0));
-            if(!(todayAlarm.getUID()==-100)){
+        ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
+                new ScheduleDatabaseAdapter(context).getFixedAlarmSchedules();
+        if(!fixedAlarmSchedules.isEmpty()){
+            FixedAlarmSchedule todayAlarm = findIfAlarmToday(Utils.getTodayWeekday(),
+                    fixedAlarmSchedules, intent.getIntExtra(Constants.ALARM_UID, 0));
+            if(!(todayAlarm.getUID()== -100)){
                 if(todayAlarm.getActivated()){
                     setFirstAlarm(context, todayAlarm);
                     Utils.setCurrentMainActivityImage(context, Constants.SCHEDULE_RUNNING);
@@ -79,7 +80,7 @@ public class StartScheduleReceiver extends BroadcastReceiver
         }
     }
 
-    private void setFirstAlarm(Context context, AlarmSchedule alarmSchedule)
+    private void setFirstAlarm(Context context, FixedAlarmSchedule alarmSchedule)
     {
         new ScheduledRepeatingAlarm(context, alarmSchedule).setRepeatingAlarm();
     }
@@ -88,11 +89,12 @@ public class StartScheduleReceiver extends BroadcastReceiver
     If there is an alarmSchedule for today's weekday, return it. If not
     return null.
      */
-    private AlarmSchedule findIfAlarmToday(int day, ArrayList<AlarmSchedule> alarmSchedules, int UID){
+    private FixedAlarmSchedule findIfAlarmToday(int day, ArrayList<FixedAlarmSchedule> fixedAlarmSchedules,
+                                                int UID){
 
         switch(day){
             case 1:
-                for(AlarmSchedule alarmSchedule : alarmSchedules){
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules){
                     //If alarmSchedule i has an alarm for Sunday, get
                     //this alarmSchedule to be used for today.
                     if(alarmSchedule.getUID()==UID && alarmSchedule.getSunday()){
@@ -101,42 +103,42 @@ public class StartScheduleReceiver extends BroadcastReceiver
                 }
                 break;
             case 2:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
                     if (alarmSchedule.getUID()==UID && alarmSchedule.getMonday()) {
                         return alarmSchedule;
                     }
                 }
                 break;
             case 3:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
                     if (alarmSchedule.getUID()==UID && alarmSchedule.getTuesday()) {
                         return alarmSchedule;
                     }
                 }
                 break;
             case 4:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
                     if (alarmSchedule.getUID()==UID && alarmSchedule.getWednesday()) {
                         return alarmSchedule;
                     }
                 }
                 break;
             case 5:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
                     if (alarmSchedule.getUID()==UID && alarmSchedule.getThursday()) {
                         return alarmSchedule;
                     }
                 }
                 break;
             case 6:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
                     if (alarmSchedule.getUID()==UID && alarmSchedule.getFriday()) {
                         return alarmSchedule;
                     }
                 }
                 break;
             case 7:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
                     if (alarmSchedule.getUID()==UID && alarmSchedule.getSaturday()) {
                         return alarmSchedule;
                     }
@@ -144,7 +146,7 @@ public class StartScheduleReceiver extends BroadcastReceiver
                 break;
         }
         //Return a dummy alarmSchedule with a UID of -100 which signals alarm was not found
-        return new AlarmSchedule(-100, false, null, null, null, 0, "", false,
+        return new FixedAlarmSchedule(-100, false, null, null, null, 0, "", false,
                 false, false, false, false, false, false);
 
     }

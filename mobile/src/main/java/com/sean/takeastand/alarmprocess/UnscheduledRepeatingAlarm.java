@@ -22,6 +22,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -80,8 +81,8 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         PendingIntent pendingIntent = createPendingIntent(mContext);
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
+        endAlarmService();
         Log.i(TAG, "Alarm canceled");
-        Toast.makeText(mContext, "Alarm Canceled", Toast.LENGTH_LONG).show();
         Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
     }
 
@@ -102,4 +103,10 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         return PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
+
+    private void endAlarmService(){
+        Intent intent = new Intent("userSwitchedOffAlarm");
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+
 }

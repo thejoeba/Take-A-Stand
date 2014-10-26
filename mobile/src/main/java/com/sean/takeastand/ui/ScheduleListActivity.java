@@ -17,6 +17,7 @@
 
 package com.sean.takeastand.ui;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,6 +33,8 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
@@ -42,8 +45,10 @@ import com.sean.takeastand.storage.ScheduleEditor;
 import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by Sean on 2014-09-21.
@@ -57,6 +62,8 @@ public class ScheduleListActivity extends ListActivity {
     private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> alarmSchedules;
     private static final String EDIT_SCHEDULE = "edit";
+    private String mNewAlarmStartTime;
+    private String mNewAlarmEndTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,26 +76,11 @@ public class ScheduleListActivity extends ListActivity {
         imgAddAlarm.setOnClickListener(addAlarmOnClickListener);
         ListView listView = getListView();
         registerForContextMenu(listView);
-
-        //removeKeyboardStart();
-    }
-
-    private void removeKeyboardStart()
-    {
-        getWindow().setSoftInputMode(3);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(scheduleListAdapter == null){
-            scheduleListAdapter =
-                    new ScheduleListAdapter(this, android.R.id.list, alarmSchedules, getLayoutInflater());
-            //setListAdapter(scheduleListAdapter);
-            //scheduleListAdapter.notifyDataSetChanged();
-        } else {
-            //scheduleListAdapter.notifyDataSetChanged();
-        }
         alarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
         scheduleListAdapter =
                 new ScheduleListAdapter(this, android.R.id.list, alarmSchedules, getLayoutInflater());
@@ -165,9 +157,7 @@ public class ScheduleListActivity extends ListActivity {
     }
 
     private void createNewAlarm(){
-        Intent intent = new Intent(ScheduleListActivity.this, ScheduleCreatorActivity.class);
-        intent.putExtra(EDIT_SCHEDULE, false);
-        startActivityForResult(intent, REQUEST_CODE);
+        showTimePickerDialog(true, true);
     }
 
     private void editAlarm(int position){
@@ -177,6 +167,17 @@ public class ScheduleListActivity extends ListActivity {
         intent.putExtra(Constants.SELECTED_ALARM_SCHEDULE, selectedAlarm);
         intent.putExtra(Constants.EDITED_ALARM_POSITION, position);
         startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    private void showTimePickerDialog(boolean startOrEndTime, boolean newAlarm)
+    {
+        Bundle args = new Bundle();
+        args.putBoolean("StartOrEndButton", startOrEndTime);
+        args.putBoolean("NewAlarm", newAlarm);
+        final TimePickerFragment timePickerFragment = new TimePickerFragment();
+        timePickerFragment.setArguments(args);
+        timePickerFragment.show(getFragmentManager(), "timePicker");
+
     }
 
     private BroadcastReceiver deleteScheduleReceiver = new BroadcastReceiver() {
@@ -198,8 +199,24 @@ public class ScheduleListActivity extends ListActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Received timePicker intent");
-            scheduleListAdapter.updateStartEndTime(intent.getStringExtra("TimeSelected"),
-                    intent.getIntExtra("Position", -1));
+            if(intent.getBooleanExtra("NewAlarm", false) &&
+                    intent.getBooleanExtra("StartTime", true)){
+                //Was called by ScheduleListActivity
+                Log.i(TAG, "New Alarm Start Time:" + intent.getStringExtra("TimeSelected"));
+                mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
+                showTimePickerDialog(false, true);
+            } else if (intent.getBooleanExtra("NewAlarm", false) &&
+                    !intent.getBooleanExtra("StartTime", true)){
+                //Was called by ScheduleListActivity
+                Log.i(TAG, "New Alarm End Time:" + intent.getStringExtra("TimeSelected"));
+                mNewAlarmEndTime = intent.getStringExtra("TimeSelected");
+                createNewSchedule();
+            } else {
+                //Was called by the ScheduleListAdapter, pass data in
+                scheduleListAdapter.updateStartEndTime(intent.getStringExtra("TimeSelected"),
+                        intent.getIntExtra("Position", -1));
+            }
+
         }
     };
 
@@ -210,5 +227,22 @@ public class ScheduleListActivity extends ListActivity {
                     intent.getIntExtra("Position", -1));
         }
     };
+
+    private void createNewSchedule(){
+        boolean[] availableDays = new ScheduleDatabaseAdapter(this).getAlreadyTakenAlarmDays();
+        boolean[] newActivatedDays = {false, false, false, false, false, false, false};
+        ScheduleEditor scheduleEditor = new ScheduleEditor(this);
+        Calendar rightNow = Calendar.getInstance();
+        if(!availableDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)]){
+            newActivatedDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)] = true;
+        }
+        scheduleEditor.newAlarm(true, Utils.getDefaultAlertType(this), mNewAlarmStartTime,
+                mNewAlarmEndTime, Utils.getDefaultFrequency(this), "", newActivatedDays[0],
+                newActivatedDays[1], newActivatedDays[2], newActivatedDays[3], newActivatedDays[4],
+                newActivatedDays[5], newActivatedDays[6]);
+        alarmSchedules.add((
+                new ScheduleDatabaseAdapter(this).getAlarmSchedules().get(alarmSchedules.size())));
+        scheduleListAdapter.notifyDataSetChanged();
+    }
 
 }

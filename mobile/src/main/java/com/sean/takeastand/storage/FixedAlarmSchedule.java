@@ -1,20 +1,3 @@
-/*
- * Copyright (C) 2014 Sean Allen
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
 package com.sean.takeastand.storage;
 
 import android.os.Parcel;
@@ -22,20 +5,10 @@ import android.os.Parcelable;
 
 import java.util.Calendar;
 
-/* This class is used for storing alarm schedule data and returning the data via “get” methods.
-Once an alarm schedule object is created its data cannot be modified, thus preventing any corruption
-of data.  This object is passed throughout the day between the ScheduledRepeatingAlarm, the
-AlarmReceiver and the AlarmService, so ensuring its data is not changed is important.  The
-AlarmSchedule is initially created by the AlarmsDatabaseAdapter in its getAlarmSchedules method.
-This method is typically called by StartScheduleReceiver and then passed into the
-ScheduledRepeatingAlarm, in which it circulates between the previously mentioned classes
-until the schedule reaches its end time. */
-
 /**
- * Created by Sean on 2014-10-03.
+ * Created by Sean on 2014-10-25.
  */
-public class AlarmSchedule implements Parcelable {
-
+public class FixedAlarmSchedule implements Parcelable{
 
     //ToDo: storage is getting to complicated and too many lines of code, add setter methods
 
@@ -56,7 +29,7 @@ public class AlarmSchedule implements Parcelable {
 
     //This constructor is the only way for the class variables to be initialized
     //This class was intentionally restricted, so it could not be modified after creation
-    public AlarmSchedule(int UID, boolean activated, int[] alertType, Calendar startTime, Calendar endTime,
+    public FixedAlarmSchedule(int UID, boolean activated, int[] alertType, Calendar startTime, Calendar endTime,
                          int frequency, String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday){
         this.UID = UID;
@@ -75,8 +48,25 @@ public class AlarmSchedule implements Parcelable {
         this.saturday = saturday;
     }
 
+    public FixedAlarmSchedule(AlarmSchedule alarmSchedule){
+        UID = alarmSchedule.getUID();
+        activated = alarmSchedule.getActivated();
+        alertType = alarmSchedule.getAlertType();
+        startTime = alarmSchedule.getStartTime();
+        endTime = alarmSchedule.getEndTime();
+        frequency = alarmSchedule.getFrequency();
+        title = alarmSchedule.getTitle();
+        sunday = alarmSchedule.getSunday();
+        monday = alarmSchedule.getMonday();
+        tuesday = alarmSchedule.getTuesday();
+        wednesday = alarmSchedule.getWednesday();
+        thursday = alarmSchedule.getThursday();
+        friday = alarmSchedule.getFriday();
+        saturday = alarmSchedule.getSaturday();
+    }
+
     //This constructor is only called when an object of this class is being remade from a Parcel
-    private AlarmSchedule(Parcel inParcel){
+    private FixedAlarmSchedule(Parcel inParcel){
         boolean[] arrayBooleans = new boolean[8];
         inParcel.readBooleanArray(arrayBooleans);
         activated = arrayBooleans[0];
@@ -97,7 +87,6 @@ public class AlarmSchedule implements Parcelable {
         endTime = Calendar.getInstance();
         endTime.setTimeInMillis(Long.decode(inParcel.readString()));
         frequency = inParcel.readInt();
-
     }
 
     @Override
@@ -108,7 +97,7 @@ public class AlarmSchedule implements Parcelable {
     @Override
     public void writeToParcel(Parcel outParcel, int flags) {
         boolean[] arrayBooleans = {activated, sunday, monday, tuesday, wednesday,
-                                    thursday, friday, saturday};
+                thursday, friday, saturday};
         outParcel.writeBooleanArray(arrayBooleans);
         outParcel.writeInt(UID);
         outParcel.writeInt(alertType[0]);
@@ -121,19 +110,19 @@ public class AlarmSchedule implements Parcelable {
 
     }
 
-    public static  final Creator<AlarmSchedule> CREATOR =
-            new Creator<AlarmSchedule>(){
+    public static  final Parcelable.Creator<FixedAlarmSchedule> CREATOR =
+            new Parcelable.Creator<FixedAlarmSchedule>(){
 
                 @Override
-                public AlarmSchedule createFromParcel(Parcel inParcel) {
-                    return new AlarmSchedule(inParcel);
+                public FixedAlarmSchedule createFromParcel(Parcel inParcel) {
+                    return new FixedAlarmSchedule(inParcel);
                 }
 
                 @Override
-                public AlarmSchedule[] newArray(int size) {
-                    return new AlarmSchedule[size];
+                public FixedAlarmSchedule[] newArray(int size) {
+                    return new FixedAlarmSchedule[size];
                 }
-    };
+            };
 
     public int getUID() { return UID; }
 
@@ -186,31 +175,4 @@ public class AlarmSchedule implements Parcelable {
     public boolean getSaturday(){
         return saturday;
     }
-
-    public void setActivated(boolean activated) {this.activated = activated; }
-
-    public void setAlertType(int[] alertType) {this.alertType = alertType; }
-
-    public void setStartTime(Calendar startTime) {this.startTime = startTime; }
-
-    public void setEndTime(Calendar endTime) {this.endTime = endTime; }
-
-    public void setFrequency(int frequency) {this.frequency = frequency;}
-
-    public void setTitle(String title) {this.title = title;}
-
-    public void setSunday(boolean sunday) {this.sunday = sunday; }
-
-    public void setMonday(boolean monday) {this.monday = monday;}
-
-    public void setTuesday(boolean tuesday) {this.tuesday = tuesday;}
-
-    public void setWednesday(boolean wednesday) {this.wednesday = wednesday;}
-
-    public void setThursday(boolean thursday) {this.thursday = thursday;}
-
-    public void setFriday(boolean friday) {this.friday = friday;}
-
-    public void setSaturday(boolean saturday) {this.saturday = saturday;}
-
 }

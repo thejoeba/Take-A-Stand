@@ -21,10 +21,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -43,14 +45,14 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     private static final String TAG = "ScheduledRepeatingAlarm";
     private Context mContext;
-    private AlarmSchedule mCurrentAlarmSchedule;
+    private FixedAlarmSchedule mCurrentAlarmSchedule;
     private static final int REPEATING_ALARM_ID = 987654321;
     /*
     Once done testing, convert all doubles to longs
      */
 
     //For scheduled alarms use this constructor
-    public ScheduledRepeatingAlarm(Context context, AlarmSchedule alarmSchedule)
+    public ScheduledRepeatingAlarm(Context context, FixedAlarmSchedule alarmSchedule)
     {
         mContext = context;
         mCurrentAlarmSchedule = alarmSchedule;
@@ -87,8 +89,8 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
+        endAlarmService();
         Log.i(TAG, "Alarm canceled");
-        Toast.makeText(mContext, "Alarm Canceled", Toast.LENGTH_LONG).show();
         Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
         Utils.setRunningScheduledAlarm(mContext, -1);
     }
@@ -104,10 +106,15 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
     }
 
-    private PendingIntent createPendingIntent(Context context, AlarmSchedule alarmSchedule){
+    private PendingIntent createPendingIntent(Context context, FixedAlarmSchedule alarmSchedule){
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra(Constants.ALARM_SCHEDULE, alarmSchedule);
         return PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private void endAlarmService(){
+        Intent intent = new Intent("userSwitchedOffAlarm");
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 }

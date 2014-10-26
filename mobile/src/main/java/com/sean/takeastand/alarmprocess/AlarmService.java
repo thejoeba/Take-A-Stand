@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.ui.MainActivity;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -59,7 +60,7 @@ public class AlarmService extends Service{
 
     private Handler mHandler;
     private Context mContext;
-    private AlarmSchedule mCurrentAlarmSchedule;
+    private FixedAlarmSchedule mCurrentAlarmSchedule;
     private int mNotifTimePassed = 0;
     long[] mVibrationPattern = {(long)200, (long)200, (long)200, (long)200};
 
@@ -80,7 +81,7 @@ public class AlarmService extends Service{
         if(intent.hasExtra(Constants.ALARM_SCHEDULE)){
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         }
-        if(mCurrentAlarmSchedule==null){
+        if(mCurrentAlarmSchedule == null){
             Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_TIME_TO_STAND);
         } else {
             Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_TIME_TO_STAND);
@@ -128,7 +129,7 @@ public class AlarmService extends Service{
             mHandler.postDelayed(changeImage, eightSeconds);
             long fifteenSeconds = 15 * Constants.millisecondsInSecond;
             mHandler.postDelayed(stoodUp, fifteenSeconds);
-            if(mCurrentAlarmSchedule==null){
+            if(mCurrentAlarmSchedule == null){
                 Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_STOOD_UP);
             } else {
                 Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_STOOD_UP);
@@ -294,9 +295,9 @@ public class AlarmService extends Service{
                 .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
                 .addAction(R.drawable.ic_action_time, "Delay", pendingIntents[2])
                 .setTicker("Time to stand up");
-        //Only keep the LED lights going on new notifications if user has them set
+        //Only keep the LED lights going on new notifications, if user has them set
         //Don't vibrate or make a sound
-        if(mCurrentAlarmSchedule!=null){
+        if(mCurrentAlarmSchedule != null){
             int[] alertType = mCurrentAlarmSchedule.getAlertType();
             if((alertType[0]) == 1){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);

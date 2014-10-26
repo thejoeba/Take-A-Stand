@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -53,8 +54,8 @@ public class AlarmReceiver
     {
         Log.i(TAG, "AlarmReceiver received intent");
         mContext = context;
-        AlarmSchedule currentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
-        if(currentAlarmSchedule!=null){
+        FixedAlarmSchedule currentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
+        if(currentAlarmSchedule != null){
             if(!hasEndTimePassed(currentAlarmSchedule.getEndTime())){
                 Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
                 serviceStartIntent.putExtra(Constants.ALARM_SCHEDULE, currentAlarmSchedule);
