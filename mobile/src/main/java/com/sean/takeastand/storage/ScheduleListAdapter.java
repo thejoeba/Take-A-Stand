@@ -77,7 +77,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(rowView==null){
             LayoutInflater inflater =
                     (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.row_layout, null);
+            rowView = inflater.inflate(R.layout.schedule_list_row, null);
 
         }
         initializeViewsAndButtons(rowView, position);

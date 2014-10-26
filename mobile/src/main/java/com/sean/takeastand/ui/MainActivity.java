@@ -17,18 +17,29 @@
 package com.sean.takeastand.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+
+import java.util.Arrays;
 
 
 public class MainActivity extends Activity {
@@ -77,9 +88,99 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(this, ScheduleListActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.default_frequency:
+                showNumberPickerDialog();
+                break;
+            case R.id.default_alert_type:
+                showAlertTypePicker();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    //Must be class-level to access within onClick
+    NumberPicker numberPicker;
+
+    private void showNumberPickerDialog()
+    {
+        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
+        builder.setView(dialogView);
+        numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
+        numberPicker.setMaxValue(100);
+        numberPicker.setMinValue(5);
+        numberPicker.setValue(Utils.getDefaultFrequency(this));
+        numberPicker.setWrapSelectorWheel(false);
+        builder.setMessage("Select Frequency");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Utils.setDefaultFrequency(MainActivity.this, numberPicker.getValue());
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, "Cancel");
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    View dialogView;
+    private void showAlertTypePicker(){
+        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        dialogView = inflater.inflate(R.layout.dialog_alert_type, null);
+        int[] currentNotification = Utils.getDefaultAlertType(this);
+        CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
+        LED.setChecked(Utils.convertIntToBoolean(currentNotification[0]));
+        CheckBox vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
+        vibrate.setChecked(Utils.convertIntToBoolean(currentNotification[1]));
+        CheckBox sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
+        sound.setChecked(Utils.convertIntToBoolean(currentNotification[2]));
+        builder.setView(dialogView);
+        builder.setMessage("Set Default Notification Types");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                int[] notificationTypes = new int[3];
+                CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
+                CheckBox Vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
+                CheckBox Sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
+                if(LED.isChecked()){
+                    notificationTypes[0] = 1;
+                } else {
+                    notificationTypes[0] = 0;
+                }
+                if(Vibrate.isChecked()){
+                    notificationTypes[1] = 1;
+                } else {
+                    notificationTypes[1] = 0;
+                }
+                if(Sound.isChecked()){
+                    notificationTypes[2] = 1;
+                } else {
+                    notificationTypes[2] = 0;
+                }
+                Utils.setDefaultAlertType(MainActivity.this, notificationTypes);
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, "Cancel");
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     private boolean isNewUser(){

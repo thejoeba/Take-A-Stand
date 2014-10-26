@@ -40,6 +40,7 @@ import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.ExpandableAdapter;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.storage.ScheduleEditor;
 import com.sean.takeastand.storage.ScheduleListAdapter;
@@ -90,29 +91,6 @@ public class ScheduleListActivity extends ListActivity {
         registerReceivers();
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.list_context_menu, menu);
-    }
-
-    //Respond to the user selecting an item within the context menu
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            //DELETE
-            case R.id.delete:
-                deleteSchedule(info.position);
-                return true;
-            case R.id.edit:
-                editAlarm(info.position);
-                return true;
-            default:
-                return false;
-        }
-    }
-
     private View.OnClickListener addAlarmOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -138,7 +116,8 @@ public class ScheduleListActivity extends ListActivity {
         int deletedAlarmUID = deletedAlarmSchedule.getUID();
         int currentlyRunningAlarm = Utils.getRunningScheduledAlarm(this);
         if(deletedAlarmUID == currentlyRunningAlarm){
-            new ScheduledRepeatingAlarm(this, deletedAlarmSchedule).cancelAlarm();
+            FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(deletedAlarmSchedule);
+            new ScheduledRepeatingAlarm(this, fixedAlarmSchedule).cancelAlarm();
         }
         //If deleting the last alarm set listadapter to null
         if(position == 0&&alarmSchedules.size() == 1){
@@ -158,15 +137,6 @@ public class ScheduleListActivity extends ListActivity {
 
     private void createNewAlarm(){
         showTimePickerDialog(true, true);
-    }
-
-    private void editAlarm(int position){
-        AlarmSchedule selectedAlarm = alarmSchedules.get(position);
-        Intent intent = new Intent(this, ScheduleCreatorActivity.class);
-        intent.putExtra(EDIT_SCHEDULE, true);
-        intent.putExtra(Constants.SELECTED_ALARM_SCHEDULE, selectedAlarm);
-        intent.putExtra(Constants.EDITED_ALARM_POSITION, position);
-        startActivityForResult(intent, REQUEST_CODE);
     }
 
     private void showTimePickerDialog(boolean startOrEndTime, boolean newAlarm)

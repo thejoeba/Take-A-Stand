@@ -56,8 +56,8 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
 
     @Override
     public void setRepeatingAlarm() {
-        //Will check sharedpreferences for user defaults for alarms
-        double alarmPeriodMinutes = .5;  //In future will get from user sharedpreferences
+        //When done testing, switch to int
+        double alarmPeriodMinutes = Utils.getDefaultFrequency(mContext);
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +

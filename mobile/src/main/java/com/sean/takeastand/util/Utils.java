@@ -239,4 +239,21 @@ public final class Utils {
         return frequency;
     }
 
+    public static void setDefaultAlertType(Context context, int[] alertType){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.USER_ALERT_TYPE, convertIntArrayToString(alertType));
+        editor.commit();
+    }
+
+    public static void setDefaultFrequency(Context context, int frequency){
+        Log.i(TAG, "New default frequency " + frequency);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.USER_FREQUENCY, frequency);
+        editor.commit();
+    }
+
 }

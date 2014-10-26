@@ -16,6 +16,7 @@ public class CustomTimePickerDialog extends TimePickerDialog {
         title = dialogTitle;
     }
 
+    //Had to override and setTitle otherwise title constantly changed to match selected time
     @Override
     public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
         super.onTimeChanged(view, hourOfDay, minute);
