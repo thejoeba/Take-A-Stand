@@ -54,7 +54,6 @@ images. */
 public class AlarmService extends Service{
 
     private static final String TAG = "AlarmService";
-    //Change to 60000 after testing
     private final long oneMinuteMillis = 60000;
 
 

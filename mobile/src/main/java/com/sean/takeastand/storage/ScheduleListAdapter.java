@@ -405,7 +405,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             args.putString(Constants.END_TIME_ARG, txtTimeSelected.getText().toString());
         }
         args.putInt("Position", (Integer) view.getTag());
-        TimePickerFragment timePickerFragment = new TimePickerFragment();
+        TimePickerFragment timePickerFragment = null;
+        timePickerFragment = new TimePickerFragment();
         timePickerFragment.setArguments(args);
         Activity activity = (Activity)getContext();
         timePickerFragment.show(activity.getFragmentManager(), "timePicker");

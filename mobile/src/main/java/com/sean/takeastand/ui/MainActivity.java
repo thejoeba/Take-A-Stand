@@ -51,6 +51,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle paramBundle)
     {
         super.onCreate(paramBundle);
+        //deleteDatabase("alarms_database");
+        Utils.setCurrentMainActivityImage(this, Constants.NO_ALARM_RUNNING);
         setLayout();
         if(isNewUser()){
             setUserDefaults();

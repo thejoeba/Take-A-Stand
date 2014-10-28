@@ -30,6 +30,8 @@ import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
+import java.util.Calendar;
+
 /* This class is responsible for setting the next repeating alarm that is part of a schedule.  It
 does this by setting an inexact alarm in the future based on the user defined time period
 (“the frequency” in the alarm schedule) and uses the Android System’s AlarmManager class to do so.
@@ -61,7 +63,8 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     @Override
     public void setRepeatingAlarm() {
         //In future will check mAlarmSchedule.alarmType() and set alarm accordingly
-        double alarmPeriodMinutes = .5;  //In future will check mAlarmSchedule.getFrequency() and set
+        //In future will check mAlarmSchedule.getFrequency() and set
+        double alarmPeriodMinutes = mCurrentAlarmSchedule.getFrequency();
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
                 Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
@@ -71,6 +74,20 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         //It helps when cancelling a deleted alarm
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
         Log.i(TAG, "New Scheduled Repeating Alarm Set");
+        Log.i(TAG, "UID " + mCurrentAlarmSchedule.getUID());
+        Log.i(TAG, "Activated " + mCurrentAlarmSchedule.getActivated());
+        Log.i(TAG, "AlertType " + mCurrentAlarmSchedule.getAlertType());
+        Log.i(TAG, "Frequency " + mCurrentAlarmSchedule.getFrequency());
+        Log.i(TAG, "StartTime " + Utils.calendarToTimeString(mCurrentAlarmSchedule.getStartTime()));
+        Log.i(TAG, "EndTime " + Utils.calendarToTimeString(mCurrentAlarmSchedule.getEndTime()));
+        Log.i(TAG, "Title " + mCurrentAlarmSchedule.getTitle());
+        Log.i(TAG, "Sunday " + mCurrentAlarmSchedule.getSunday());
+        Log.i(TAG, "Monday " + mCurrentAlarmSchedule.getMonday());
+        Log.i(TAG, "Tuesday " + mCurrentAlarmSchedule.getTuesday());
+        Log.i(TAG, "Wednesday " + mCurrentAlarmSchedule.getWednesday());
+        Log.i(TAG, "Thursday "  + mCurrentAlarmSchedule.getThursday());
+        Log.i(TAG, "Friday " + mCurrentAlarmSchedule.getFriday());
+        Log.i(TAG, "Saturday " + mCurrentAlarmSchedule.getSaturday());
     }
 
     @Override

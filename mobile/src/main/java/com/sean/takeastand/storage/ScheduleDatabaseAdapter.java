@@ -327,6 +327,7 @@ public class ScheduleDatabaseAdapter
         if(!(cursor.getCount()==0)){
             do {
                 int UID = cursor.getInt(0);
+                Log.i(TAG, "Row UID " + Integer.toString(UID));
                 boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
                 int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
                 Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
@@ -361,6 +362,7 @@ public class ScheduleDatabaseAdapter
         if(!(cursor.getCount()==0)){
             do {
                 int UID = cursor.getInt(0);
+                Log.i(TAG, "Row UID " + Integer.toString(UID));
                 boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
                 int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
                 Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
