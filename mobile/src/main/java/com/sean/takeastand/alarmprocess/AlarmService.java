@@ -229,7 +229,7 @@ public class AlarmService extends Service{
                 .setStyle(new Notification.InboxStyle()
                         .addLine("Time to Stand Up"))
                 .setContentText("Time to stand up")
-                .setContentIntent(pendingIntents[1])
+                .setContentIntent(pendingIntents[0])
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(false)
                 .setOngoing(true)
@@ -287,7 +287,7 @@ public class AlarmService extends Service{
                                 setMinutes(mNotifTimePassed)))
                 .setContentText("Time to stand up: " + mNotifTimePassed +
                         setMinutes(mNotifTimePassed))
-                .setContentIntent(pendingIntents[1])
+                .setContentIntent(pendingIntents[0])
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(false)
                 .setOngoing(true)

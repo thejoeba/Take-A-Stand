@@ -16,6 +16,7 @@
 
 package com.sean.takeastand.ui;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -53,7 +54,7 @@ public class MainActivity extends Activity {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
         Utils.setCurrentMainActivityImage(this, Constants.NO_ALARM_RUNNING);
-        setLayout();
+        setUpLayout();
         if(isNewUser()){
             setUserDefaults();
             setNotNewUser();
@@ -63,7 +64,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void setLayout()
+    private void setUpLayout()
     {
         setContentView(R.layout.activity_main);
     }

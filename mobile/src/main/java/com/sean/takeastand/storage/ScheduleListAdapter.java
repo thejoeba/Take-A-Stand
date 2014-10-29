@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.sean.takeastand.R;
+import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
@@ -199,7 +200,32 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private View.OnClickListener deleteListener = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
-            showDeleteDialog(view);
+            //showDeleteDialog(view);
+            int position = (Integer)view.getTag();
+            AlarmSchedule deletedAlarmSchedule = mAlarmSchedules.get(position);
+            int deletedAlarmUID = deletedAlarmSchedule.getUID();
+            ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+            scheduleEditor.deleteAlarm(deletedAlarmSchedule);
+            int currentlyRunningAlarm = Utils.getRunningScheduledAlarm(mContext);
+            if(deletedAlarmUID == currentlyRunningAlarm){
+                FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(deletedAlarmSchedule);
+                new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule).cancelAlarm();
+            }
+            //If deleting the last alarm set listadapter to null
+            if(position == 0 && mAlarmSchedules.size() == 1){
+                Log.i(TAG, "Deleting the last alarmSchedule");
+                mAlarmSchedules.clear();
+                //scheduleListAdapter.clear();
+                //setListAdapter(null);
+                notifyDataSetChanged();
+            } else {
+                mAlarmSchedules.remove(position);
+                notifyDataSetChanged();
+            }
+            //Service needs to cancel any running alarms and notifications it is currently managing
+            Intent informServiceOfDeletion = new Intent(Constants.ALARM_SCHEDULE_DELETED);
+            informServiceOfDeletion.putExtra("UID", deletedAlarmUID);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(informServiceOfDeletion);
         }
     };
 

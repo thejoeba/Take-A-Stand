@@ -17,6 +17,7 @@
 
 package com.sean.takeastand.ui;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
@@ -73,10 +74,8 @@ public class ScheduleListActivity extends ListActivity {
 
         //Deleting the database each time only during testing
         //deleteDatabase("alarms_database");
-        imgAddAlarm = (ImageView)this.findViewById(R.id.btn_add_alarm);
-        imgAddAlarm.setOnClickListener(addAlarmOnClickListener);
-        ListView listView = getListView();
-        registerForContextMenu(listView);
+        setUpLayout();
+
     }
 
     @Override
@@ -85,10 +84,26 @@ public class ScheduleListActivity extends ListActivity {
         alarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
         scheduleListAdapter =
                 new ScheduleListAdapter(this, android.R.id.list, alarmSchedules, getLayoutInflater());
-        Log.i(TAG, Integer.toString(scheduleListAdapter.getCount()));
+        Log.i(TAG, "Number of Rows: " + Integer.toString(scheduleListAdapter.getCount()));
         expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
         setListAdapter(expandableAdapter);
         registerReceivers();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setUpLayout(){
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle("Schedules");
+        imgAddAlarm = (ImageView)this.findViewById(R.id.btn_add_alarm);
+        imgAddAlarm.setOnClickListener(addAlarmOnClickListener);
+        ListView listView = getListView();
+        registerForContextMenu(listView);
     }
 
     private View.OnClickListener addAlarmOnClickListener = new View.OnClickListener() {
