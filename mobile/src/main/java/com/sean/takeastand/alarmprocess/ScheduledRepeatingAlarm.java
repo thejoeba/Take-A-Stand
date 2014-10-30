@@ -92,8 +92,9 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     @Override
     public void delayAlarm() {
-        long alarmTimeInMillis = 5 * Constants.secondsInMinute * Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
+        long delayTime = Utils.getDefaultDelay(mContext);
+        long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
+        long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
                 SystemClock.elapsedRealtime());
         setAlarm(triggerTime);

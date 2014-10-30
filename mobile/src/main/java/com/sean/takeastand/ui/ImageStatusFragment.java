@@ -21,6 +21,7 @@ package com.sean.takeastand.ui;
  */
 
 import android.app.Fragment;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +43,8 @@ import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
+import org.w3c.dom.Text;
+
 import java.util.Random;
 
 public class ImageStatusFragment
@@ -49,6 +52,8 @@ public class ImageStatusFragment
 {
     private ImageView statusImage;
     private TextView txtTap;
+    private TextView txtStood;
+    private TextView txtDelay;
     private static final String TAG = "ImageStatusFragment";
     private Context mContext;
 
@@ -60,6 +65,10 @@ public class ImageStatusFragment
         statusImage = (ImageView)view.findViewById(R.id.statusImage);
         statusImage.setOnClickListener(imageListener);
         txtTap = (TextView)view.findViewById(R.id.tap_to_set);
+        txtStood = (TextView)view.findViewById(R.id.txtStood);
+        txtDelay = (TextView)view.findViewById(R.id.txtDelay);
+        txtStood.setOnClickListener(stoodListener);
+        txtDelay.setOnClickListener(delayListener);
         updateLayout();
         registerReceivers();
         //If stuck on a non-click listener view uncomment the below line:
@@ -86,24 +95,6 @@ public class ImageStatusFragment
         super.onStart();
     }
 
-    private void switchStatus(){
-        UnscheduledRepeatingAlarm unscheduledRepeatingAlarm =
-                new UnscheduledRepeatingAlarm(getActivity());
-        int imageStatus = Utils.getCurrentImageStatus(getActivity());
-        if(imageStatus == Constants.NO_ALARM_RUNNING){
-            Utils.setCurrentMainActivityImage(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
-            unscheduledRepeatingAlarm.setRepeatingAlarm();
-            Toast.makeText(mContext, "Stand Reminders On", Toast.LENGTH_LONG).show();
-        } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
-           Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
-           unscheduledRepeatingAlarm.cancelAlarm();
-            Toast.makeText(mContext, "Stand Reminders Cancelled", Toast.LENGTH_LONG).show();
-        }
-        updateLayout();
-    }
-
-
-
     private void updateLayout(){
         int imageStatus = Utils.getCurrentImageStatus(getActivity());
         switch (imageStatus){
@@ -111,45 +102,61 @@ public class ImageStatusFragment
                 statusImage.setImageResource(R.drawable.alarm_image_inactive);
                 statusImage.setOnClickListener(imageListener);
                 txtTap.setText(R.string.tap_to_start);
+                txtStood.setVisibility(View.GONE);
+                txtDelay.setVisibility(View.GONE);
                 break;
             case Constants.NON_SCHEDULE_ALARM_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_running);
                 statusImage.setOnClickListener(imageListener);
                 txtTap.setText(R.string.tap_to_stop);
+                txtStood.setVisibility(View.GONE);
+                txtDelay.setVisibility(View.GONE);
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_passed);
                 statusImage.setOnClickListener(null);
-                txtTap.setText("Time to Stand Up");
+                txtTap.setText("");
+                txtStood.setVisibility(View.VISIBLE);
+                txtDelay.setVisibility(View.VISIBLE);
                 break;
             case Constants.NON_SCHEDULE_STOOD_UP:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_stood);
                 statusImage.setOnClickListener(null);
                 String praiseNon = praiseForUser();
                 txtTap.setText(praiseNon);
+                txtStood.setVisibility(View.GONE);
+                txtDelay.setVisibility(View.GONE);
                 Toast.makeText(mContext, praiseNon, Toast.LENGTH_LONG).show();
                 break;
             case Constants.SCHEDULE_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_schedule_running);
                 statusImage.setOnClickListener(null);
                 txtTap.setText("");
+                txtStood.setVisibility(View.GONE);
+                txtDelay.setVisibility(View.GONE);
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
                 statusImage.setImageResource(R.drawable.alarm_schedule_passed);
                 statusImage.setOnClickListener(null);
                 txtTap.setText("");
+                txtStood.setVisibility(View.VISIBLE);
+                txtDelay.setVisibility(View.VISIBLE);
                 break;
             case Constants.SCHEDULE_STOOD_UP:
                 statusImage.setImageResource(R.drawable.alarm_schedule_stood);
                 statusImage.setOnClickListener(null);
                 String praiseSchedule = praiseForUser();
                 txtTap.setText(praiseSchedule);
+                txtStood.setVisibility(View.GONE);
+                txtDelay.setVisibility(View.GONE);
                 Toast.makeText(mContext, praiseSchedule, Toast.LENGTH_LONG).show();
                 break;
             default:
                 statusImage.setImageResource(R.drawable.alarm_image_inactive);
                 statusImage.setOnClickListener(imageListener);
                 txtTap.setText(R.string.tap_to_start);
+                txtStood.setVisibility(View.GONE);
+                txtDelay.setVisibility(View.GONE);
                 break;
         }
     }
@@ -182,9 +189,43 @@ public class ImageStatusFragment
 
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "OnClick");
             switchStatus();
         }
     };
 
+    private void switchStatus(){
+        UnscheduledRepeatingAlarm unscheduledRepeatingAlarm =
+                new UnscheduledRepeatingAlarm(getActivity());
+        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        if(imageStatus == Constants.NO_ALARM_RUNNING){
+            Utils.setCurrentMainActivityImage(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
+            unscheduledRepeatingAlarm.setRepeatingAlarm();
+            Toast.makeText(mContext, "Stand Reminders On", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "OnClick Alarm Started");
+        } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
+            Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
+            unscheduledRepeatingAlarm.cancelAlarm();
+            Toast.makeText(mContext, "Stand Reminders Cancelled", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "OnClick Alarm Ended");
+        }
+        updateLayout();
+    }
+
+    private OnClickListener stoodListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Log.i(TAG, "onClick Stood");
+            Intent stoodUpIntent = new Intent("StoodUp");
+            getActivity().sendBroadcast(stoodUpIntent);
+        }
+    };
+
+    private OnClickListener delayListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Log.i(TAG, "onClick Delay");
+            Intent delayAlarmIntent = new Intent("DelayAlarm");
+            getActivity().sendBroadcast(delayAlarmIntent);
+        }
+    };
 }

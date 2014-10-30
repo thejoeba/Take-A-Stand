@@ -64,8 +64,6 @@ public class ScheduleListActivity extends ListActivity {
     private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> alarmSchedules;
     private static final String EDIT_SCHEDULE = "edit";
-    private String mNewAlarmStartTime;
-    private String mNewAlarmEndTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,18 +182,8 @@ public class ScheduleListActivity extends ListActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Received timePicker intent");
-            if(intent.getBooleanExtra("NewAlarm", false) &&
-                    intent.getBooleanExtra("StartTime", true)){
-                //Was called by ScheduleListActivity
-                Log.i(TAG, "New Alarm Start Time:" + intent.getStringExtra("TimeSelected"));
-                mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
-                showTimePickerDialog(false, true);
-            } else if (intent.getBooleanExtra("NewAlarm", false) &&
-                    !intent.getBooleanExtra("StartTime", true)){
-                //Was called by ScheduleListActivity
-                Log.i(TAG, "New Alarm End Time:" + intent.getStringExtra("TimeSelected"));
-                mNewAlarmEndTime = intent.getStringExtra("TimeSelected");
-                createNewSchedule();
+            if(intent.getBooleanExtra("NewAlarm", false)) {
+                scheduleListAdapter.newSchedule(intent);
             } else {
                 //Was called by the ScheduleListAdapter, pass data in
                 scheduleListAdapter.updateStartEndTime(intent.getStringExtra("TimeSelected"),
@@ -213,7 +201,7 @@ public class ScheduleListActivity extends ListActivity {
         }
     };
 
-    private void createNewSchedule(){
+    /*private void createNewSchedule(){
         boolean[] availableDays = new ScheduleDatabaseAdapter(this).getAlreadyTakenAlarmDays();
         boolean[] newActivatedDays = {false, false, false, false, false, false, false};
         ScheduleEditor scheduleEditor = new ScheduleEditor(this);
@@ -228,6 +216,6 @@ public class ScheduleListActivity extends ListActivity {
         alarmSchedules.add((
                 new ScheduleDatabaseAdapter(this).getAlarmSchedules().get(alarmSchedules.size())));
         scheduleListAdapter.notifyDataSetChanged();
-    }
+    }*/
 
 }

@@ -11,6 +11,10 @@
         android1:title="Default Notification Type"
         android1:orderInCategory="3"
         android:showAsAction="never" />
+    <item android1:id="@+id/default_delay_length"
+        android1:title="Default Delay Length"
+        android1:orderInCategory="4"
+        android:showAsAction="never" />
     <item android1:id="@+id/schedules"
         android1:icon="@drawable/ic_action_alarms"
         android1:title="Schedule"

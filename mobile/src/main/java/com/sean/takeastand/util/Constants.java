@@ -51,4 +51,5 @@ public final class Constants {
     public static final String NEW_USER = "NewUser";
     public static final String USER_ALERT_TYPE = "UserAlertType";
     public static final String USER_FREQUENCY = "UserFrequency";
+    public static final String USER_DELAY = "UserDelay";
 }

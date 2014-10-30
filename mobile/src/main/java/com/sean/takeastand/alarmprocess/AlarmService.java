@@ -338,8 +338,10 @@ public class AlarmService extends Service{
         RepeatingAlarm repeatingAlarm;
         if(mCurrentAlarmSchedule == null){
             repeatingAlarm = new UnscheduledRepeatingAlarm(context);
+            Utils.setCurrentMainActivityImage(context, Constants.NON_SCHEDULE_ALARM_RUNNING);
         } else {
             repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
+            Utils.setCurrentMainActivityImage(context, Constants.SCHEDULE_RUNNING);
         }
         repeatingAlarm.delayAlarm();
     }

@@ -239,6 +239,14 @@ public final class Utils {
         return frequency;
     }
 
+    public static int getDefaultDelay(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        int delay = sharedPreferences.getInt(Constants.USER_DELAY, 5);
+        Log.i(TAG, "Default delay: " + delay);
+        return delay;
+    }
+
     public static void setDefaultAlertType(Context context, int[] alertType){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
@@ -255,5 +263,15 @@ public final class Utils {
         editor.putInt(Constants.USER_FREQUENCY, frequency);
         editor.commit();
     }
+
+    public static void setDefaultDelay(Context context, int delay){
+        Log.i(TAG, "New default delay " + delay);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.USER_DELAY, delay);
+        editor.commit();
+    }
+
 
 }

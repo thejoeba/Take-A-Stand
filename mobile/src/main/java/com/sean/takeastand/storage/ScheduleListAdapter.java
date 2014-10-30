@@ -63,6 +63,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private boolean mStartEndButtonSelected;
     private final String TAG = "ScheduleListAdapter";
     private LayoutInflater mLayoutInflater;
+    private String mNewAlarmStartTime;
+    private String mNewAlarmEndTime;
 
     public ScheduleListAdapter(Context context, int resource, ArrayList<AlarmSchedule> alarmSchedules,
                                LayoutInflater layoutInflater) {
@@ -133,7 +135,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         chBxThursday.setChecked(alarmSchedule.getThursday());
         chBxFriday.setChecked(alarmSchedule.getFriday());
         chBxSaturday.setChecked(alarmSchedule.getSaturday());
-        setAvailableCheckboxes(alarmSchedule);
+        setAvailableCheckboxes(alarmSchedule, position);
     }
 
     private void addPositionTags(int position){
@@ -436,7 +438,17 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         timePickerFragment.setArguments(args);
         Activity activity = (Activity)getContext();
         timePickerFragment.show(activity.getFragmentManager(), "timePicker");
+    }
 
+    private void showTimePickerDialog(boolean startOrEndTime, boolean newAlarm)
+    {
+        Bundle args = new Bundle();
+        args.putBoolean("StartOrEndButton", startOrEndTime);
+        args.putBoolean("NewAlarm", newAlarm);
+        final TimePickerFragment timePickerFragment = new TimePickerFragment();
+        timePickerFragment.setArguments(args);
+        Activity activity = (Activity)getContext();
+        timePickerFragment.show(activity.getFragmentManager(), "timePicker");
     }
 
     //Used only below
@@ -501,6 +513,20 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         saveStartEndTime(newStartTime, position);
     }
 
+    public void newSchedule(Intent intent){
+        if(intent.getBooleanExtra("StartTime", true)){
+            //Was called by ScheduleListActivity
+            Log.i(TAG, "New Alarm Start Time:" + intent.getStringExtra("TimeSelected"));
+            mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
+            showTimePickerDialog(false, true);
+        } else if (!intent.getBooleanExtra("StartTime", true)) {
+            //Was called by ScheduleListActivity
+            Log.i(TAG, "New Alarm End Time:" + intent.getStringExtra("TimeSelected"));
+            mNewAlarmEndTime = intent.getStringExtra("TimeSelected");
+            createNewSchedule();
+        }
+    }
+
     //This method is called by SchedulesListActivity after showNumberPickerDialog is called here
     public void updateFrequency(int frequency, int position){
         Log.i(TAG, "New frequency: " + frequency + " Position: " + position);
@@ -531,18 +557,21 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         }
     }
 
-    private void setAvailableCheckboxes(AlarmSchedule alarmSchedule){
+    private void setAvailableCheckboxes(AlarmSchedule alarmSchedule, int position){
         //If the day already is used by another alarm schedule, do not allow it to be checkable
         ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(mContext);
         boolean[] activatedDays = scheduleDatabaseAdapter.getAlreadyTakenAlarmDays();
+        resetCheckBoxes();
         if(activatedDays[0]){
             //If mAlarmSchedule == null, then this is a new schedule, so it couldn't be
             // //responsible for this day being activated already
             if(alarmSchedule==null){
                 chBxSunday.setEnabled(false);
+                Log.i(TAG, "AlarmSchedule null, New Schedule: " + position);
                 //If Sunday isn't checked by this schedule don't allow this day to be checkable
             } else if (!alarmSchedule.getSunday()){
                 chBxSunday.setEnabled(false);
+                Log.i(TAG, "Sunday unavailable: " + position);
                 //This final case means that this is the schedule that checked the day initially
             } else {
                 chBxSunday.setChecked(true);
@@ -552,8 +581,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(activatedDays[1]){
             if(alarmSchedule==null){
                 chBxMonday.setEnabled(false);
+                Log.i(TAG, "AlarmSchedule null, New Schedule: " + position);
             } else if (!alarmSchedule.getMonday()){
                 chBxMonday.setEnabled(false);
+                Log.i(TAG, "Monday unavailable: " + position);
             } else {
                 chBxMonday.setChecked(true);
                 chBxMonday.setEnabled(true);
@@ -562,8 +593,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(activatedDays[2]){
             if(alarmSchedule==null){
                 chBxTuesday.setEnabled(false);
+                Log.i(TAG, "AlarmSchedule null, New Schedule: " + position);
             } else if (!alarmSchedule.getTuesday()){
                 chBxTuesday.setEnabled(false);
+                Log.i(TAG, "Tuesday unavailable: " + position);
             } else {
                 chBxTuesday.setChecked(true);
                 chBxTuesday.setEnabled(true);
@@ -572,8 +605,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(activatedDays[3]){
             if(alarmSchedule==null){
                 chBxWednesday.setEnabled(false);
+                Log.i(TAG, "AlarmSchedule null, New Schedule: " + position);
             } else if (!alarmSchedule.getWednesday()){
                 chBxWednesday.setEnabled(false);
+                Log.i(TAG, "Wednesday unavailable: " + position);
             } else {
                 chBxWednesday.setChecked(true);
                 chBxWednesday.setEnabled(true);
@@ -582,8 +617,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(activatedDays[4]){
             if(alarmSchedule==null){
                 chBxThursday.setEnabled(false);
+                Log.i(TAG, "AlarmSchedule null, New Schedule: " + position);
             } else if (!alarmSchedule.getThursday()){
                 chBxThursday.setEnabled(false);
+                Log.i(TAG, "Thursday unavailable: " + position);
             } else {
                 chBxThursday.setChecked(true);
                 chBxThursday.setEnabled(true);
@@ -592,8 +629,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(activatedDays[5]){
             if(alarmSchedule==null){
                 chBxFriday.setEnabled(false);
+                Log.i(TAG, "AlarmSchedule null, New Schedule: " + position);
             } else if (!alarmSchedule.getFriday()){
                 chBxFriday.setEnabled(false);
+                Log.i(TAG, "Friday unavailable: " + position);
             } else {
                 chBxFriday.setChecked(true);
                 chBxFriday.setEnabled(true);
@@ -602,13 +641,42 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(activatedDays[6]){
             if(alarmSchedule==null){
                 chBxSaturday.setEnabled(false);
+                Log.i(TAG, "AlarmSchedule null, New Schedule: " + position);
             } else if (!alarmSchedule.getSaturday()){
                 chBxSaturday.setEnabled(false);
+                Log.i(TAG, "Saturday unavailable: " + position);
             } else {
                 chBxSaturday.setChecked(true);
                 chBxSaturday.setEnabled(true);
             }
         }
+    }
+
+    private void resetCheckBoxes(){
+        chBxSunday.setEnabled(true);
+        chBxMonday.setEnabled(true);
+        chBxTuesday.setEnabled(true);
+        chBxWednesday.setEnabled(true);
+        chBxThursday.setEnabled(true);
+        chBxFriday.setEnabled(true);
+        chBxSaturday.setEnabled(true);
+    }
+
+    private void createNewSchedule(){
+        boolean[] availableDays = new ScheduleDatabaseAdapter(mContext).getAlreadyTakenAlarmDays();
+        boolean[] newActivatedDays = {false, false, false, false, false, false, false};
+        ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+        Calendar rightNow = Calendar.getInstance();
+        if(!availableDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)]){
+            newActivatedDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)] = true;
+        }
+        scheduleEditor.newAlarm(true, Utils.getDefaultAlertType(mContext), mNewAlarmStartTime,
+                mNewAlarmEndTime, Utils.getDefaultFrequency(mContext), "", newActivatedDays[0],
+                newActivatedDays[1], newActivatedDays[2], newActivatedDays[3], newActivatedDays[4],
+                newActivatedDays[5], newActivatedDays[6]);
+        mAlarmSchedules.add((
+                new ScheduleDatabaseAdapter(mContext).getAlarmSchedules().get(mAlarmSchedules.size())));
+        notifyDataSetChanged();
     }
 
 }

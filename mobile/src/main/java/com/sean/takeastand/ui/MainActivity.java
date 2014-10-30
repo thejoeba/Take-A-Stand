@@ -53,7 +53,6 @@ public class MainActivity extends Activity {
     {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
-        Utils.setCurrentMainActivityImage(this, Constants.NO_ALARM_RUNNING);
         setUpLayout();
         if(isNewUser()){
             setUserDefaults();
@@ -92,11 +91,16 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 break;
             case R.id.default_frequency:
-                showNumberPickerDialog();
+                showNumberPickerDialog(Utils.getDefaultFrequency(this), 2 , 100,
+                        "Select Default Frequency", true);
                 break;
             case R.id.default_alert_type:
                 showAlertTypePicker();
                 break;
+            case R.id.default_delay_length:
+                showNumberPickerDialog(Utils.getDefaultDelay(this), 1,
+                        (Utils.getDefaultFrequency(this) - 1),
+                        "Select Default Delay Length", false);
         }
 
         return super.onOptionsItemSelected(item);
@@ -105,22 +109,27 @@ public class MainActivity extends Activity {
     //Must be class-level to access within onClick
     NumberPicker numberPicker;
 
-    private void showNumberPickerDialog()
+    private void showNumberPickerDialog(int startingValue, int min, int max, String title,
+                                        final boolean frequency)
     {
         LayoutInflater inflater = getLayoutInflater();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
         builder.setView(dialogView);
         numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
-        numberPicker.setMaxValue(100);
-        numberPicker.setMinValue(5);
-        numberPicker.setValue(Utils.getDefaultFrequency(this));
+        numberPicker.setMaxValue(max);
+        numberPicker.setMinValue(min);
+        numberPicker.setValue(startingValue);
         numberPicker.setWrapSelectorWheel(false);
-        builder.setMessage("Select Frequency");
+        builder.setMessage(title);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Utils.setDefaultFrequency(MainActivity.this, numberPicker.getValue());
+                if(frequency){
+                    Utils.setDefaultFrequency(MainActivity.this, numberPicker.getValue());
+                } else {
+                    Utils.setDefaultDelay(MainActivity.this, numberPicker.getValue());
+                }
                 dialogInterface.dismiss();
             }
         });
@@ -200,6 +209,7 @@ public class MainActivity extends Activity {
         int[] alertType = new int[] {1, 1, 0};
         editor.putString(Constants.USER_ALERT_TYPE, Utils.convertIntArrayToString(alertType));
         editor.putInt(Constants.USER_FREQUENCY, 20);
+        editor.putInt(Constants.USER_DELAY, 5);
         editor.commit();
     }
 

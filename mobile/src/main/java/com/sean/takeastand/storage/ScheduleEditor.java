@@ -74,6 +74,8 @@ public class ScheduleEditor {
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
                     new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
+                    Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+                    Toast.makeText(mContext, "New schedule is now running", Toast.LENGTH_SHORT);
                 }
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");
@@ -98,6 +100,7 @@ public class ScheduleEditor {
             if(startTime.before(rightNow)&&endTime.after(rightNow)) {
                 new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule).setRepeatingAlarm();
                 Toast.makeText(mContext, "Schedule is running right now", Toast.LENGTH_SHORT).show();
+                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             } else {
                 Toast.makeText(mContext, "Schedule is now activated", Toast.LENGTH_SHORT).show();
             }
@@ -119,6 +122,7 @@ public class ScheduleEditor {
                     new FixedAlarmSchedule(alarmSchedule));
             scheduledRepeatingAlarm.cancelAlarm();
             scheduledRepeatingAlarm.setRepeatingAlarm();
+            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             Toast.makeText(mContext, "Current schedule updated",
                     Toast.LENGTH_SHORT).show();
         } else {
@@ -150,6 +154,7 @@ public class ScheduleEditor {
                         new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                 scheduledRepeatingAlarm.cancelAlarm();
                 scheduledRepeatingAlarm.setRepeatingAlarm();
+                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Schedule updated and running now",
                         Toast.LENGTH_SHORT).show();
             } else{
@@ -181,6 +186,7 @@ public class ScheduleEditor {
                         new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                 scheduledRepeatingAlarm.cancelAlarm();
                 scheduledRepeatingAlarm.setRepeatingAlarm();
+                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Current schedule updated", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(mContext, "New end time saved", Toast.LENGTH_SHORT).show();
@@ -199,6 +205,7 @@ public class ScheduleEditor {
                     new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
             scheduledRepeatingAlarm.cancelAlarm();
             scheduledRepeatingAlarm.setRepeatingAlarm();
+            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             Toast.makeText(mContext, "Current schedule updated",
                     Toast.LENGTH_SHORT).show();
         } else {
@@ -219,6 +226,7 @@ public class ScheduleEditor {
                             new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                     scheduledRepeatingAlarm.cancelAlarm();
                     scheduledRepeatingAlarm.setRepeatingAlarm();
+                    Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
                     Toast.makeText(mContext, "Today's schedule now running",
                             Toast.LENGTH_SHORT).show();
                     alreadyToast = true;
