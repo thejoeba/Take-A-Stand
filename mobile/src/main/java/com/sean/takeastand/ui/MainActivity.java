@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
     {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
+        //Utils.setCurrentMainActivityImage(this, Constants.NO_ALARM_RUNNING);
         setUpLayout();
         if(isNewUser()){
             setUserDefaults();

@@ -64,6 +64,7 @@ public class ScheduleListActivity extends ListActivity {
     private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> alarmSchedules;
     private static final String EDIT_SCHEDULE = "edit";
+    private String mNewAlarmStartTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,10 +117,12 @@ public class ScheduleListActivity extends ListActivity {
                 new IntentFilter("Delete"));
         LocalBroadcastManager.getInstance(this).registerReceiver(titleChangeReceiver,
                 new IntentFilter("TitleChange"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(timePickerReceiver,
+        LocalBroadcastManager.getInstance(this).registerReceiver(timePickerResponseReceiver,
                 new IntentFilter("TimePicker"));
         LocalBroadcastManager.getInstance(this).registerReceiver(numberPickerReceiver,
                 new IntentFilter("NumberPicker"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(showTimePickerReceiver,
+                new IntentFilter("ShowTimePicker"));
     }
 
     private void deleteSchedule(int position){
@@ -160,7 +163,6 @@ public class ScheduleListActivity extends ListActivity {
         final TimePickerFragment timePickerFragment = new TimePickerFragment();
         timePickerFragment.setArguments(args);
         timePickerFragment.show(getFragmentManager(), "timePicker");
-
     }
 
     private BroadcastReceiver deleteScheduleReceiver = new BroadcastReceiver() {
@@ -178,18 +180,52 @@ public class ScheduleListActivity extends ListActivity {
         }
     };
 
-    private BroadcastReceiver timePickerReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver timePickerResponseReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Received timePicker intent");
             if(intent.getBooleanExtra("NewAlarm", false)) {
-                scheduleListAdapter.newSchedule(intent);
+                if(intent.getBooleanExtra("StartTime", true)){
+                    Log.i(TAG, "start time");
+                    Bundle args = new Bundle();
+                    args.putBoolean("StartOrEndButton", false);
+                    args.putBoolean("NewAlarm", true);
+                    mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
+                    final TimePickerFragment timePickerFragment = new TimePickerFragment();
+                    timePickerFragment.setArguments(args);
+                    timePickerFragment.show(getFragmentManager(), "timePicker");
+                } else {
+                    Log.i(TAG, "end time");
+                    scheduleListAdapter.newSchedule(mNewAlarmStartTime, intent.getStringExtra("TimeSelected"));
+                }
+
             } else {
+                Log.i(TAG, "not new alarm, updating existing");
                 //Was called by the ScheduleListAdapter, pass data in
                 scheduleListAdapter.updateStartEndTime(intent.getStringExtra("TimeSelected"),
                         intent.getIntExtra("Position", -1));
             }
 
+        }
+    };
+
+    private BroadcastReceiver showTimePickerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle args = new Bundle();
+            args.putBoolean("StartOrEndButton", intent.getBooleanExtra("StartOrEndButton", true));
+            Log.i(TAG, Boolean.toString(intent.getBooleanExtra("StartOrEndButton", true)));
+            args.putBoolean("NewAlarm", intent.getBooleanExtra("NewAlarm", false));
+            args.putInt("Position", intent.getIntExtra("Position", -1));
+            if(intent.hasExtra(Constants.START_TIME_ARG)){
+                args.putString(Constants.START_TIME_ARG, (intent.getStringExtra(Constants.START_TIME_ARG)));
+            }
+            if(intent.hasExtra(Constants.END_TIME_ARG)){
+                args.putString(Constants.END_TIME_ARG, (intent.getStringExtra(Constants.END_TIME_ARG)));
+            }
+            final TimePickerFragment timePickerFragment = new TimePickerFragment();
+            timePickerFragment.setArguments(args);
+            timePickerFragment.show(getFragmentManager(), "timePicker");
         }
     };
 

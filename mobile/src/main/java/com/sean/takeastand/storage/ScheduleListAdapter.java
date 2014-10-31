@@ -2,12 +2,10 @@
 
 package com.sean.takeastand.storage;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +24,6 @@ import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
-import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,7 +43,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private ImageView deleteButton;
     private CheckBox chBxLED;
     private CheckBox chBxVibrate;
-    private CheckBox chBxSound;
+    //private CheckBox chBxSound;
     private RelativeLayout frequencyLayout;
     private RelativeLayout startTimeLayout;
     private RelativeLayout endTimeLayout;
@@ -63,8 +60,6 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private boolean mStartEndButtonSelected;
     private final String TAG = "ScheduleListAdapter";
     private LayoutInflater mLayoutInflater;
-    private String mNewAlarmStartTime;
-    private String mNewAlarmEndTime;
 
     public ScheduleListAdapter(Context context, int resource, ArrayList<AlarmSchedule> alarmSchedules,
                                LayoutInflater layoutInflater) {
@@ -94,7 +89,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         deleteButton = (ImageView)view.findViewById(R.id.deleteButton);
         chBxLED = (CheckBox)view.findViewById(R.id.chbxLED);
         chBxVibrate = (CheckBox)view.findViewById(R.id.chbxVibrate);
-        chBxSound = (CheckBox)view.findViewById(R.id.chbxSound);
+        //chBxSound = (CheckBox)view.findViewById(R.id.chbxSound);
         frequencyLayout = (RelativeLayout)view.findViewById(R.id.frequency);
         startTimeLayout = (RelativeLayout)view.findViewById(R.id.startTime);
         endTimeLayout = (RelativeLayout)view.findViewById(R.id.endTime);
@@ -124,7 +119,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         Log.i(TAG, alertType.toString());
         chBxLED.setChecked(Utils.convertIntToBoolean(alertType[0]));
         chBxVibrate.setChecked(Utils.convertIntToBoolean((alertType[1])));
-        chBxSound.setChecked(Utils.convertIntToBoolean(alertType[2]));
+        //chBxSound.setChecked(Utils.convertIntToBoolean(alertType[2]));
         txtFrequencyValue.setText(Integer.toString(alarmSchedule.getFrequency()));
         txtStartTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getStartTime()));
         txtEndTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getEndTime()));
@@ -144,7 +139,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         deleteButton.setTag(position);
         chBxLED.setTag(position);
         chBxVibrate.setTag(position);
-        chBxSound.setTag(position);
+        //chBxSound.setTag(position);
         frequencyLayout.setTag(position);
         startTimeLayout.setTag(position);
         endTimeLayout.setTag(position);
@@ -165,7 +160,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         deleteButton.setOnClickListener(deleteListener);
         chBxLED.setOnClickListener(alertTypeListener);
         chBxVibrate.setOnClickListener(alertTypeListener);
-        chBxSound.setOnClickListener(alertTypeListener);
+        //chBxSound.setOnClickListener(alertTypeListener);
         frequencyLayout.setOnClickListener(frequencyListener);
         startTimeLayout.setOnClickListener(startTimeListener);
         endTimeLayout.setOnClickListener(endTimeListener);
@@ -268,7 +263,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         @Override
         public void onClick(View view) {
             mStartEndButtonSelected = true;
-            showTimePickerDialog(view);
+            startActivityTimePicker(view);
         }
     };
 
@@ -277,7 +272,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         @Override
         public void onClick(View view) {
             mStartEndButtonSelected = false;
-            showTimePickerDialog(view);
+            startActivityTimePicker(view);
         }
     };
 
@@ -415,41 +410,26 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     //Only used for below method
 
     private TextView txtTimeSelected;
-    private void showTimePickerDialog(View view)
+    private void startActivityTimePicker(View view)
     {
         RelativeLayout timeSelected = (RelativeLayout)view;
-        Bundle args = new Bundle();
-        args.putBoolean("StartOrEndButton", mStartEndButtonSelected);
-        args.putBoolean("NewAlarm", false);
         if(timeSelected==null){
-            Log.i(TAG, "txtTimeSelected is null");
+            Log.wtf(TAG, "txtTimeSelected is null");
         }
+        Intent intent = new Intent("ShowTimePicker");
         if(mStartEndButtonSelected){
             txtTimeSelected = (TextView)timeSelected.findViewById(R.id.txtStartTimeValue);
-            args.putString(Constants.START_TIME_ARG, txtTimeSelected.getText().toString());
+            intent.putExtra(Constants.START_TIME_ARG, txtTimeSelected.getText().toString());
         } else {
-            Log.i(TAG, "End time selected");
             txtTimeSelected = (TextView)timeSelected.findViewById(R.id.txtEndTimeValue);
-            args.putString(Constants.END_TIME_ARG, txtTimeSelected.getText().toString());
+            intent.putExtra(Constants.END_TIME_ARG, txtTimeSelected.getText().toString());
         }
-        args.putInt("Position", (Integer) view.getTag());
-        TimePickerFragment timePickerFragment = null;
-        timePickerFragment = new TimePickerFragment();
-        timePickerFragment.setArguments(args);
-        Activity activity = (Activity)getContext();
-        timePickerFragment.show(activity.getFragmentManager(), "timePicker");
+        intent.putExtra("StartOrEndButton", mStartEndButtonSelected);
+        intent.putExtra("NewAlarm", false);
+        intent.putExtra("Position", (Integer)view.getTag());
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
-    private void showTimePickerDialog(boolean startOrEndTime, boolean newAlarm)
-    {
-        Bundle args = new Bundle();
-        args.putBoolean("StartOrEndButton", startOrEndTime);
-        args.putBoolean("NewAlarm", newAlarm);
-        final TimePickerFragment timePickerFragment = new TimePickerFragment();
-        timePickerFragment.setArguments(args);
-        Activity activity = (Activity)getContext();
-        timePickerFragment.show(activity.getFragmentManager(), "timePicker");
-    }
 
     //Used only below
 
@@ -513,18 +493,9 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         saveStartEndTime(newStartTime, position);
     }
 
-    public void newSchedule(Intent intent){
-        if(intent.getBooleanExtra("StartTime", true)){
-            //Was called by ScheduleListActivity
-            Log.i(TAG, "New Alarm Start Time:" + intent.getStringExtra("TimeSelected"));
-            mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
-            showTimePickerDialog(false, true);
-        } else if (!intent.getBooleanExtra("StartTime", true)) {
-            //Was called by ScheduleListActivity
-            Log.i(TAG, "New Alarm End Time:" + intent.getStringExtra("TimeSelected"));
-            mNewAlarmEndTime = intent.getStringExtra("TimeSelected");
-            createNewSchedule();
-        }
+    public void newSchedule(String startTime, String endTime){
+            createNewSchedule(startTime, endTime);
+
     }
 
     //This method is called by SchedulesListActivity after showNumberPickerDialog is called here
@@ -662,7 +633,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         chBxSaturday.setEnabled(true);
     }
 
-    private void createNewSchedule(){
+    private void createNewSchedule(String startTime, String endTime){
         boolean[] availableDays = new ScheduleDatabaseAdapter(mContext).getAlreadyTakenAlarmDays();
         boolean[] newActivatedDays = {false, false, false, false, false, false, false};
         ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
@@ -670,8 +641,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(!availableDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)]){
             newActivatedDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)] = true;
         }
-        scheduleEditor.newAlarm(true, Utils.getDefaultAlertType(mContext), mNewAlarmStartTime,
-                mNewAlarmEndTime, Utils.getDefaultFrequency(mContext), "", newActivatedDays[0],
+        scheduleEditor.newAlarm(true, Utils.getDefaultAlertType(mContext), startTime,
+                endTime, Utils.getDefaultFrequency(mContext), "", newActivatedDays[0],
                 newActivatedDays[1], newActivatedDays[2], newActivatedDays[3], newActivatedDays[4],
                 newActivatedDays[5], newActivatedDays[6]);
         mAlarmSchedules.add((

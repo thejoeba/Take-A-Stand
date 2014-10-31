@@ -48,6 +48,7 @@ public class TimePickerFragment
     public Dialog onCreateDialog(Bundle bundle)
     {
         mStartTime = getArguments().getBoolean("StartOrEndButton", true);
+        Log.i(TAG, Boolean.toString(mStartTime));
         mPosition = getArguments().getInt("Position");
         mNewAlarm = getArguments().getBoolean("NewAlarm");
         if(mStartTime && !mNewAlarm){
@@ -55,14 +56,13 @@ public class TimePickerFragment
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(startTime),
                     Utils.readMinutesFromString(startTime), DateFormat.is24HourFormat(getActivity()), "Select Start Time");
             timePickerDialog.setTitle("Select Start Time");
-
+            Log.i(TAG, "Old Alarm");
             return timePickerDialog;
         } else if(!mStartTime && !mNewAlarm) {
             String endTime = getArguments().getString(Constants.END_TIME_ARG);
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(endTime),
                     Utils.readMinutesFromString(endTime), DateFormat.is24HourFormat(getActivity()), "Select End Time");
             timePickerDialog.setTitle("Select End Time");
-
             return timePickerDialog;
         } else if(mStartTime && mNewAlarm){
             Calendar rightNow = Calendar.getInstance();
@@ -70,7 +70,6 @@ public class TimePickerFragment
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(startTime),
                     Utils.readMinutesFromString(startTime), DateFormat.is24HourFormat(getActivity()), "Select Start Time");
             timePickerDialog.setTitle("Select Start Time");
-
             return timePickerDialog;
         } else if(!mStartTime && mNewAlarm){
             Calendar rightNow = Calendar.getInstance();
@@ -79,7 +78,6 @@ public class TimePickerFragment
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(endTime),
                     Utils.readMinutesFromString(endTime), DateFormat.is24HourFormat(getActivity()), "Select End Time");
             timePickerDialog.setTitle("Select End Time");
-
             return timePickerDialog;
         } else {
             Log.i(TAG, "Error: not one of defaults" );

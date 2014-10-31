@@ -102,7 +102,7 @@ public class ScheduleEditor {
                 Toast.makeText(mContext, "Schedule is running right now", Toast.LENGTH_SHORT).show();
                 Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             } else {
-                Toast.makeText(mContext, "Schedule is now activated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "Schedule activated", Toast.LENGTH_SHORT).show();
             }
         } else {
             cancelDailyRepeatingAlarm(UID);
