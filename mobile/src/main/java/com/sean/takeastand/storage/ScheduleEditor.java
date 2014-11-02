@@ -20,6 +20,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -96,8 +97,9 @@ public class ScheduleEditor {
             Calendar endTime = alarmSchedule.getEndTime();
             setDailyRepeatingAlarm(UID, Utils.calendarToTimeString(startTime));
             Calendar rightNow = Calendar.getInstance();
+            boolean today = Utils.isTodayActivated(alarmSchedule);
             //Check to see if need to start a repeating alarm now
-            if(startTime.before(rightNow)&&endTime.after(rightNow)) {
+            if(today && startTime.before(rightNow)&&endTime.after(rightNow)) {
                 new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule).setRepeatingAlarm();
                 Toast.makeText(mContext, "Schedule is running right now", Toast.LENGTH_SHORT).show();
                 Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
@@ -124,9 +126,6 @@ public class ScheduleEditor {
             scheduledRepeatingAlarm.setRepeatingAlarm();
             Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             Toast.makeText(mContext, "Current schedule updated",
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(mContext, "Alert change saved",
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -157,12 +156,7 @@ public class ScheduleEditor {
                 Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Schedule updated and running now",
                         Toast.LENGTH_SHORT).show();
-            } else{
-                Toast.makeText(mContext, "New start time saved", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(mContext, "New start time saved",
-                    Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -188,11 +182,7 @@ public class ScheduleEditor {
                 scheduledRepeatingAlarm.setRepeatingAlarm();
                 Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Current schedule updated", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(mContext, "New end time saved", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(mContext, "New end time saved", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -208,14 +198,10 @@ public class ScheduleEditor {
             Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             Toast.makeText(mContext, "Current schedule updated",
                     Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(mContext, "New frequency saved",
-                    Toast.LENGTH_SHORT).show();
         }
     }
 
     public void editDays(int weekday, boolean activated, AlarmSchedule alarmSchedule){
-        boolean alreadyToast = false;
         if(weekday == Utils.getTodayWeekday()){
             FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(alarmSchedule);
             if(activated){
@@ -229,7 +215,6 @@ public class ScheduleEditor {
                     Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
                     Toast.makeText(mContext, "Today's schedule now running",
                             Toast.LENGTH_SHORT).show();
-                    alreadyToast = true;
                 }
             } else {
                 Calendar rightNow = Calendar.getInstance();
@@ -239,7 +224,6 @@ public class ScheduleEditor {
                             new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                     scheduledRepeatingAlarm.cancelAlarm();
                     Toast.makeText(mContext, "Today's schedule cancelled",Toast.LENGTH_SHORT).show();
-                    alreadyToast = true;
                 }
             }
         }
@@ -247,45 +231,24 @@ public class ScheduleEditor {
         switch (weekday){
             case 1:
                 scheduleDatabaseAdapter.updateSunday(UID, activated);
-                if(!alreadyToast){
-                    Toast.makeText(mContext, "Sunday updated", Toast.LENGTH_SHORT).show();
-                }
                 break;
             case 2:
                 scheduleDatabaseAdapter.updateMonday(UID, activated);
-                if(!alreadyToast){
-                    Toast.makeText(mContext, "Monday updated", Toast.LENGTH_SHORT).show();
-                }
                 break;
             case 3:
                 scheduleDatabaseAdapter.updateTuesday(UID, activated);
-                if(!alreadyToast){
-                    Toast.makeText(mContext, "Tuesday updated", Toast.LENGTH_SHORT).show();
-                }
                 break;
             case 4:
                 scheduleDatabaseAdapter.updateWednesday(UID, activated);
-                if(!alreadyToast){
-                    Toast.makeText(mContext, "Wednesday updated", Toast.LENGTH_SHORT).show();
-                }
                 break;
             case 5:
                 scheduleDatabaseAdapter.updateThursday(UID, activated);
-                if(!alreadyToast){
-                    Toast.makeText(mContext, "Thursday updated", Toast.LENGTH_SHORT).show();
-                }
                 break;
             case 6:
                 scheduleDatabaseAdapter.updateFriday(UID, activated);
-                if(!alreadyToast){
-                    Toast.makeText(mContext, "Friday updated", Toast.LENGTH_SHORT).show();
-                }
                 break;
             case 7:
                 scheduleDatabaseAdapter.updateSaturday(UID, activated);
-                if(!alreadyToast){
-                    Toast.makeText(mContext, "Saturday updated", Toast.LENGTH_SHORT).show();
-                }
                 break;
             default:
                 Log.i(TAG, "Weekday does not fall between 1 and 7");
@@ -295,12 +258,23 @@ public class ScheduleEditor {
 
     public void editTitle(int UID, String title){
         scheduleDatabaseAdapter.updateTitle(UID, title);
-        //No toast because user can see that it has changed
+        //No toast because user can see that it has changed, which is managed in the adapter class
     }
 
     public void deleteAlarm(AlarmSchedule alarmSchedule){
-        cancelDailyRepeatingAlarm(alarmSchedule.getUID());
-        scheduleDatabaseAdapter.deleteAlarm(alarmSchedule.getUID());
+        int deletedAlarmUID = alarmSchedule.getUID();
+        cancelDailyRepeatingAlarm(deletedAlarmUID);
+        scheduleDatabaseAdapter.deleteAlarm(deletedAlarmUID);
+        int currentlyRunningAlarm = Utils.getRunningScheduledAlarm(mContext);
+        if(deletedAlarmUID == currentlyRunningAlarm){
+            FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(alarmSchedule);
+            new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule).cancelAlarm();
+            Toast.makeText(mContext, "Currently running scheduled deleted", Toast.LENGTH_LONG).show();
+        }
+        //Service needs to cancel any running alarms and notifications it is currently managing
+        Intent informServiceOfDeletion = new Intent(Constants.ALARM_SCHEDULE_DELETED);
+        informServiceOfDeletion.putExtra("UID", deletedAlarmUID);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(informServiceOfDeletion);
     }
 
     private void setDailyRepeatingAlarm(int UID, String time){

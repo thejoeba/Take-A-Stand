@@ -102,6 +102,11 @@ public class MainActivity extends Activity {
                 showNumberPickerDialog(Utils.getDefaultDelay(this), 1,
                         (Utils.getDefaultFrequency(this) - 1),
                         "Select Default Delay Length", false);
+                break;
+            case R.id.science:
+                Intent intentScience = new Intent(this, ScienceActivity.class);
+                startActivity(intentScience);
+                break;
         }
 
         return super.onOptionsItemSelected(item);

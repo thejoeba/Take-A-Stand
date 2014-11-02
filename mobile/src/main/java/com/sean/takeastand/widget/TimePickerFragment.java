@@ -18,6 +18,7 @@ package com.sean.takeastand.widget;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import android.widget.TimePicker;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
+import java.lang.reflect.Field;
 import java.util.Calendar;
 
 /**
@@ -53,6 +55,7 @@ public class TimePickerFragment
         mNewAlarm = getArguments().getBoolean("NewAlarm");
         if(mStartTime && !mNewAlarm){
             String startTime = getArguments().getString(Constants.START_TIME_ARG);
+            Log.i(TAG, startTime);
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(startTime),
                     Utils.readMinutesFromString(startTime), DateFormat.is24HourFormat(getActivity()), "Select Start Time");
             timePickerDialog.setTitle("Select Start Time");
@@ -60,6 +63,7 @@ public class TimePickerFragment
             return timePickerDialog;
         } else if(!mStartTime && !mNewAlarm) {
             String endTime = getArguments().getString(Constants.END_TIME_ARG);
+            Log.i(TAG, endTime);
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(endTime),
                     Utils.readMinutesFromString(endTime), DateFormat.is24HourFormat(getActivity()), "Select End Time");
             timePickerDialog.setTitle("Select End Time");
@@ -67,6 +71,7 @@ public class TimePickerFragment
         } else if(mStartTime && mNewAlarm){
             Calendar rightNow = Calendar.getInstance();
             String startTime = Utils.calendarToTimeString(rightNow);
+            Log.i(TAG, startTime);
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(startTime),
                     Utils.readMinutesFromString(startTime), DateFormat.is24HourFormat(getActivity()), "Select Start Time");
             timePickerDialog.setTitle("Select Start Time");
@@ -75,6 +80,7 @@ public class TimePickerFragment
             Calendar rightNow = Calendar.getInstance();
             rightNow.add(Calendar.HOUR_OF_DAY, 3);
             String endTime = Utils.calendarToTimeString(rightNow);
+            Log.i(TAG, endTime);
             CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(getActivity(), this, Utils.readHourFromString(endTime),
                     Utils.readMinutesFromString(endTime), DateFormat.is24HourFormat(getActivity()), "Select End Time");
             timePickerDialog.setTitle("Select End Time");
@@ -94,6 +100,7 @@ public class TimePickerFragment
 
     public void onTimeSet(TimePicker timePicker, int hour, int minute)
     {
+        Log.i(TAG, hour + ":" + minute);
         Intent intent = new Intent("TimePicker");
         intent.putExtra("TimeSelected", Integer.toString(hour)+ ":" + correctMinuteFormat(Integer.toString(minute)));
         if(mPosition!=-1){
@@ -102,5 +109,21 @@ public class TimePickerFragment
         intent.putExtra("StartTime", mStartTime);
         intent.putExtra("NewAlarm", mNewAlarm);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

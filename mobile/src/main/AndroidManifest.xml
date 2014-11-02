@@ -16,8 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ScheduleListActivity" android:windowSoftInputMode="adjustPan">
-        </activity>
+        <activity android:name=".ui.ScheduleListActivity" android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".ui.ScienceActivity" />
         <receiver android:name=".alarmprocess.AlarmReceiver" ></receiver>
         <receiver android:name=".alarmprocess.StartScheduleReceiver" ></receiver>
         <service android:name=".alarmprocess.AlarmService"></service>

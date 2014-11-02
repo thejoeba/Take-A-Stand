@@ -25,6 +25,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -65,6 +67,9 @@ public class ScheduleListActivity extends ListActivity {
     private  ArrayList<AlarmSchedule> alarmSchedules;
     private static final String EDIT_SCHEDULE = "edit";
     private String mNewAlarmStartTime;
+    private boolean mJustReceivedTimePicker;
+    private boolean mJustReceivedResponse;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +79,6 @@ public class ScheduleListActivity extends ListActivity {
         //Deleting the database each time only during testing
         //deleteDatabase("alarms_database");
         setUpLayout();
-
     }
 
     @Override
@@ -87,6 +91,9 @@ public class ScheduleListActivity extends ListActivity {
         expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
         setListAdapter(expandableAdapter);
         registerReceivers();
+        mJustReceivedTimePicker = true;
+        mJustReceivedResponse = true;
+        mHandler = new Handler();
     }
 
     @Override
@@ -113,8 +120,6 @@ public class ScheduleListActivity extends ListActivity {
     };
 
     private void registerReceivers(){
-        LocalBroadcastManager.getInstance(this).registerReceiver(deleteScheduleReceiver,
-                new IntentFilter("Delete"));
         LocalBroadcastManager.getInstance(this).registerReceiver(titleChangeReceiver,
                 new IntentFilter("TitleChange"));
         LocalBroadcastManager.getInstance(this).registerReceiver(timePickerResponseReceiver,
@@ -165,12 +170,7 @@ public class ScheduleListActivity extends ListActivity {
         timePickerFragment.show(getFragmentManager(), "timePicker");
     }
 
-    private BroadcastReceiver deleteScheduleReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            scheduleListAdapter.removeAlarm(intent.getIntExtra("Row", -1));
-        }
-    };
+
 
     private BroadcastReceiver titleChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -184,48 +184,56 @@ public class ScheduleListActivity extends ListActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Received timePicker intent");
-            if(intent.getBooleanExtra("NewAlarm", false)) {
-                if(intent.getBooleanExtra("StartTime", true)){
-                    Log.i(TAG, "start time");
-                    Bundle args = new Bundle();
-                    args.putBoolean("StartOrEndButton", false);
-                    args.putBoolean("NewAlarm", true);
-                    mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
-                    final TimePickerFragment timePickerFragment = new TimePickerFragment();
-                    timePickerFragment.setArguments(args);
-                    timePickerFragment.show(getFragmentManager(), "timePicker");
+            if(mJustReceivedResponse){
+                if(intent.getBooleanExtra("NewAlarm", false)) {
+                    if(intent.getBooleanExtra("StartTime", true)){
+                        Log.i(TAG, "start time");
+                        Bundle args = new Bundle();
+                        args.putBoolean("StartOrEndButton", false);
+                        args.putBoolean("NewAlarm", true);
+                        mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
+                        final TimePickerFragment timePickerFragment = new TimePickerFragment();
+                        timePickerFragment.setArguments(args);
+                        timePickerFragment.show(getFragmentManager(), "timePicker");
+                    } else {
+                        Log.i(TAG, "end time");
+                        scheduleListAdapter.newSchedule(mNewAlarmStartTime, intent.getStringExtra("TimeSelected"));
+                    }
+
                 } else {
-                    Log.i(TAG, "end time");
-                    scheduleListAdapter.newSchedule(mNewAlarmStartTime, intent.getStringExtra("TimeSelected"));
+                    Log.i(TAG, "not new alarm, updating existing");
+                    //Was called by the ScheduleListAdapter, pass data in
+                    scheduleListAdapter.updateStartEndTime(intent.getStringExtra("TimeSelected"),
+                            intent.getIntExtra("Position", -1));
                 }
-
-            } else {
-                Log.i(TAG, "not new alarm, updating existing");
-                //Was called by the ScheduleListAdapter, pass data in
-                scheduleListAdapter.updateStartEndTime(intent.getStringExtra("TimeSelected"),
-                        intent.getIntExtra("Position", -1));
+                mJustReceivedResponse = false;
+                mHandler.postDelayed(updateStatusResponse, 290);
             }
-
         }
     };
 
     private BroadcastReceiver showTimePickerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Bundle args = new Bundle();
-            args.putBoolean("StartOrEndButton", intent.getBooleanExtra("StartOrEndButton", true));
-            Log.i(TAG, Boolean.toString(intent.getBooleanExtra("StartOrEndButton", true)));
-            args.putBoolean("NewAlarm", intent.getBooleanExtra("NewAlarm", false));
-            args.putInt("Position", intent.getIntExtra("Position", -1));
-            if(intent.hasExtra(Constants.START_TIME_ARG)){
-                args.putString(Constants.START_TIME_ARG, (intent.getStringExtra(Constants.START_TIME_ARG)));
+            if(mJustReceivedTimePicker){
+                Bundle args = new Bundle();
+                args.putBoolean("StartOrEndButton", intent.getBooleanExtra("StartOrEndButton", true));
+                Log.i(TAG, Boolean.toString(intent.getBooleanExtra("StartOrEndButton", true)));
+                args.putBoolean("NewAlarm", intent.getBooleanExtra("NewAlarm", false));
+                args.putInt("Position", intent.getIntExtra("Position", -1));
+                if(intent.hasExtra(Constants.START_TIME_ARG)){
+                    args.putString(Constants.START_TIME_ARG, (intent.getStringExtra(Constants.START_TIME_ARG)));
+                }
+                if(intent.hasExtra(Constants.END_TIME_ARG)){
+                    args.putString(Constants.END_TIME_ARG, (intent.getStringExtra(Constants.END_TIME_ARG)));
+                }
+                final TimePickerFragment timePickerFragment = new TimePickerFragment();
+                timePickerFragment.setArguments(args);
+                timePickerFragment.show(getFragmentManager(), "timePicker");
+                mJustReceivedTimePicker = false;
+                mHandler.postDelayed(updateStatusPicker, 290);
             }
-            if(intent.hasExtra(Constants.END_TIME_ARG)){
-                args.putString(Constants.END_TIME_ARG, (intent.getStringExtra(Constants.END_TIME_ARG)));
-            }
-            final TimePickerFragment timePickerFragment = new TimePickerFragment();
-            timePickerFragment.setArguments(args);
-            timePickerFragment.show(getFragmentManager(), "timePicker");
+
         }
     };
 
@@ -234,6 +242,20 @@ public class ScheduleListActivity extends ListActivity {
         public void onReceive(Context context, Intent intent) {
             scheduleListAdapter.updateFrequency(intent.getIntExtra("NewFrequency", -1),
                     intent.getIntExtra("Position", -1));
+        }
+    };
+
+    private Runnable updateStatusResponse = new Runnable() {
+        @Override
+        public void run() {
+            mJustReceivedResponse = true;
+        }
+    };
+
+    private Runnable updateStatusPicker = new Runnable() {
+        @Override
+        public void run() {
+            mJustReceivedTimePicker = true;
         }
     };
 

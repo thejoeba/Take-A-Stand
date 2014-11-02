@@ -13,4 +13,25 @@
         <item>Excellent!</item>
     </string-array>
     <string name="select_frequency">Select Frequency</string>
+    <string name="science_text">Medical Studies:
+        \n \n
+        A large <a href = "http://www.ncbi.nlm.nih.gov/pubmed/19996993">long-term study</a> with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent to percent.
+        \n\n
+        A Danish <a href = "http://sjp.sagepub.com/content/35/5/510.abstract"> medical study </a>that looked into factors which decreased life quality found sedentary lifestyles reduced the quality-adjusted life years by 7 years.
+        \n\n
+        A British <a href = " http://bjsm.bmj.com/content/43/2/81.full">research study</a>  found that even exercising for 30 minutes or more a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.
+        \n\n
+        Sitting for prolonged periods of time may contribute to <a ref = "http://diabetes.diabetesjournals.org/content/56/11/2655.long">metabolic diseases</a> such as diabetes and cardiovascular disease.
+        \n\n\n
+        News Articles:
+        \n\n
+        There are many news articles which have covered the problems associated with sitting for long periods of time.
+        \n
+        <a href="http://lifehacker.com/tag/sitting">Lifehacker</a> \n
+        <a href="http://news.bbc.co.uk/2/hi/6187080.stm">BBC</a> \n
+        <a href="http://www.economist.com/news/science-and-technology/21583239-real-science-lies-behind-fad-standing-up-work-standing-orders">The Economist</a> \n
+        <a href="http://www.businessweek.com/magazine/content/10_19/b4177071221162.htm">Businessweek </a> \n
+        <a href= "http://www.nytimes.com/2011/04/17/magazine/mag-17sitting-t.html?_r=0">New York Times</a> \n
+        <a href = "http://www.nbcnews.com/id/39523298/ns/health-ments_health/#.VFWu-PmG9V1">NBC News</a> \n
+</string>
 </resources>

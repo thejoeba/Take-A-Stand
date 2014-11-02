@@ -20,8 +20,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
+import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 
 import java.util.Arrays;
@@ -58,9 +60,33 @@ public final class Utils {
     }
 
     public static int readHourFromString(String alarmTime){
+        boolean twelveHourClock = false;
+        boolean pm = false;
+        if(alarmTime.contains("am")){
+            alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
+            Log.i(TAG, "contains am");
+            twelveHourClock = true;
+        }
+        if(alarmTime.contains("pm")){
+            alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
+            Log.i(TAG, "contains pm");
+            twelveHourClock = true;
+            pm = true;
+        }
+        String time = alarmTime.substring(0, alarmTime.indexOf(":"));
         if(alarmTime.length()==5 || alarmTime.length()==4){
-            String time = alarmTime.substring(0, alarmTime.indexOf(":"));
-            return Integer.valueOf(time);
+            if(twelveHourClock && pm){
+                if(time.equals("12")){
+                    return 12;
+                } else{
+                    return (Integer.valueOf(time) + 12);
+                }
+            } else if (twelveHourClock && !pm && time.equals("12")){
+                Log.i(TAG, "12am");
+                return  0;
+            } else {
+                return Integer.valueOf(time);
+            }
         } else {
             Log.i(TAG, "alarmTime string is " + Integer.toString(alarmTime.length())
                     + " characters long, not 4 or 5.");
@@ -69,6 +95,14 @@ public final class Utils {
     }
 
     public static int readMinutesFromString(String alarmTime){
+        if(alarmTime.contains("am")){
+            alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
+            Log.i(TAG, "contains am");
+        }
+        if(alarmTime.contains("pm")){
+            alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
+            Log.i(TAG, "contains pm");
+        }
         if(alarmTime.length()==5){
             String time = alarmTime.substring(alarmTime.indexOf(":") + 1, 5);
             return Integer.valueOf(time);
@@ -106,6 +140,46 @@ public final class Utils {
         Calendar today = Calendar.getInstance();
         return today.get(Calendar.DAY_OF_WEEK);
     }
+
+    public static String getFormattedTimeString(String string, Context context){
+        if (!DateFormat.is24HourFormat(context))
+        {
+            int hour = readHourFromString(string);
+            int minutes = readMinutesFromString(string);
+            if(hour>=12)
+            {
+                if(hour == 12){
+                    String formattedTime = Integer.toString(hour) + ":" +
+                            correctMinuteFormat(Integer.toString(minutes)) + " pm";
+                    return formattedTime;
+                } else {
+                    String formattedTime = Integer.toString(hour - 12) + ":" +
+                            correctMinuteFormat(Integer.toString(minutes)) + " pm";
+                    return formattedTime;
+                }
+            } else {
+                if( hour == 0){
+                    String formattedTime = 12 + ":" + correctMinuteFormat(Integer.toString(minutes))
+                            + " am";
+                    return formattedTime;
+                } else {
+                    string += " am";
+                    return string;
+                }
+
+            }
+        }
+        else {
+            return string;
+        }
+    }
+
+    public static String getFormattedCalendarTime(Calendar calendar, Context context){
+        String calendarTime = calendarToTimeString(calendar);
+        String formattedForAmPm = getFormattedTimeString(calendarTime, context);
+        return formattedForAmPm;
+    }
+
 
     public static boolean isTodayActivated(boolean sunday, boolean monday, boolean tuesday,
                                            boolean wednesday, boolean thursday, boolean friday,

@@ -80,6 +80,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         }
         initializeViewsAndButtons(rowView, position);
         setTextAndStatus(mAlarmSchedules, position);
+
         return rowView;
     }
 
@@ -121,8 +122,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         chBxVibrate.setChecked(Utils.convertIntToBoolean((alertType[1])));
         //chBxSound.setChecked(Utils.convertIntToBoolean(alertType[2]));
         txtFrequencyValue.setText(Integer.toString(alarmSchedule.getFrequency()));
-        txtStartTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getStartTime()));
-        txtEndTimeValue.setText(Utils.calendarToTimeString(alarmSchedule.getEndTime()));
+        txtStartTimeValue.setText(Utils.getFormattedCalendarTime(alarmSchedule.getStartTime(), mContext));
+        txtEndTimeValue.setText(Utils.getFormattedCalendarTime(alarmSchedule.getEndTime(), mContext));
         chBxSunday.setChecked(alarmSchedule.getSunday());
         chBxMonday.setChecked(alarmSchedule.getMonday());
         chBxTuesday.setChecked(alarmSchedule.getTuesday());
@@ -197,32 +198,18 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private View.OnClickListener deleteListener = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
-            //showDeleteDialog(view);
             int position = (Integer)view.getTag();
             AlarmSchedule deletedAlarmSchedule = mAlarmSchedules.get(position);
-            int deletedAlarmUID = deletedAlarmSchedule.getUID();
             ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
             scheduleEditor.deleteAlarm(deletedAlarmSchedule);
-            int currentlyRunningAlarm = Utils.getRunningScheduledAlarm(mContext);
-            if(deletedAlarmUID == currentlyRunningAlarm){
-                FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(deletedAlarmSchedule);
-                new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule).cancelAlarm();
-            }
-            //If deleting the last alarm set listadapter to null
             if(position == 0 && mAlarmSchedules.size() == 1){
                 Log.i(TAG, "Deleting the last alarmSchedule");
                 mAlarmSchedules.clear();
-                //scheduleListAdapter.clear();
-                //setListAdapter(null);
                 notifyDataSetChanged();
             } else {
                 mAlarmSchedules.remove(position);
                 notifyDataSetChanged();
             }
-            //Service needs to cancel any running alarms and notifications it is currently managing
-            Intent informServiceOfDeletion = new Intent(Constants.ALARM_SCHEDULE_DELETED);
-            informServiceOfDeletion.putExtra("UID", deletedAlarmUID);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(informServiceOfDeletion);
         }
     };
 
@@ -474,11 +461,6 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         alertDialog.show();
     }
 
-    public void removeAlarm(int position){
-        Log.i(TAG, "Deleting alarm schedule at position " + position);
-    }
-
-
     //This method is called by SchedulesListActivity after showTitleDialog is called here
     public void updateTitle(String newTitle, int position){
         selectedTitle.setText(newTitle);
@@ -489,8 +471,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     //This method is called by SchedulesListActivity after showTimePickerDialog is called here
     public void updateStartEndTime(String newStartTime, int position) {
         Log.i(TAG, newStartTime + " " + position);
+        String formattedStartEndTime = Utils.getFormattedTimeString(newStartTime, mContext);
         txtTimeSelected.setText(newStartTime);
         saveStartEndTime(newStartTime, position);
+        notifyDataSetChanged();
     }
 
     public void newSchedule(String startTime, String endTime){
@@ -517,7 +501,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             Calendar startTime = Utils.convertToCalendarTime(time);
             newAlarmSchedule.setStartTime(startTime);
             boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
-            scheduleEditor.editStartTime(todayActivated,newAlarmSchedule);
+            scheduleEditor.editStartTime(todayActivated, newAlarmSchedule);
             Log.i(TAG, "start time");
         } else {
             txtEndTimeValue.setText(time);
