@@ -43,7 +43,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private ImageView deleteButton;
     private CheckBox chBxLED;
     private CheckBox chBxVibrate;
-    //private CheckBox chBxSound;
+    private CheckBox chBxSound;
     private RelativeLayout frequencyLayout;
     private RelativeLayout startTimeLayout;
     private RelativeLayout endTimeLayout;
@@ -90,7 +90,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         deleteButton = (ImageView)view.findViewById(R.id.deleteButton);
         chBxLED = (CheckBox)view.findViewById(R.id.chbxLED);
         chBxVibrate = (CheckBox)view.findViewById(R.id.chbxVibrate);
-        //chBxSound = (CheckBox)view.findViewById(R.id.chbxSound);
+        chBxSound = (CheckBox)view.findViewById(R.id.chbxSound);
         frequencyLayout = (RelativeLayout)view.findViewById(R.id.frequency);
         startTimeLayout = (RelativeLayout)view.findViewById(R.id.startTime);
         endTimeLayout = (RelativeLayout)view.findViewById(R.id.endTime);
@@ -120,7 +120,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         Log.i(TAG, alertType.toString());
         chBxLED.setChecked(Utils.convertIntToBoolean(alertType[0]));
         chBxVibrate.setChecked(Utils.convertIntToBoolean((alertType[1])));
-        //chBxSound.setChecked(Utils.convertIntToBoolean(alertType[2]));
+        chBxSound.setChecked(Utils.convertIntToBoolean(alertType[2]));
         txtFrequencyValue.setText(Integer.toString(alarmSchedule.getFrequency()));
         txtStartTimeValue.setText(Utils.getFormattedCalendarTime(alarmSchedule.getStartTime(), mContext));
         txtEndTimeValue.setText(Utils.getFormattedCalendarTime(alarmSchedule.getEndTime(), mContext));
@@ -140,7 +140,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         deleteButton.setTag(position);
         chBxLED.setTag(position);
         chBxVibrate.setTag(position);
-        //chBxSound.setTag(position);
+        chBxSound.setTag(position);
         frequencyLayout.setTag(position);
         startTimeLayout.setTag(position);
         endTimeLayout.setTag(position);
@@ -161,7 +161,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         deleteButton.setOnClickListener(deleteListener);
         chBxLED.setOnClickListener(alertTypeListener);
         chBxVibrate.setOnClickListener(alertTypeListener);
-        //chBxSound.setOnClickListener(alertTypeListener);
+        chBxSound.setOnClickListener(alertTypeListener);
         frequencyLayout.setOnClickListener(frequencyListener);
         startTimeLayout.setOnClickListener(startTimeListener);
         endTimeLayout.setOnClickListener(endTimeListener);

@@ -24,6 +24,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -248,7 +250,8 @@ public class AlarmService extends Service{
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
             }
             if(alertType[2] == 1){
-                //Eventually add sound option
+                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                alarmNotificationBuilder.setSound(soundUri);
             }
         } else {
             int[] alertType = Utils.getDefaultAlertType(mContext);
@@ -259,7 +262,8 @@ public class AlarmService extends Service{
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
             }
             if(alertType[2] == 1){
-                //Eventually add sound option
+                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                alarmNotificationBuilder.setSound(soundUri);
             }
         }
         Notification alarmNotification = alarmNotificationBuilder.build();

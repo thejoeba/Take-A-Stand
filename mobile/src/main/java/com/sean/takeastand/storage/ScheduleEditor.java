@@ -76,7 +76,7 @@ public class ScheduleEditor {
                             saturday);
                     new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
                     Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
-                    Toast.makeText(mContext, "New schedule is now running", Toast.LENGTH_SHORT);
+                    Toast.makeText(mContext, "New schedule is now running", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");

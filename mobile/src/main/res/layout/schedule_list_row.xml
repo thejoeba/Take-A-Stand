@@ -76,24 +76,21 @@
                 android:layout_marginRight="11dp"
                 android:text="LED Light"
                 android:textSize="14sp"/>
-            <!--Once sound is added back in, remove marginRight below and replace
-                alignParentRight with centerHorizontal -->
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/chbxVibrate"
-                android:layout_marginRight="70dp"
-                android:layout_alignParentRight="true"
+                android:layout_centerHorizontal="true"
                 android:text="Vibrate"
                 android:textSize="14sp"/>
-            <!--<CheckBox
+            <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/chbxSound"
                 android:layout_toRightOf="@id/chbxVibrate"
                 android:layout_marginLeft="10dp"
                 android:text="Sound"
-                android:textSize="14sp"/>-->
+                android:textSize="14sp"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
