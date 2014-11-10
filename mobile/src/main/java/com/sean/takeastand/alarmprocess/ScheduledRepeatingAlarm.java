@@ -49,9 +49,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     private Context mContext;
     private FixedAlarmSchedule mCurrentAlarmSchedule;
     private static final int REPEATING_ALARM_ID = 987654321;
-    /*
-    Once done testing, convert all doubles to longs
-     */
+
 
     //For scheduled alarms use this constructor
     public ScheduledRepeatingAlarm(Context context, FixedAlarmSchedule alarmSchedule)
@@ -60,34 +58,20 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         mCurrentAlarmSchedule = alarmSchedule;
     }
 
+    /*
+       Once done testing, convert all doubles to longs
+        */
     @Override
     public void setRepeatingAlarm() {
-        //In future will check mAlarmSchedule.alarmType() and set alarm accordingly
-        //In future will check mAlarmSchedule.getFrequency() and set
         double alarmPeriodMinutes = mCurrentAlarmSchedule.getFrequency();
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
                 Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " + SystemClock.elapsedRealtime());
-        setAlarm(triggerTime);
-        //The purpose of this is to have a way of keeping track of which scheduled alarm is running
-        //It helps when cancelling a deleted alarm
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
+        Utils.nextAlarmTime(nextAlarmTime, mContext);
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
-        Log.i(TAG, "New Scheduled Repeating Alarm Set");
-        Log.i(TAG, "UID " + mCurrentAlarmSchedule.getUID());
-        Log.i(TAG, "Activated " + mCurrentAlarmSchedule.getActivated());
-        Log.i(TAG, "AlertType " + mCurrentAlarmSchedule.getAlertType());
-        Log.i(TAG, "Frequency " + mCurrentAlarmSchedule.getFrequency());
-        Log.i(TAG, "StartTime " + Utils.calendarToTimeString(mCurrentAlarmSchedule.getStartTime()));
-        Log.i(TAG, "EndTime " + Utils.calendarToTimeString(mCurrentAlarmSchedule.getEndTime()));
-        Log.i(TAG, "Title " + mCurrentAlarmSchedule.getTitle());
-        Log.i(TAG, "Sunday " + mCurrentAlarmSchedule.getSunday());
-        Log.i(TAG, "Monday " + mCurrentAlarmSchedule.getMonday());
-        Log.i(TAG, "Tuesday " + mCurrentAlarmSchedule.getTuesday());
-        Log.i(TAG, "Wednesday " + mCurrentAlarmSchedule.getWednesday());
-        Log.i(TAG, "Thursday "  + mCurrentAlarmSchedule.getThursday());
-        Log.i(TAG, "Friday " + mCurrentAlarmSchedule.getFriday());
-        Log.i(TAG, "Saturday " + mCurrentAlarmSchedule.getSaturday());
+        setAlarm(triggerTime);
     }
 
     @Override
@@ -95,10 +79,10 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         long delayTime = Utils.getDefaultDelay(mContext);
         long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
-                SystemClock.elapsedRealtime());
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
+        Utils.nextAlarmTime(nextAlarmTime, mContext);
         setAlarm(triggerTime);
-        Log.i(TAG, "Long Break Alarm set");
     }
 
     @Override
@@ -119,9 +103,19 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     }
 
     private void setAlarm(long triggerTime){
-        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
-        AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
-        am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MINUTE, mCurrentAlarmSchedule.getFrequency());
+        if(mCurrentAlarmSchedule.getEndTime().before(nextAlarmTime)){
+            Utils.setRunningScheduledAlarm(mContext, -1);
+            Log.i(TAG, "Alarm day is over.");
+            Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
+            endAlarmService();
+        } else {
+            PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
+            AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
+            am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
+            Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
+        }
     }
 
     private PendingIntent createPendingIntent(Context context, FixedAlarmSchedule alarmSchedule){
@@ -132,7 +126,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     }
 
     private void endAlarmService(){
-        Intent intent = new Intent("userSwitchedOffAlarm");
+        Intent intent = new Intent(Constants.END_ALARM_SERVICE);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 }

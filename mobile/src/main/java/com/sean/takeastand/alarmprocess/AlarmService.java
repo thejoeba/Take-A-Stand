@@ -24,10 +24,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -53,22 +55,23 @@ images. */
 /**
  * Created by Sean on 2014-09-18.
  */
-public class AlarmService extends Service{
+public class AlarmService extends Service  {
 
     private static final String TAG = "AlarmService";
     private final long oneMinuteMillis = 60000;
-
 
     private Handler mHandler;
     private Context mContext;
     private FixedAlarmSchedule mCurrentAlarmSchedule;
     private int mNotifTimePassed = 0;
     long[] mVibrationPattern = {(long)200, (long)200, (long)200, (long)200};
+    private boolean mainActivityVisible;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
+        mainActivityVisible = false;
         registerReceivers();
         mHandler = new Handler();
         mContext = getApplicationContext();
@@ -77,6 +80,7 @@ public class AlarmService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "AlarmService started");
+        checkMainActivityVisible();
         sendNotification();
         mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
         if(intent.hasExtra(Constants.ALARM_SCHEDULE)){
@@ -102,17 +106,20 @@ public class AlarmService extends Service{
                 new IntentFilter("StoodUp"));
         getApplicationContext().registerReceiver(delayAlarmReceiver,
                 new IntentFilter("DelayAlarm"));
-        LocalBroadcastManager.getInstance(AlarmService.this).registerReceiver(endAlarmService,
-                new IntentFilter("userSwitchedOffAlarm"));
-        LocalBroadcastManager.getInstance(AlarmService.this).registerReceiver(deletedAlarm,
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(endAlarmService,
+                new IntentFilter(Constants.END_ALARM_SERVICE));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(deletedAlarm,
                 new IntentFilter(Constants.ALARM_SCHEDULE_DELETED));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mainVisibilityReceiver,
+                new IntentFilter("VisibilityStatus"));
     }
 
     private void unregisterReceivers(){
         getApplicationContext().unregisterReceiver(stoodUpReceiver);
         getApplicationContext().unregisterReceiver(delayAlarmReceiver);
-        LocalBroadcastManager.getInstance(AlarmService.this).unregisterReceiver(endAlarmService);
-        LocalBroadcastManager.getInstance(AlarmService.this).unregisterReceiver(deletedAlarm);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(endAlarmService);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(deletedAlarm);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mainVisibilityReceiver);
     }
 
     @Override
@@ -125,11 +132,12 @@ public class AlarmService extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
             cancelNotification();
+            showPraise();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
             long eightSeconds = 8 * Constants.millisecondsInSecond;
             mHandler.postDelayed(changeImage, eightSeconds);
-            long fifteenSeconds = 15 * Constants.millisecondsInSecond;
-            mHandler.postDelayed(stoodUp, fifteenSeconds);
+            long threeSeconds = 3 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(stoodUp, threeSeconds);
             if(mCurrentAlarmSchedule == null){
                 Utils.setCurrentMainActivityImage(mContext, Constants.NON_SCHEDULE_STOOD_UP);
             } else {
@@ -183,6 +191,14 @@ public class AlarmService extends Service{
         }
     };
 
+    private BroadcastReceiver mainVisibilityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mainActivityVisible = intent.getBooleanExtra("Visible", false);
+            Log.i(TAG, "Main activity visibility: " + mainActivityVisible);
+        }
+    };
+
     private Runnable oneMinuteForNotificationResponse = new Runnable() {
 
         public void run() {
@@ -232,7 +248,7 @@ public class AlarmService extends Service{
                         .addLine("Time to Stand Up"))
                 .setContentText("Time to stand up")
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
@@ -248,6 +264,12 @@ public class AlarmService extends Service{
             }
             if(alertType[1] == 1){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                        Utils.getVibrateOverride(mContext)) {
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(mVibrationPattern, -1);
+                }
             }
             if(alertType[2] == 1){
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -260,6 +282,12 @@ public class AlarmService extends Service{
             }
             if(alertType[1] == 1){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                        Utils.getVibrateOverride(mContext)) {
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(mVibrationPattern, -1);
+                }
             }
             if(alertType[2] == 1){
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -292,7 +320,7 @@ public class AlarmService extends Service{
                 .setContentText("Time to stand up: " + mNotifTimePassed +
                         setMinutes(mNotifTimePassed))
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
@@ -358,5 +386,28 @@ public class AlarmService extends Service{
             repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
         }
         repeatingAlarm.setRepeatingAlarm();
+    }
+
+    private void checkMainActivityVisible(){
+        Intent intent = new Intent("Visible");
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+
+    private void showPraise(){
+        String praise = praiseForUser();
+        if(mainActivityVisible){
+            Intent intent = new Intent("PraiseForUser");
+            intent.putExtra("Praise", praise);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcastSync(intent);
+        } else {
+            Toast.makeText(mContext, praise, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private String praiseForUser(){
+        String[] praise = getResources().getStringArray(R.array.praise);
+        Random random = new Random(System.currentTimeMillis());
+        int randomNumber = random.nextInt(praise.length);
+        return praise[randomNumber];
     }
 }

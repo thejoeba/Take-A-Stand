@@ -23,6 +23,7 @@ package com.sean.takeastand.alarmprocess;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.sean.takeastand.storage.AlarmSchedule;
@@ -65,6 +66,7 @@ public class AlarmReceiver
                 Utils.setRunningScheduledAlarm(mContext, -1);
                 Log.i(TAG, "Alarm day is over.");
                 Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
+                endAlarmService();
             }
         } else {
             Log.i(TAG, "AlarmSchedule is null");
@@ -76,5 +78,10 @@ public class AlarmReceiver
     private boolean hasEndTimePassed(Calendar endTime){
         Calendar rightNow = Calendar.getInstance();
         return endTime.before(rightNow);
+    }
+
+    private void endAlarmService(){
+        Intent intent = new Intent(Constants.END_ALARM_SERVICE);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 }

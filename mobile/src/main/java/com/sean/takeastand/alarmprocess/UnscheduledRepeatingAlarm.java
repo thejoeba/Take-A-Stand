@@ -29,6 +29,8 @@ import android.widget.Toast;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
+import java.util.Calendar;
+
 /* This class is responsible for setting the next repeating alarm for alarms that are unscheduled,
 basically when the user taps on the start button that is in the ImageStatusFragment.  It sets the
 alarm by setting an inexact alarm in the future based on the user defined time period
@@ -54,16 +56,18 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         mContext = context;
     }
 
+    /*
+   Once done testing, convert all doubles to longs
+    */
     @Override
     public void setRepeatingAlarm() {
-        //When done testing, switch to int
         double alarmPeriodMinutes = Utils.getDefaultFrequency(mContext);
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
-                SystemClock.elapsedRealtime());
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
+        Utils.nextAlarmTime(nextAlarmTime, mContext);
         setAlarm(triggerTime);
-        Log.i(TAG, "New Non-Scheduled Alarm Set");
     }
 
     @Override
@@ -71,10 +75,10 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         long delayTime = Utils.getDefaultDelay(mContext);
         long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
-                SystemClock.elapsedRealtime());
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
+        Utils.nextAlarmTime(nextAlarmTime, mContext);
         setAlarm(triggerTime);
-        Log.i(TAG, "Long Break Alarm set");
     }
 
     @Override
@@ -106,7 +110,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     }
 
     private void endAlarmService(){
-        Intent intent = new Intent("userSwitchedOffAlarm");
+        Intent intent = new Intent(Constants.END_ALARM_SERVICE);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 

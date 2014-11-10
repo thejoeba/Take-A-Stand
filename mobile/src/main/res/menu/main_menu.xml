@@ -20,9 +20,14 @@
         android1:title="Default Delay Length"
         android1:orderInCategory="4"
         android:showAsAction="never" />
+    <item android1:id="@+id/vibrateOnSilent"
+        android1:title=""
+        android1:orderInCategory="5"
+        android:showAsAction="never"
+        />
     <item android1:id="@+id/science"
         android1:title="Science Behind The App"
-        android1:orderInCategory="5"
-        android1:showAsAction="never"
+        android1:orderInCategory="6"
+        android:showAsAction="never"
         />
 </menu>

@@ -1,33 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center">
-    <TextView
+    <TextSwitcher
         android:id="@+id/tap_to_set"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:textSize="25sp"
+        android:layout_marginBottom="-3dp"
         android:text="@string/tap_to_start" />
-    <TextView
-        android:id="@+id/txtStood"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="60dp"
-        android:textSize="25sp"
-        android:text="Stood"
-        android:textColor="@color/DarkGray"/>
-    <TextView
-        android:id="@+id/txtDelay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/txtStood"
-        android:textSize="25sp"
-        android:text="Delay"
-        android:textColor="@color/DarkGray"/>
     <ImageView
         android:id="@+id/statusImage"
         android:layout_width="wrap_content"

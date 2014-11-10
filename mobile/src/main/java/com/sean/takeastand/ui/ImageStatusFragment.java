@@ -21,56 +21,58 @@ package com.sean.takeastand.ui;
  */
 
 import android.app.Fragment;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.sean.takeastand.R;
-import com.sean.takeastand.alarmprocess.AlarmService;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
-
-import org.w3c.dom.Text;
-
-import java.util.Random;
 
 public class ImageStatusFragment
         extends Fragment
 {
     private ImageView statusImage;
-    private TextView txtTap;
-    private TextView txtStood;
-    private TextView txtDelay;
+    private TextSwitcher txtTap;
+    private TextView tapTextView;
     private static final String TAG = "ImageStatusFragment";
     private Context mContext;
+    private String praise;
+    private boolean mJustReceivedUpdate;
+    private Handler mHandler;
+    private String currentText;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle)
     {
-        Log.i(TAG, "onCreateView");
         mContext = getActivity();
+        mHandler = new Handler();
+        registerReceivers();
         View view = layoutInflater.inflate(R.layout.fragment_main_image_status, viewGroup, false);
         statusImage = (ImageView)view.findViewById(R.id.statusImage);
         statusImage.setOnClickListener(imageListener);
-        txtTap = (TextView)view.findViewById(R.id.tap_to_set);
-        txtStood = (TextView)view.findViewById(R.id.txtStood);
-        txtDelay = (TextView)view.findViewById(R.id.txtDelay);
-        txtStood.setOnClickListener(stoodListener);
-        txtDelay.setOnClickListener(delayListener);
+        statusImage.setOnTouchListener(imageButtonListener);
+        txtTap = (TextSwitcher)view.findViewById(R.id.tap_to_set);
+        setTextSwitchers();
         updateLayout();
-        registerReceivers();
         //If stuck on a non-click listener view uncomment the below line:
         //Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
         return view;
@@ -87,6 +89,7 @@ public class ImageStatusFragment
         super.onResume();
         registerReceivers();
         updateLayout();
+        mJustReceivedUpdate = false;
     }
 
     @Override
@@ -101,87 +104,120 @@ public class ImageStatusFragment
             case Constants.NO_ALARM_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_image_inactive);
                 statusImage.setOnClickListener(imageListener);
-                txtTap.setText(R.string.tap_to_start);
-                txtStood.setVisibility(View.GONE);
-                txtDelay.setVisibility(View.GONE);
+                statusImage.setOnTouchListener(imageButtonListener);
+                if(!currentText.equals(getResources().getString(R.string.tap_to_start))){
+                    txtTap.setText(getResources().getString(R.string.tap_to_start));
+                }
+                currentText = getResources().getString(R.string.tap_to_start);
                 break;
             case Constants.NON_SCHEDULE_ALARM_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_running);
                 statusImage.setOnClickListener(imageListener);
-                txtTap.setText(R.string.tap_to_stop);
-                txtStood.setVisibility(View.GONE);
-                txtDelay.setVisibility(View.GONE);
+                statusImage.setOnTouchListener(imageButtonListener);
+                if(!currentText.equals(getResources().getString(R.string.tap_to_stop))){
+                    txtTap.setText(getResources().getString(R.string.tap_to_stop));
+                }
+                currentText = getResources().getString(R.string.tap_to_stop);
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_passed);
                 statusImage.setOnClickListener(null);
-                txtTap.setText("");
-                txtStood.setVisibility(View.VISIBLE);
-                txtDelay.setVisibility(View.VISIBLE);
+                statusImage.setOnTouchListener(null);
+                if(!currentText.equals(getResources().getString(R.string.stand_time))){
+                    txtTap.setText(getResources().getString(R.string.stand_time));
+                }
+                currentText = getResources().getString(R.string.stand_time);
                 break;
             case Constants.NON_SCHEDULE_STOOD_UP:
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_stood);
                 statusImage.setOnClickListener(null);
-                String praiseNon = praiseForUser();
-                txtTap.setText(praiseNon);
-                txtStood.setVisibility(View.GONE);
-                txtDelay.setVisibility(View.GONE);
-                Toast.makeText(mContext, praiseNon, Toast.LENGTH_LONG).show();
+                statusImage.setOnTouchListener(null);
+                if(praise == null){
+                    Log.i(TAG, "praise is null");
+                    txtTap.setText("");
+                } else {
+                    txtTap.setText(praise);
+                    currentText = praise;
+                    praise = null;
+                }
                 break;
             case Constants.SCHEDULE_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_schedule_running);
                 statusImage.setOnClickListener(null);
-                txtTap.setText("");
-                txtStood.setVisibility(View.GONE);
-                txtDelay.setVisibility(View.GONE);
+                statusImage.setOnTouchListener(null);
+                if(!currentText.equals("Schedule Running")){
+                    txtTap.setText("Schedule Running");
+                }
+                currentText = "Schedule Running";
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
                 statusImage.setImageResource(R.drawable.alarm_schedule_passed);
                 statusImage.setOnClickListener(null);
-                txtTap.setText("");
-                txtStood.setVisibility(View.VISIBLE);
-                txtDelay.setVisibility(View.VISIBLE);
+                statusImage.setOnTouchListener(null);
+                if(!currentText.equals(getResources().getString(R.string.stand_time))){
+                    txtTap.setText(getResources().getString(R.string.stand_time));
+                }
+                currentText = getResources().getString(R.string.stand_time);
                 break;
             case Constants.SCHEDULE_STOOD_UP:
                 statusImage.setImageResource(R.drawable.alarm_schedule_stood);
                 statusImage.setOnClickListener(null);
-                String praiseSchedule = praiseForUser();
-                txtTap.setText(praiseSchedule);
-                txtStood.setVisibility(View.GONE);
-                txtDelay.setVisibility(View.GONE);
-                Toast.makeText(mContext, praiseSchedule, Toast.LENGTH_LONG).show();
+                statusImage.setOnTouchListener(null);
+                if(praise == null){
+                    txtTap.setText("");
+                } else {
+                    txtTap.setText(praise);
+                    currentText = praise;
+                    praise = null;
+                }
                 break;
             default:
                 statusImage.setImageResource(R.drawable.alarm_image_inactive);
                 statusImage.setOnClickListener(imageListener);
-                txtTap.setText(R.string.tap_to_start);
-                txtStood.setVisibility(View.GONE);
-                txtDelay.setVisibility(View.GONE);
+                statusImage.setOnTouchListener(imageButtonListener);
+                txtTap.setText(getResources().getString(R.string.tap_to_start));
+                currentText = getResources().getString(R.string.tap_to_start);
                 break;
         }
     }
 
-    private String praiseForUser(){
-        String[] praise = getResources().getStringArray(R.array.praise);
-        Random random = new Random(System.currentTimeMillis());
-        int randomNumber = random.nextInt(praise.length);
-        return praise[randomNumber];
-    }
+
 
     private void registerReceivers(){
         LocalBroadcastManager.getInstance(getActivity())
                 .registerReceiver(updateImageReceiver, new IntentFilter(Constants.INTENT_MAIN_IMAGE));
+        LocalBroadcastManager.getInstance(getActivity())
+                .registerReceiver(praiseTextReceiver, new IntentFilter("PraiseForUser"));
     }
 
     private void unregisterReceivers(){
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(updateImageReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(praiseTextReceiver);
     }
 
-    BroadcastReceiver updateImageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver updateImageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "UpdatingImage");
-            updateLayout();
+            if(!mJustReceivedUpdate){
+                mJustReceivedUpdate = true;
+                updateLayout();
+                mHandler.postDelayed(updating, 290);
+            }
+
+        }
+    };
+
+    private Runnable updating = new Runnable() {
+        @Override
+        public void run() {
+            mJustReceivedUpdate = false;
+        }
+    };
+
+    private BroadcastReceiver praiseTextReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            praise = intent.getStringExtra("Praise");
         }
     };
 
@@ -200,32 +236,44 @@ public class ImageStatusFragment
         if(imageStatus == Constants.NO_ALARM_RUNNING){
             Utils.setCurrentMainActivityImage(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
             unscheduledRepeatingAlarm.setRepeatingAlarm();
-            Toast.makeText(mContext, "Stand Reminders On", Toast.LENGTH_LONG).show();
-            Log.i(TAG, "OnClick Alarm Started");
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
             Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
-            Toast.makeText(mContext, "Stand Reminders Cancelled", Toast.LENGTH_LONG).show();
-            Log.i(TAG, "OnClick Alarm Ended");
         }
-        updateLayout();
     }
 
-    private OnClickListener stoodListener = new OnClickListener() {
+    private View.OnTouchListener imageButtonListener = new View.OnTouchListener() {
         @Override
-        public void onClick(View view) {
-            Log.i(TAG, "onClick Stood");
-            Intent stoodUpIntent = new Intent("StoodUp");
-            getActivity().sendBroadcast(stoodUpIntent);
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                statusImage.setImageAlpha(220);
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP){
+                statusImage.setImageAlpha(255);
+            }
+            return false;
         }
     };
 
-    private OnClickListener delayListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Log.i(TAG, "onClick Delay");
-            Intent delayAlarmIntent = new Intent("DelayAlarm");
-            getActivity().sendBroadcast(delayAlarmIntent);
-        }
-    };
+
+
+    private void setTextSwitchers(){
+        txtTap.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                tapTextView = new TextView(getActivity());
+                tapTextView.setTextSize(25);
+                tapTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+                tapTextView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
+                tapTextView.setText(getResources().getString(R.string.tap_to_start));
+                currentText = getResources().getString(R.string.tap_to_start);
+                return tapTextView;
+            }
+        });
+        Animation in = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_left);
+        Animation out = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_left);
+
+        txtTap.setInAnimation(in);
+        txtTap.setOutAnimation(out);
+    }
+
 }

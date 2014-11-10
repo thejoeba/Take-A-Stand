@@ -13,8 +13,15 @@
         android:name="com.sean.takeastand.ui.ImageStatusFragment"
         android:id="@+id/main_current_status_fragment"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_centerInParent="true"
         />
-
+    <fragment
+        android:name="com.sean.takeastand.ui.AlarmFragment"
+        android:id="@+id/alarm_fragment"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/main_current_status_fragment"
+        android:layout_marginTop="20dp"/>
 </RelativeLayout>

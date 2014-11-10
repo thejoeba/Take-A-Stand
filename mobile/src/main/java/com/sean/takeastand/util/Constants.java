@@ -32,11 +32,7 @@ public final class Constants {
     public static final String USER_SHARED_PREFERENCES = "User_Shared_Preferences";
     public static final String CURRENT_RUNNING_SCHEDULED_ALARM = "CurrentScheduledAlarm";
     public static final String ALARM_SCHEDULE_DELETED = "AlarmDeleted";
-    public static final String SELECTED_ALARM_SCHEDULE = "SelectedAlarmSchedule";
-    public static final String EDITED_ALARM_SCHEDULE = "EditedAlarmSchedule";
-    public static final String EDITED_ALARM_POSITION = "EditedAlarmPosition";
-    public static final String ACTIVITY_RESULT = "ActivityResult";
-    public static final String NEW_ALARM_SCHEDULE = "NewAlarmSchedule";
+    public static final String NEXT_ALARM_TIME = "NextAlarmTime";
     public static final String START_TIME_ARG = "StartTimeArgument";
     public static final String END_TIME_ARG = "EndTimeArgument";
     public static final String MAIN_IMAGE_STATUS = "MainActivityDrawing";
@@ -52,4 +48,6 @@ public final class Constants {
     public static final String USER_ALERT_TYPE = "UserAlertType";
     public static final String USER_FREQUENCY = "UserFrequency";
     public static final String USER_DELAY = "UserDelay";
+    public static final String VIBRATE_SILENT = "VibrateOnSilent";
+    public static final String END_ALARM_SERVICE = "EndAlarmService";
 }

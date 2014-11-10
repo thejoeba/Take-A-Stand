@@ -28,6 +28,7 @@ import com.sean.takeastand.storage.AlarmSchedule;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * Created by Sean on 2014-10-04.
@@ -166,7 +167,6 @@ public final class Utils {
                     string += " am";
                     return string;
                 }
-
             }
         }
         else {
@@ -346,6 +346,28 @@ public final class Utils {
         editor.putInt(Constants.USER_DELAY, delay);
         editor.commit();
     }
+
+    public static boolean getVibrateOverride(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getBoolean(Constants.VIBRATE_SILENT, true);
+    }
+
+    public static void nextAlarmTime(Calendar calendar, Context context){
+        String nextAlarmTime = getFormattedCalendarTime(calendar, context);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.NEXT_ALARM_TIME, nextAlarmTime);
+        editor.commit();
+    }
+
+    public static String getNextAlarmTime(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getString(Constants.NEXT_ALARM_TIME, "");
+    }
+
 
 
 }
