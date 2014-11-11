@@ -23,12 +23,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 
-import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.TimeZone;
 
 /**
  * Created by Sean on 2014-10-04.
@@ -353,21 +351,35 @@ public final class Utils {
         return sharedPreferences.getBoolean(Constants.VIBRATE_SILENT, true);
     }
 
-    public static void nextAlarmTime(Calendar calendar, Context context){
+    public static void nextAlarmTimeString(Calendar calendar, Context context){
         String nextAlarmTime = getFormattedCalendarTime(calendar, context);
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.NEXT_ALARM_TIME, nextAlarmTime);
+        editor.putString(Constants.NEXT_ALARM_TIME_STRING, nextAlarmTime);
         editor.commit();
     }
 
-    public static String getNextAlarmTime(Context context){
+    public static String getNextAlarmTimeString(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
-        return sharedPreferences.getString(Constants.NEXT_ALARM_TIME, "");
+        return sharedPreferences.getString(Constants.NEXT_ALARM_TIME_STRING, "");
     }
 
+    public static void nextAlarmTimeMillis(Calendar calendar, Context context){
+        long nextAlarmTime = calendar.getTimeInMillis();
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(Constants.NEXT_ALARM_TIME_MILLIS, nextAlarmTime);
+        editor.commit();
+    }
+
+    public static long getNextAlarmTimeMillis(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getLong(Constants.NEXT_ALARM_TIME_MILLIS, -1);
+    }
 
 
 }

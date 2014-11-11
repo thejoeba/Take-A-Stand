@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -56,17 +55,18 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         mContext = context;
     }
 
+
     /*
-   Once done testing, convert all doubles to longs
-    */
+       Once done testing, convert all doubles to longs
+        */
     @Override
     public void setRepeatingAlarm() {
-        double alarmPeriodMinutes = Utils.getDefaultFrequency(mContext);
+        double alarmPeriodMinutes = .2; //Utils.getDefaultFrequency(mContext);
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
-        Utils.nextAlarmTime(nextAlarmTime, mContext);
+        Utils.nextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
     }
 
@@ -77,7 +77,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
-        Utils.nextAlarmTime(nextAlarmTime, mContext);
+        Utils.nextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
     }
 

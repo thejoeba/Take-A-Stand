@@ -23,9 +23,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -69,9 +67,26 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
-        Utils.nextAlarmTime(nextAlarmTime, mContext);
+        Utils.nextAlarmTimeString(nextAlarmTime, mContext);
+        Utils.nextAlarmTimeMillis(nextAlarmTime, mContext);
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
         setAlarm(triggerTime);
+        Log.i(TAG, "Alarm set");
+    }
+
+    public void updateAlarm() {
+        cancelAlarm();
+        if(Utils.getNextAlarmTimeMillis(mContext) != -1){
+            Log.i(TAG, "updateAlarm");
+            Calendar nextAlarmTime = Calendar.getInstance();
+            nextAlarmTime.setTimeInMillis(Utils.getNextAlarmTimeMillis(mContext));
+            Utils.nextAlarmTimeString(nextAlarmTime, mContext);
+            Utils.nextAlarmTimeMillis(nextAlarmTime, mContext);
+            Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
+            setAlarm(Utils.getNextAlarmTimeMillis(mContext));
+        } else {
+            setRepeatingAlarm();
+        }
     }
 
     @Override
@@ -81,7 +96,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
-        Utils.nextAlarmTime(nextAlarmTime, mContext);
+        Utils.nextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
     }
 
@@ -105,11 +120,12 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     private void setAlarm(long triggerTime){
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MINUTE, mCurrentAlarmSchedule.getFrequency());
-        if(mCurrentAlarmSchedule.getEndTime().before(nextAlarmTime)){
+        if((mCurrentAlarmSchedule.getEndTime()).before(nextAlarmTime)){
             Utils.setRunningScheduledAlarm(mContext, -1);
             Log.i(TAG, "Alarm day is over.");
             Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
             endAlarmService();
+            cancelAlarm();
         } else {
             PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
             AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));

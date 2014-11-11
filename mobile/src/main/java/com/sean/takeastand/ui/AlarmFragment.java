@@ -114,6 +114,7 @@ public class AlarmFragment extends Fragment{
                 if(nextAlertLayout.getVisibility() == View.VISIBLE) {
                     mHandler.post(hideNextAlertAnimation);
                 }
+                stoodDelayLayout.setVisibility(View.GONE);
                 previousAlarmStatus = Constants.NO_ALARM_RUNNING;
                 break;
             case Constants.NON_SCHEDULE_ALARM_RUNNING:
@@ -129,8 +130,7 @@ public class AlarmFragment extends Fragment{
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
                 currentAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
                 if(currentAlarmStatus == previousAlarmStatus){
-                    stoodDelayLayout.setVisibility(View.GONE);
-                    mHandler.postDelayed(showStoodDelayAnimation, 300);
+                    stoodDelayLayout.setVisibility(View.VISIBLE);
                 } else {
                     mHandler.post(hideNextAlertAnimation);
                 }
@@ -143,6 +143,7 @@ public class AlarmFragment extends Fragment{
                 break;
             case Constants.SCHEDULE_RUNNING:
                 currentAlarmStatus = Constants.SCHEDULE_RUNNING;
+                nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
                 if(previousAlarmStatus == Constants.SCHEDULE_TIME_TO_STAND && !stoodDelay){
                     hideStoodDelay();
                 } else if(!(currentAlarmStatus == previousAlarmStatus)){
@@ -154,8 +155,7 @@ public class AlarmFragment extends Fragment{
             case Constants.SCHEDULE_TIME_TO_STAND:
                 currentAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
                 if(currentAlarmStatus == previousAlarmStatus){
-                    stoodDelayLayout.setVisibility(View.GONE);
-                    mHandler.postDelayed(showStoodDelayAnimation, 300);
+                    stoodDelayLayout.setVisibility(View.VISIBLE);
                 } else {
                     mHandler.post(hideNextAlertAnimation);
                 }
@@ -211,7 +211,7 @@ public class AlarmFragment extends Fragment{
         @Override
         public void run() {
             nextAlertLayout.setVisibility(View.VISIBLE);
-            nextAlert.setText(Utils.getNextAlarmTime(getActivity()));
+            nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
             Animation slideIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up);
             nextAlertLayout.startAnimation(slideIn);
         }
@@ -221,7 +221,7 @@ public class AlarmFragment extends Fragment{
         @Override
         public void run() {
 
-                nextAlert.setText(Utils.getNextAlarmTime(getActivity()));
+                nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
                 Animation slideOut = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down);
                 slideOut.setAnimationListener(new Animation.AnimationListener() {
                     @Override

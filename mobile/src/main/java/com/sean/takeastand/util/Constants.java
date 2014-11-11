@@ -32,7 +32,8 @@ public final class Constants {
     public static final String USER_SHARED_PREFERENCES = "User_Shared_Preferences";
     public static final String CURRENT_RUNNING_SCHEDULED_ALARM = "CurrentScheduledAlarm";
     public static final String ALARM_SCHEDULE_DELETED = "AlarmDeleted";
-    public static final String NEXT_ALARM_TIME = "NextAlarmTime";
+    public static final String NEXT_ALARM_TIME_STRING = "NextAlarmTimeString";
+    public static final String NEXT_ALARM_TIME_MILLIS = "NextAlarmTimeMillis";
     public static final String START_TIME_ARG = "StartTimeArgument";
     public static final String END_TIME_ARG = "EndTimeArgument";
     public static final String MAIN_IMAGE_STATUS = "MainActivityDrawing";

@@ -24,6 +24,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -31,6 +33,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -134,8 +137,8 @@ public class AlarmService extends Service  {
             cancelNotification();
             showPraise();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            long eightSeconds = 8 * Constants.millisecondsInSecond;
-            mHandler.postDelayed(changeImage, eightSeconds);
+            long fiveSeconds = 5 * Constants.millisecondsInSecond;
+            mHandler.postDelayed(changeImage, fiveSeconds);
             long threeSeconds = 3 * Constants.millisecondsInSecond;
             mHandler.postDelayed(stoodUp, threeSeconds);
             if(mCurrentAlarmSchedule == null){
@@ -241,6 +244,8 @@ public class AlarmService extends Service  {
         NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         PendingIntent[] pendingIntents = makeNotificationIntents();
+        Bitmap largeIcon = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.ic_notification);
         Notification.Builder alarmNotificationBuilder =  new Notification.Builder(mContext);
         alarmNotificationBuilder
                 .setContentTitle("Take A Stand")
@@ -248,7 +253,8 @@ public class AlarmService extends Service  {
                         .addLine("Time to Stand Up"))
                 .setContentText("Time to stand up")
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_notification)
+                .setLargeIcon(largeIcon)
+                .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
@@ -307,9 +313,9 @@ public class AlarmService extends Service  {
         Log.i(TAG, "time since first notification: " + mNotifTimePassed + setMinutes(mNotifTimePassed));
         NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
-        //Cancel the previous one so ticker text shows again
-        notificationManager.cancel(R.integer.AlarmNotificationID);
         PendingIntent[] pendingIntents = makeNotificationIntents();
+        Bitmap largeIcon = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.ic_notification);
 
         Notification.Builder alarmNotificationBuilder =  new Notification.Builder(mContext);
         alarmNotificationBuilder
@@ -320,7 +326,8 @@ public class AlarmService extends Service  {
                 .setContentText("Time to stand up: " + mNotifTimePassed +
                         setMinutes(mNotifTimePassed))
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_notification)
+                .setLargeIcon(largeIcon)
+                .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
@@ -333,20 +340,52 @@ public class AlarmService extends Service  {
             if((alertType[0]) == 1){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
+            if(alertType[1] == 1 && mNotifTimePassed < 2){
+                alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                        Utils.getVibrateOverride(mContext)) {
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(mVibrationPattern, -1);
+                }
+            }
         } else {
             int[] alertType = Utils.getDefaultAlertType(mContext);
             if((alertType[0]) == 1){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
+            if(alertType[1] == 1){
+                alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                        Utils.getVibrateOverride(mContext)) {
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(mVibrationPattern, -1);
+                }
+            }
         }
         Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
+
+
+
+
     }
 
     private PendingIntent[] makeNotificationIntents(){
-        Intent launchActivity = new Intent(mContext, MainActivity.class);
+        // Creates an explicit intent for an Activity in your app
+        Intent launchActivityIntent = new Intent(mContext, MainActivity.class);
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(MainActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(launchActivityIntent);
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(mContext, 0,
-                launchActivity, 0);
+                launchActivityIntent, 0);
         Intent stoodUpIntent = new Intent("StoodUp");
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(mContext, 0,
                 stoodUpIntent, 0);
