@@ -20,6 +20,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -67,8 +68,8 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
-        Utils.nextAlarmTimeString(nextAlarmTime, mContext);
-        Utils.nextAlarmTimeMillis(nextAlarmTime, mContext);
+        Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
+        setNextAlarmTimeMillis(nextAlarmTime, mContext);
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
         setAlarm(triggerTime);
         Log.i(TAG, "Alarm set");
@@ -76,14 +77,13 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     public void updateAlarm() {
         cancelAlarm();
-        if(Utils.getNextAlarmTimeMillis(mContext) != -1){
-            Log.i(TAG, "updateAlarm");
-            Calendar nextAlarmTime = Calendar.getInstance();
-            nextAlarmTime.setTimeInMillis(Utils.getNextAlarmTimeMillis(mContext));
-            Utils.nextAlarmTimeString(nextAlarmTime, mContext);
-            Utils.nextAlarmTimeMillis(nextAlarmTime, mContext);
+        long alarmTimeInMillis = getNextAlarmTimeMillis(mContext);
+        if(alarmTimeInMillis != -1){
+            Calendar alarmTime = Calendar.getInstance();
+            alarmTime.setTimeInMillis(alarmTimeInMillis);
+            Utils.setNextAlarmTimeString(alarmTime, mContext);
             Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
-            setAlarm(Utils.getNextAlarmTimeMillis(mContext));
+            setAlarm(alarmTimeInMillis);
         } else {
             setRepeatingAlarm();
         }
@@ -96,7 +96,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
-        Utils.nextAlarmTimeString(nextAlarmTime, mContext);
+        Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
     }
 
@@ -144,5 +144,20 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     private void endAlarmService(){
         Intent intent = new Intent(Constants.END_ALARM_SERVICE);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+
+    private void setNextAlarmTimeMillis(Calendar calendar, Context context){
+        long nextAlarmTime = calendar.getTimeInMillis();
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(Constants.NEXT_ALARM_TIME_MILLIS, nextAlarmTime);
+        editor.commit();
+    }
+
+    private long getNextAlarmTimeMillis(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getLong(Constants.NEXT_ALARM_TIME_MILLIS, -1);
     }
 }

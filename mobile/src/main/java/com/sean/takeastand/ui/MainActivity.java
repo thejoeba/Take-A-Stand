@@ -16,7 +16,6 @@
 
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -35,11 +34,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.NumberPicker;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.sean.takeastand.R;
-import com.sean.takeastand.alarmprocess.AlarmService;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -114,7 +110,7 @@ public class MainActivity extends Activity {
                 startActivity(intentScience);
                 break;
             case R.id.vibrateOnSilent:
-                vibrateOnSilent(item);
+                vibrateOnSilent();
                 break;
         }
 
@@ -182,9 +178,9 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(frequency){
-                    Utils.setDefaultFrequency(MainActivity.this, numberPicker.getValue());
+                    setDefaultFrequency(MainActivity.this, numberPicker.getValue());
                 } else {
-                    Utils.setDefaultDelay(MainActivity.this, numberPicker.getValue());
+                    setDefaultDelay(MainActivity.this, numberPicker.getValue());
                 }
                 dialogInterface.dismiss();
             }
@@ -236,7 +232,7 @@ public class MainActivity extends Activity {
                 } else {
                     notificationTypes[2] = 0;
                 }
-                Utils.setDefaultAlertType(MainActivity.this, notificationTypes);
+                setDefaultAlertType(MainActivity.this, notificationTypes);
                 dialogInterface.dismiss();
             }
         });
@@ -278,7 +274,7 @@ public class MainActivity extends Activity {
         editor.commit();
     }
 
-    private void vibrateOnSilent(MenuItem item){
+    private void vibrateOnSilent(){
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         boolean vibrate = !(sharedPreferences.getBoolean(Constants.VIBRATE_SILENT, true));
@@ -296,5 +292,28 @@ public class MainActivity extends Activity {
         } else {
             vibrateSilent.setTitle("Vibrate when Silent: OFF");
         }
+    }
+    public static void setDefaultAlertType(Context context, int[] alertType){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.USER_ALERT_TYPE, Utils.convertIntArrayToString(alertType));
+        editor.commit();
+    }
+
+    public static void setDefaultFrequency(Context context, int frequency){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.USER_FREQUENCY, frequency);
+        editor.commit();
+    }
+
+    public static void setDefaultDelay(Context context, int delay){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.USER_DELAY, delay);
+        editor.commit();
     }
 }

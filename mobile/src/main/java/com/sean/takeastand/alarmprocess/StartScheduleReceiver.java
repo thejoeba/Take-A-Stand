@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
@@ -62,7 +61,7 @@ public class StartScheduleReceiver extends BroadcastReceiver
         ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
                 new ScheduleDatabaseAdapter(context).getFixedAlarmSchedules();
         if(!fixedAlarmSchedules.isEmpty()){
-            FixedAlarmSchedule todayAlarm = findIfAlarmToday(Utils.getTodayWeekday(),
+            FixedAlarmSchedule todayAlarm = findIfAlarmToday(Utils.getTodayWeekdayNum(),
                     fixedAlarmSchedules, intent.getIntExtra(Constants.ALARM_UID, 0));
             if(!(todayAlarm.getUID()== -100)){
                 if(todayAlarm.getActivated()){

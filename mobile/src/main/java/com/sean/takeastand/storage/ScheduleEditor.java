@@ -197,7 +197,7 @@ public class ScheduleEditor {
     }
 
     public void editDays(int weekday, boolean activated, AlarmSchedule alarmSchedule){
-        if(weekday == Utils.getTodayWeekday()){
+        if(weekday == Utils.getTodayWeekdayNum()){
             FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(alarmSchedule);
             if(activated){
                 Calendar rightNow = Calendar.getInstance();
@@ -277,9 +277,9 @@ public class ScheduleEditor {
         PendingIntent pendingIntent =
                 PendingIntent.getBroadcast(mContext, UID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE))
-                .setRepeating(AlarmManager.RTC_WAKEUP, Utils.calendarToRTCMillis(nextAlarmTime(time)),
+                .setRepeating(AlarmManager.RTC_WAKEUP, nextAlarmTime(time).getTimeInMillis(),
                         AlarmManager.INTERVAL_DAY, pendingIntent);
-        Log.i(TAG, "Set Daily Repeating alarm for " + Long.toString(Utils.calendarToRTCMillis(nextAlarmTime(time))) +
+        Log.i(TAG, "Set Daily Repeating alarm for " + Long.toString(nextAlarmTime(time).getTimeInMillis()) +
                 " current time " + Long.toString(System.currentTimeMillis()));
     }
 

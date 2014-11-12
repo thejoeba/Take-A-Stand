@@ -29,7 +29,7 @@ public class BootReceiver extends BroadcastReceiver
         ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
                 new ScheduleDatabaseAdapter(context).getFixedAlarmSchedules();
         if(!fixedAlarmSchedules.isEmpty()){
-            FixedAlarmSchedule todayAlarm = findIfAlarmToday(Utils.getTodayWeekday(),
+            FixedAlarmSchedule todayAlarm = findIfAlarmToday(Utils.getTodayWeekdayNum(),
                     fixedAlarmSchedules, intent.getIntExtra(Constants.ALARM_UID, 0));
             if(!(todayAlarm.getUID()== -100) && todayAlarm.getActivated()){
                 Calendar rightNow = Calendar.getInstance();

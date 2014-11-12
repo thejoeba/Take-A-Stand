@@ -16,6 +16,7 @@
 
 package com.sean.takeastand.widget;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -47,8 +48,15 @@ public class TimePickerFragment
     private boolean mNewAlarm;
 
     @Override
+    public void onAttach(Activity activity) {
+        Log.i(TAG, "onAttach");
+        super.onAttach(activity);
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle bundle)
     {
+        Log.i(TAG, "onCreate");
         mStartTime = getArguments().getBoolean("StartOrEndButton", true);
         Log.i(TAG, Boolean.toString(mStartTime));
         mPosition = getArguments().getInt("Position");
@@ -109,6 +117,7 @@ public class TimePickerFragment
         intent.putExtra("StartTime", mStartTime);
         intent.putExtra("NewAlarm", mNewAlarm);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+
     }
 
     @Override

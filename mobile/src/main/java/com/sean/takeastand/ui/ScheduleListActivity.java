@@ -19,7 +19,10 @@ package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +41,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
@@ -70,6 +74,7 @@ public class ScheduleListActivity extends ListActivity {
     private boolean mJustReceivedTimePicker;
     private boolean mJustReceivedResponse;
     private Handler mHandler;
+    private TimePickerFragment timePickerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,12 +83,13 @@ public class ScheduleListActivity extends ListActivity {
 
         //Deleting the database each time only during testing
         //deleteDatabase("alarms_database");
-        setUpLayout();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        setUpLayout();
         alarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
         scheduleListAdapter =
                 new ScheduleListAdapter(this, android.R.id.list, alarmSchedules, getLayoutInflater());
@@ -130,32 +136,6 @@ public class ScheduleListActivity extends ListActivity {
                 new IntentFilter("ShowTimePicker"));
     }
 
-    private void deleteSchedule(int position){
-        ScheduleEditor scheduleEditor = new ScheduleEditor(this);
-        scheduleEditor.deleteAlarm(alarmSchedules.get(position));
-        AlarmSchedule deletedAlarmSchedule = alarmSchedules.get(position);
-        int deletedAlarmUID = deletedAlarmSchedule.getUID();
-        int currentlyRunningAlarm = Utils.getRunningScheduledAlarm(this);
-        if(deletedAlarmUID == currentlyRunningAlarm){
-            FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(deletedAlarmSchedule);
-            new ScheduledRepeatingAlarm(this, fixedAlarmSchedule).cancelAlarm();
-        }
-        //If deleting the last alarm set listadapter to null
-        if(position == 0&&alarmSchedules.size() == 1){
-            Log.i(TAG, "Deleting the last alarmSchedule");
-            alarmSchedules.clear();
-            scheduleListAdapter.clear();
-            setListAdapter(null);
-        } else {
-            alarmSchedules.remove(position);
-            scheduleListAdapter.notifyDataSetChanged();
-        }
-        //Service needs to cancel any running alarms and notifications it is currently managing
-        Intent informServiceOfDeletion = new Intent(Constants.ALARM_SCHEDULE_DELETED);
-        informServiceOfDeletion.putExtra("UID", deletedAlarmUID);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(informServiceOfDeletion);
-    }
-
     private void createNewAlarm(){
         showTimePickerDialog(true, true);
     }
@@ -169,8 +149,6 @@ public class ScheduleListActivity extends ListActivity {
         timePickerFragment.setArguments(args);
         timePickerFragment.show(getFragmentManager(), "timePicker");
     }
-
-
 
     private BroadcastReceiver titleChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -227,7 +205,7 @@ public class ScheduleListActivity extends ListActivity {
                 if(intent.hasExtra(Constants.END_TIME_ARG)){
                     args.putString(Constants.END_TIME_ARG, (intent.getStringExtra(Constants.END_TIME_ARG)));
                 }
-                final TimePickerFragment timePickerFragment = new TimePickerFragment();
+                timePickerFragment = new TimePickerFragment();
                 timePickerFragment.setArguments(args);
                 timePickerFragment.show(getFragmentManager(), "timePicker");
                 mJustReceivedTimePicker = false;
@@ -258,22 +236,5 @@ public class ScheduleListActivity extends ListActivity {
             mJustReceivedTimePicker = true;
         }
     };
-
-    /*private void createNewSchedule(){
-        boolean[] availableDays = new ScheduleDatabaseAdapter(this).getAlreadyTakenAlarmDays();
-        boolean[] newActivatedDays = {false, false, false, false, false, false, false};
-        ScheduleEditor scheduleEditor = new ScheduleEditor(this);
-        Calendar rightNow = Calendar.getInstance();
-        if(!availableDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)]){
-            newActivatedDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)] = true;
-        }
-        scheduleEditor.newAlarm(true, Utils.getDefaultAlertType(this), mNewAlarmStartTime,
-                mNewAlarmEndTime, Utils.getDefaultFrequency(this), "", newActivatedDays[0],
-                newActivatedDays[1], newActivatedDays[2], newActivatedDays[3], newActivatedDays[4],
-                newActivatedDays[5], newActivatedDays[6]);
-        alarmSchedules.add((
-                new ScheduleDatabaseAdapter(this).getAlarmSchedules().get(alarmSchedules.size())));
-        scheduleListAdapter.notifyDataSetChanged();
-    }*/
 
 }

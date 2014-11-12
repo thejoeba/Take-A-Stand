@@ -61,7 +61,7 @@ images. */
 public class AlarmService extends Service  {
 
     private static final String TAG = "AlarmService";
-    private final long oneMinuteMillis = 60000;
+
 
     private Handler mHandler;
     private Context mContext;
@@ -70,21 +70,16 @@ public class AlarmService extends Service  {
     long[] mVibrationPattern = {(long)200, (long)200, (long)200, (long)200};
     private boolean mainActivityVisible;
 
-
     @Override
-    public void onCreate() {
-        super.onCreate();
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "AlarmService started");
         mainActivityVisible = false;
         registerReceivers();
         mHandler = new Handler();
         mContext = getApplicationContext();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "AlarmService started");
         checkMainActivityVisible();
         sendNotification();
+        int oneMinuteMillis = 60000;
         mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
         if(intent.hasExtra(Constants.ALARM_SCHEDULE)){
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
@@ -104,31 +99,44 @@ public class AlarmService extends Service  {
         Log.i(TAG, "AlarmService destroyed");
     }
 
+    private void checkMainActivityVisible(){
+        Intent intent = new Intent("Visible");
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
                 new IntentFilter("StoodUp"));
         getApplicationContext().registerReceiver(delayAlarmReceiver,
                 new IntentFilter("DelayAlarm"));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mainVisibilityReceiver,
+                new IntentFilter("VisibilityStatus"));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(endAlarmService,
                 new IntentFilter(Constants.END_ALARM_SERVICE));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(deletedAlarm,
                 new IntentFilter(Constants.ALARM_SCHEDULE_DELETED));
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mainVisibilityReceiver,
-                new IntentFilter("VisibilityStatus"));
     }
 
     private void unregisterReceivers(){
         getApplicationContext().unregisterReceiver(stoodUpReceiver);
         getApplicationContext().unregisterReceiver(delayAlarmReceiver);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mainVisibilityReceiver);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(endAlarmService);
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(deletedAlarm);
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mainVisibilityReceiver);
+
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+    private BroadcastReceiver mainVisibilityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mainActivityVisible = intent.getBooleanExtra("Visible", false);
+        }
+    };
 
     private BroadcastReceiver stoodUpReceiver = new BroadcastReceiver(){
         @Override
@@ -194,18 +202,11 @@ public class AlarmService extends Service  {
         }
     };
 
-    private BroadcastReceiver mainVisibilityReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mainActivityVisible = intent.getBooleanExtra("Visible", false);
-            Log.i(TAG, "Main activity visibility: " + mainActivityVisible);
-        }
-    };
-
     private Runnable oneMinuteForNotificationResponse = new Runnable() {
 
         public void run() {
             updateNotification();
+            int oneMinuteMillis = 60000;
             mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
         }
     };
@@ -215,8 +216,6 @@ public class AlarmService extends Service  {
         public void run() {
             setStoodUpAlarm(mContext);
             AlarmService.this.stopSelf();
-            Log.i(TAG, "setting new alarm");
-
         }
     };
 
@@ -228,16 +227,47 @@ public class AlarmService extends Service  {
             } else {
                 Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
             }
-            Log.i(TAG, "changing from stood up image");
         }
     };
 
-    private void cancelNotification(){
-        Log.i(TAG, "Notification removed");
-        NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
-                Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(R.integer.AlarmNotificationID);
+    private void setStoodUpAlarm(Context context){
+        RepeatingAlarm repeatingAlarm;
+        if(mCurrentAlarmSchedule == null){
+            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
+        } else {
+            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
+        }
+        repeatingAlarm.setRepeatingAlarm();
+    }
 
+    private void delayAlarm(Context context){
+        RepeatingAlarm repeatingAlarm;
+        if(mCurrentAlarmSchedule == null){
+            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
+            Utils.setCurrentMainActivityImage(context, Constants.NON_SCHEDULE_ALARM_RUNNING);
+        } else {
+            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
+            Utils.setCurrentMainActivityImage(context, Constants.SCHEDULE_RUNNING);
+        }
+        repeatingAlarm.delayAlarm();
+    }
+
+    private void showPraise(){
+        String praise = praiseForUser();
+        if(mainActivityVisible){
+            Intent intent = new Intent("PraiseForUser");
+            intent.putExtra("Praise", praise);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcastSync(intent);
+        } else {
+            Toast.makeText(mContext, praise, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private String praiseForUser(){
+        String[] praise = getResources().getStringArray(R.array.praise);
+        Random random = new Random(System.currentTimeMillis());
+        int randomNumber = random.nextInt(praise.length);
+        return praise[randomNumber];
     }
 
     private void sendNotification(){
@@ -304,10 +334,6 @@ public class AlarmService extends Service  {
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
     }
 
-    /*
-    Maybe the LED light will work if instead of cancelling the notification you just update it.
-    The question is will the ticker text display if only updating it?
-     */
     private void updateNotification(){
         mNotifTimePassed ++;
         Log.i(TAG, "time since first notification: " + mNotifTimePassed + setMinutes(mNotifTimePassed));
@@ -366,10 +392,6 @@ public class AlarmService extends Service  {
         }
         Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
-
-
-
-
     }
 
     private PendingIntent[] makeNotificationIntents(){
@@ -405,48 +427,13 @@ public class AlarmService extends Service  {
         }
     }
 
-    private void delayAlarm(Context context){
-        RepeatingAlarm repeatingAlarm;
-        if(mCurrentAlarmSchedule == null){
-            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
-            Utils.setCurrentMainActivityImage(context, Constants.NON_SCHEDULE_ALARM_RUNNING);
-        } else {
-            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
-            Utils.setCurrentMainActivityImage(context, Constants.SCHEDULE_RUNNING);
-        }
-        repeatingAlarm.delayAlarm();
+    private void cancelNotification(){
+        Log.i(TAG, "Notification removed");
+        NotificationManager notificationManager = (NotificationManager)mContext.getSystemService(
+                Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(R.integer.AlarmNotificationID);
+
     }
 
-    private void setStoodUpAlarm(Context context){
-        RepeatingAlarm repeatingAlarm;
-        if(mCurrentAlarmSchedule == null){
-            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
-        } else {
-            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
-        }
-        repeatingAlarm.setRepeatingAlarm();
-    }
 
-    private void checkMainActivityVisible(){
-        Intent intent = new Intent("Visible");
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-    }
-
-    private void showPraise(){
-        String praise = praiseForUser();
-        if(mainActivityVisible){
-            Intent intent = new Intent("PraiseForUser");
-            intent.putExtra("Praise", praise);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcastSync(intent);
-        } else {
-            Toast.makeText(mContext, praise, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private String praiseForUser(){
-        String[] praise = getResources().getStringArray(R.array.praise);
-        Random random = new Random(System.currentTimeMillis());
-        int randomNumber = random.nextInt(praise.length);
-        return praise[randomNumber];
-    }
 }

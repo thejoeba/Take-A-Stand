@@ -69,7 +69,7 @@ public class AlarmFragment extends Fragment{
     @Override
     public void onResume() {
         Log.i(TAG, "onResume");
-        updateLayout();
+        updateLayoutStatic();
         registerReceivers();
         super.onResume();
     }
@@ -88,7 +88,7 @@ public class AlarmFragment extends Fragment{
         public void onReceive(Context context, Intent intent) {
             if(!mJustReceivedUpdate){
                 mJustReceivedUpdate = true;
-                updateLayout();
+                updateLayoutAnimated();
                 mHandler.postDelayed(updating, 290);
             }
 
@@ -106,7 +106,7 @@ public class AlarmFragment extends Fragment{
     Whenever previousStatus == currentStatus, it means user has closed the app, and came back
     Don't show the animation again.
      */
-    private void updateLayout(){
+    private void updateLayoutAnimated(){
         int imageStatus = Utils.getCurrentImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
@@ -164,6 +164,62 @@ public class AlarmFragment extends Fragment{
             case Constants.SCHEDULE_STOOD_UP:
                 currentAlarmStatus = Constants.SCHEDULE_STOOD_UP;
                 hideStoodDelay();
+                previousAlarmStatus = Constants.SCHEDULE_STOOD_UP;
+                break;
+            default:
+                currentAlarmStatus = Constants.NO_ALARM_RUNNING;
+                nextAlertLayout.setVisibility(View.GONE);
+                stoodDelayLayout.setVisibility(View.GONE);
+                previousAlarmStatus = Constants.NO_ALARM_RUNNING;
+                break;
+        }
+    }
+
+    private void updateLayoutStatic(){
+        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        switch (imageStatus){
+            case Constants.NO_ALARM_RUNNING:
+                currentAlarmStatus = Constants.NO_ALARM_RUNNING;
+                nextAlertLayout.setVisibility(View.GONE);
+                stoodDelayLayout.setVisibility(View.GONE);
+                previousAlarmStatus = Constants.NO_ALARM_RUNNING;
+                break;
+            case Constants.NON_SCHEDULE_ALARM_RUNNING:
+                currentAlarmStatus = Constants.NON_SCHEDULE_ALARM_RUNNING;
+                nextAlertLayout.setVisibility(View.VISIBLE);
+                nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
+                stoodDelayLayout.setVisibility(View.GONE);
+                previousAlarmStatus = Constants.NON_SCHEDULE_ALARM_RUNNING;
+                break;
+            case Constants.NON_SCHEDULE_TIME_TO_STAND:
+                currentAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
+                stoodDelayLayout.setVisibility(View.VISIBLE);
+                nextAlertLayout.setVisibility(View.GONE);
+                previousAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
+                break;
+            case Constants.NON_SCHEDULE_STOOD_UP:
+                currentAlarmStatus = Constants.NON_SCHEDULE_STOOD_UP;
+                stoodDelayLayout.setVisibility(View.GONE);
+                nextAlertLayout.setVisibility(View.GONE);
+                previousAlarmStatus = Constants.NON_SCHEDULE_STOOD_UP;
+                break;
+            case Constants.SCHEDULE_RUNNING:
+                currentAlarmStatus = Constants.SCHEDULE_RUNNING;
+                nextAlertLayout.setVisibility(View.VISIBLE);
+                nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
+                stoodDelayLayout.setVisibility(View.GONE);
+                previousAlarmStatus = Constants.SCHEDULE_RUNNING;
+                break;
+            case Constants.SCHEDULE_TIME_TO_STAND:
+                currentAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
+                stoodDelayLayout.setVisibility(View.VISIBLE);
+                nextAlertLayout.setVisibility(View.GONE);
+                previousAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
+                break;
+            case Constants.SCHEDULE_STOOD_UP:
+                currentAlarmStatus = Constants.SCHEDULE_STOOD_UP;
+                stoodDelayLayout.setVisibility(View.GONE);
+                nextAlertLayout.setVisibility(View.GONE);
                 previousAlarmStatus = Constants.SCHEDULE_STOOD_UP;
                 break;
             default:

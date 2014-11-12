@@ -40,7 +40,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.sean.takeastand.R;
@@ -72,7 +71,7 @@ public class ImageStatusFragment
         statusImage.setOnTouchListener(imageButtonListener);
         txtTap = (TextSwitcher)view.findViewById(R.id.tap_to_set);
         setTextSwitchers();
-        updateLayout();
+        updateLayoutStatic();
         //If stuck on a non-click listener view uncomment the below line:
         //Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
         return view;
@@ -88,17 +87,17 @@ public class ImageStatusFragment
     public void onResume() {
         super.onResume();
         registerReceivers();
-        updateLayout();
+        updateLayoutStatic();
         mJustReceivedUpdate = false;
     }
 
     @Override
     public void onStart() {
-        updateLayout();
+        updateLayoutStatic();
         super.onStart();
     }
 
-    private void updateLayout(){
+    private void updateLayoutAnimated(){
         int imageStatus = Utils.getCurrentImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
@@ -114,9 +113,7 @@ public class ImageStatusFragment
                 statusImage.setImageResource(R.drawable.alarm_unscheduled_running);
                 statusImage.setOnClickListener(imageListener);
                 statusImage.setOnTouchListener(imageButtonListener);
-                if(!currentText.equals(getResources().getString(R.string.tap_to_stop))){
-                    txtTap.setText(getResources().getString(R.string.tap_to_stop));
-                }
+                txtTap.setText(getResources().getString(R.string.tap_to_stop));
                 currentText = getResources().getString(R.string.tap_to_stop);
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
@@ -145,9 +142,7 @@ public class ImageStatusFragment
                 statusImage.setImageResource(R.drawable.alarm_schedule_running);
                 statusImage.setOnClickListener(null);
                 statusImage.setOnTouchListener(null);
-                if(!currentText.equals("Schedule Running")){
-                    txtTap.setText("Schedule Running");
-                }
+                txtTap.setText("Schedule Running");
                 currentText = "Schedule Running";
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
@@ -181,7 +176,77 @@ public class ImageStatusFragment
         }
     }
 
-
+    private void updateLayoutStatic(){
+        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        switch (imageStatus){
+            case Constants.NO_ALARM_RUNNING:
+                statusImage.setImageResource(R.drawable.alarm_image_inactive);
+                statusImage.setOnClickListener(imageListener);
+                statusImage.setOnTouchListener(imageButtonListener);
+                txtTap.setCurrentText(getResources().getString(R.string.tap_to_start));
+                currentText = getResources().getString(R.string.tap_to_start);
+                break;
+            case Constants.NON_SCHEDULE_ALARM_RUNNING:
+                statusImage.setImageResource(R.drawable.alarm_unscheduled_running);
+                statusImage.setOnClickListener(imageListener);
+                statusImage.setOnTouchListener(imageButtonListener);
+                txtTap.setCurrentText(getResources().getString(R.string.tap_to_stop));
+                currentText = getResources().getString(R.string.tap_to_stop);
+                break;
+            case Constants.NON_SCHEDULE_TIME_TO_STAND:
+                statusImage.setImageResource(R.drawable.alarm_unscheduled_passed);
+                statusImage.setOnClickListener(null);
+                statusImage.setOnTouchListener(null);
+                txtTap.setCurrentText(getResources().getString(R.string.stand_time));
+                currentText = getResources().getString(R.string.stand_time);
+                break;
+            case Constants.NON_SCHEDULE_STOOD_UP:
+                statusImage.setImageResource(R.drawable.alarm_unscheduled_stood);
+                statusImage.setOnClickListener(null);
+                statusImage.setOnTouchListener(null);
+                if(praise == null){
+                    txtTap.setCurrentText("Good job!");
+                } else {
+                    txtTap.setCurrentText(praise);
+                    currentText = praise;
+                    praise = null;
+                }
+                break;
+            case Constants.SCHEDULE_RUNNING:
+                statusImage.setImageResource(R.drawable.alarm_schedule_running);
+                statusImage.setOnClickListener(null);
+                statusImage.setOnTouchListener(null);
+                txtTap.setCurrentText("Schedule Running");
+                currentText = "Schedule Running";
+                break;
+            case Constants.SCHEDULE_TIME_TO_STAND:
+                statusImage.setImageResource(R.drawable.alarm_schedule_passed);
+                statusImage.setOnClickListener(null);
+                statusImage.setOnTouchListener(null);
+                txtTap.setCurrentText(getResources().getString(R.string.stand_time));
+                currentText = getResources().getString(R.string.stand_time);
+                break;
+            case Constants.SCHEDULE_STOOD_UP:
+                statusImage.setImageResource(R.drawable.alarm_schedule_stood);
+                statusImage.setOnClickListener(null);
+                statusImage.setOnTouchListener(null);
+                if(praise == null){
+                    txtTap.setCurrentText("Good Job");
+                } else {
+                    txtTap.setCurrentText(praise);
+                    currentText = praise;
+                    praise = null;
+                }
+                break;
+            default:
+                statusImage.setImageResource(R.drawable.alarm_image_inactive);
+                statusImage.setOnClickListener(imageListener);
+                statusImage.setOnTouchListener(imageButtonListener);
+                txtTap.setCurrentText(getResources().getString(R.string.tap_to_start));
+                currentText = getResources().getString(R.string.tap_to_start);
+                break;
+        }
+    }
 
     private void registerReceivers(){
         LocalBroadcastManager.getInstance(getActivity())
@@ -200,7 +265,7 @@ public class ImageStatusFragment
         public void onReceive(Context context, Intent intent) {
             if(!mJustReceivedUpdate){
                 mJustReceivedUpdate = true;
-                updateLayout();
+                updateLayoutAnimated();
                 mHandler.postDelayed(updating, 290);
             }
 
