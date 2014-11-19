@@ -31,11 +31,12 @@ import com.sean.takeastand.util.Utils;
 
 import java.util.Calendar;
 /* This class is responsible for coordinating the creation, editing, and deletion of scheduled
-    alarms.  For example, if a new alarm is created, then this class will make sure that the daily
-    repeating alarm that is received by the StartScheduleReceiver is set, that a new alarm is saved
-    in the SQLite database and that if the alarm happens to be today and the start time has passed
-    but the end time has not, to start a ScheduledRepeatingAlarm right away.  In addition to new
-    alarms, it also manages the editing of alarms, and the deletion of alarms.
+    alarms.  For example, if a new alarm is created, then this class will make sure that the system
+    daily repeating alarm that will be sent to the StartScheduleReceiver is set, that a
+    new alarm is saved in the SQLite database and that if the alarm is today and
+    the start time has passed but the end time has not, to start a ScheduledRepeatingAlarm
+    right away.  In addition to new alarms, it also manages the editing of alarms, and the
+    deletion of alarms.
 
     Created by Sean on 2014-09-03.
  */
@@ -52,9 +53,6 @@ public class ScheduleEditor {
         mContext = context;
         scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(context);
     }
-
-
-
 
     public void newAlarm(boolean activated,  int[] alarmType, String startTime, String endTime, int frequency,
                             String title, boolean sunday, boolean monday, boolean tuesday,
@@ -75,7 +73,7 @@ public class ScheduleEditor {
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
                     new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
-                    Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+                    Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                     Toast.makeText(mContext, "New schedule is now running", Toast.LENGTH_SHORT).show();
                 }
             } else {
@@ -100,7 +98,7 @@ public class ScheduleEditor {
             if(today && startTime.before(rightNow)&&endTime.after(rightNow)) {
                 new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule).setRepeatingAlarm();
                 Toast.makeText(mContext, "Schedule is running right now", Toast.LENGTH_SHORT).show();
-                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+                Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
             } else {
                 Toast.makeText(mContext, "Schedule activated", Toast.LENGTH_SHORT).show();
             }
@@ -117,11 +115,12 @@ public class ScheduleEditor {
 
     public void editAlertType(AlarmSchedule alarmSchedule){
         scheduleDatabaseAdapter.updateAlertType(alarmSchedule.getUID(),alarmSchedule.getAlertType());
-        if(alarmSchedule.getUID() == Utils.getRunningScheduledAlarm(mContext)){
+        if(alarmSchedule.getUID() == Utils.getRunningScheduledAlarm(mContext)
+                && alarmSchedule.getActivated()){
             ScheduledRepeatingAlarm scheduledRepeatingAlarm = new ScheduledRepeatingAlarm(mContext,
                     new FixedAlarmSchedule(alarmSchedule));
             scheduledRepeatingAlarm.updateAlarm();
-            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+            Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
             Toast.makeText(mContext, "Current schedule updated",
                     Toast.LENGTH_SHORT).show();
         }
@@ -133,9 +132,8 @@ public class ScheduleEditor {
         cancelDailyRepeatingAlarm(UID);
         setDailyRepeatingAlarm(UID, Utils.calendarToTimeString(startTime));
         scheduleDatabaseAdapter.updateStartTime(UID, Utils.calendarToTimeString(startTime));
-        FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(alarmSchedule);
-        if(alarmToday){
-
+        if(alarmToday && alarmSchedule.getActivated()){
+            FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(alarmSchedule);
             Calendar endTime = alarmSchedule.getEndTime();
             Calendar rightNow = Calendar.getInstance();
             if(startTime.after(rightNow)){
@@ -149,7 +147,7 @@ public class ScheduleEditor {
                 ScheduledRepeatingAlarm scheduledRepeatingAlarm =
                         new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                 scheduledRepeatingAlarm.updateAlarm();
-                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+                Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Schedule updated and running now",
                         Toast.LENGTH_SHORT).show();
             }
@@ -161,7 +159,7 @@ public class ScheduleEditor {
         int UID = alarmSchedule.getUID();
         Calendar endTime = alarmSchedule.getEndTime();
         scheduleDatabaseAdapter.updateEndTime(UID, Utils.calendarToTimeString(endTime));
-        if(alarmToday){
+        if(alarmToday && alarmSchedule.getActivated()){
             Calendar startTime = alarmSchedule.getStartTime();
             Calendar rightNow = Calendar.getInstance();
             FixedAlarmSchedule fixedAlarmSchedule = new FixedAlarmSchedule(alarmSchedule);
@@ -175,7 +173,7 @@ public class ScheduleEditor {
                 ScheduledRepeatingAlarm scheduledRepeatingAlarm =
                         new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                 scheduledRepeatingAlarm.updateAlarm();
-                Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+                Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Current schedule updated", Toast.LENGTH_SHORT).show();
             }
         }
@@ -190,7 +188,7 @@ public class ScheduleEditor {
                     new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
             scheduledRepeatingAlarm.cancelAlarm();
             scheduledRepeatingAlarm.setRepeatingAlarm();
-            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+            Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
             Toast.makeText(mContext, "Current schedule updated",
                     Toast.LENGTH_SHORT).show();
         }
@@ -206,7 +204,7 @@ public class ScheduleEditor {
                     ScheduledRepeatingAlarm scheduledRepeatingAlarm =
                             new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                     scheduledRepeatingAlarm.updateAlarm();
-                    Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+                    Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                     Toast.makeText(mContext, "Today's schedule now running",
                             Toast.LENGTH_SHORT).show();
                 }

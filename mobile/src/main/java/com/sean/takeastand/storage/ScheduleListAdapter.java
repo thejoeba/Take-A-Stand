@@ -188,9 +188,10 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             boolean isActivated = activated.isChecked();
             int position = (Integer)view.getTag();
             AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
-            newAlarmSchedule.setActivated(isActivated);
-            ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+            newAlarmSchedule.setActivated(isActivated);ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
             scheduleEditor.editActivated(newAlarmSchedule);
+            mAlarmSchedules.remove(position);
+            mAlarmSchedules.add(position, newAlarmSchedule);
             Log.i(TAG, position + ".) Activated: " + Boolean.toString(isActivated));
         }
     };
@@ -323,37 +324,6 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         }
     };
 
-    private void showDeleteDialog(View view){
-        final ImageView deleteButton = (ImageView)view;
-        int position = (Integer)deleteButton.getTag();
-        String scheduleTitle = mAlarmSchedules.get(position).getTitle();
-        if(scheduleTitle.equals("")){
-            scheduleTitle = "Schedule " + (position + 1);
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setMessage("Are you sure that you want to delete " +
-                scheduleTitle + "?");
-        builder.setTitle("Delete " + scheduleTitle);
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent("Delete");
-                intent.putExtra("Row", (Integer)deleteButton.getTag());
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, "Cancel");
-                dialogInterface.dismiss();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
     private View dialogView;
     private TextView selectedTitle;
 
@@ -434,7 +404,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         builder.setView(dialogView);
         numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(100);
-        numberPicker.setMinValue(5);
+        numberPicker.setMinValue(2);
         numberPicker.setValue(Integer.valueOf(selectedFrequencyValue.getText().toString()));
         numberPicker.setWrapSelectorWheel(false);
         builder.setMessage("Select Frequency");

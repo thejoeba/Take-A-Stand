@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -73,7 +74,7 @@ public class ImageStatusFragment
         setTextSwitchers();
         updateLayoutStatic();
         //If stuck on a non-click listener view uncomment the below line:
-        //Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
+        //Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
         return view;
     }
 
@@ -98,7 +99,7 @@ public class ImageStatusFragment
     }
 
     private void updateLayoutAnimated(){
-        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        int imageStatus = Utils.getImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_image_inactive);
@@ -142,7 +143,11 @@ public class ImageStatusFragment
                 statusImage.setImageResource(R.drawable.alarm_schedule_running);
                 statusImage.setOnClickListener(null);
                 statusImage.setOnTouchListener(null);
-                txtTap.setText("Schedule Running");
+                if(getCurrentTitle() == ""){
+                    txtTap.setText("Schedule Running");
+                } else {
+                    txtTap.setText(getCurrentTitle() + " Running");
+                }
                 currentText = "Schedule Running";
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
@@ -177,7 +182,7 @@ public class ImageStatusFragment
     }
 
     private void updateLayoutStatic(){
-        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        int imageStatus = Utils.getImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
                 statusImage.setImageResource(R.drawable.alarm_image_inactive);
@@ -216,7 +221,11 @@ public class ImageStatusFragment
                 statusImage.setImageResource(R.drawable.alarm_schedule_running);
                 statusImage.setOnClickListener(null);
                 statusImage.setOnTouchListener(null);
-                txtTap.setCurrentText("Schedule Running");
+                if(getCurrentTitle() == ""){
+                    txtTap.setCurrentText("Schedule Running");
+                } else {
+                    txtTap.setCurrentText(getCurrentTitle() + " Running");
+                }
                 currentText = "Schedule Running";
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
@@ -297,12 +306,12 @@ public class ImageStatusFragment
     private void switchStatus(){
         UnscheduledRepeatingAlarm unscheduledRepeatingAlarm =
                 new UnscheduledRepeatingAlarm(getActivity());
-        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        int imageStatus = Utils.getImageStatus(getActivity());
         if(imageStatus == Constants.NO_ALARM_RUNNING){
-            Utils.setCurrentMainActivityImage(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
+            Utils.setImageStatus(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
             unscheduledRepeatingAlarm.setRepeatingAlarm();
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
-            Utils.setCurrentMainActivityImage(getActivity(), Constants.NO_ALARM_RUNNING);
+            Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
         }
     }
@@ -340,5 +349,13 @@ public class ImageStatusFragment
         txtTap.setInAnimation(in);
         txtTap.setOutAnimation(out);
     }
+
+    private String getCurrentTitle(){
+        SharedPreferences sharedPreferences =
+                mContext.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getString(Constants.CURRENT_SCHEDULED_ALARM_TITLE, "");
+    }
+
+
 
 }

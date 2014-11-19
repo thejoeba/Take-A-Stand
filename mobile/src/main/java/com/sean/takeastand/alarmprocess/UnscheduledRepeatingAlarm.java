@@ -30,8 +30,8 @@ import com.sean.takeastand.util.Utils;
 
 import java.util.Calendar;
 
-/* This class is responsible for setting the next repeating alarm for alarms that are unscheduled,
-basically when the user taps on the start button that is in the ImageStatusFragment.  It sets the
+/* This class is responsible for setting the next repeating alarm for alarms that are unscheduled.
+These begin when the user taps on the start button that is in the ImageStatusFragment.  It sets the
 alarm by setting an inexact alarm in the future based on the user defined time period
 (“the default frequency” that the user can customize in the settings file) and uses the Android
 System’s AlarmManager class to do so.  This class is also responsible for setting the delay alarm,
@@ -88,7 +88,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         am.cancel(pendingIntent);
         endAlarmService();
         Log.i(TAG, "Alarm canceled");
-        Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
+        Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
     }
 
     @Override

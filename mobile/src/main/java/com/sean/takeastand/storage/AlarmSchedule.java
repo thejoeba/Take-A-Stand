@@ -22,22 +22,15 @@ import android.os.Parcelable;
 
 import java.util.Calendar;
 
-/* This class is used for storing alarm schedule data and returning the data via “get” methods.
-Once an alarm schedule object is created its data cannot be modified, thus preventing any corruption
-of data.  This object is passed throughout the day between the ScheduledRepeatingAlarm, the
-AlarmReceiver and the AlarmService, so ensuring its data is not changed is important.  The
-AlarmSchedule is initially created by the AlarmsDatabaseAdapter in its getAlarmSchedules method.
-This method is typically called by StartScheduleReceiver and then passed into the
-ScheduledRepeatingAlarm, in which it circulates between the previously mentioned classes
-until the schedule reaches its end time. */
+/*“This class is used for storing alarm schedule data, modifying them through “set” methods, and
+returning the data via “get” methods.  In contrast to the FixedAlarmSchedule this one
+is modifiable so is only used within the storage classes, which often need to change the schedule.
+The Alarm process classes use the FixedAlarmSchedule which is immutable.   */
 
 /**
  * Created by Sean on 2014-10-03.
  */
 public class AlarmSchedule implements Parcelable {
-
-
-    //ToDo: storage is getting to complicated and too many lines of code, add setter methods
 
     private int UID;
     private boolean activated;
@@ -54,8 +47,6 @@ public class AlarmSchedule implements Parcelable {
     private boolean friday;
     private boolean saturday;
 
-    //This constructor is the only way for the class variables to be initialized
-    //This class was intentionally restricted, so it could not be modified after creation
     public AlarmSchedule(int UID, boolean activated, int[] alertType, Calendar startTime, Calendar endTime,
                          int frequency, String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday){

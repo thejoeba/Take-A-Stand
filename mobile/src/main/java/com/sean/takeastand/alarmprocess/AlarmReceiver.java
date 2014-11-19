@@ -26,7 +26,6 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -47,13 +46,10 @@ public class AlarmReceiver
     private static final String TAG = "AlarmReceiver";
     private Context mContext;
 
-    //in the future it will be possible to cancel before end of day.
-    //Wherever that cancellation occurs Utils.setRunningScheduledAlarm should be called and pass -1
-
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        Log.i(TAG, "AlarmReceiver received intent");
+        Log.i(TAG, "AlarmReceiver received alarm intent");
         mContext = context;
         FixedAlarmSchedule currentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         if(currentAlarmSchedule != null){
@@ -65,11 +61,11 @@ public class AlarmReceiver
                 //-1 indicates that there is no currently running scheduled alarm
                 Utils.setRunningScheduledAlarm(mContext, -1);
                 Log.i(TAG, "Alarm day is over.");
-                Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
+                Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
                 endAlarmService();
             }
         } else {
-            Log.i(TAG, "AlarmSchedule is null");
+            //Unscheduled alarms
             Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
             mContext.startService(serviceStartIntent);
         }

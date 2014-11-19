@@ -31,6 +31,7 @@ public final class Constants {
     public static final String EVENT_SHARED_PREFERENCES = "Event_Shared_Preferences";
     public static final String USER_SHARED_PREFERENCES = "User_Shared_Preferences";
     public static final String CURRENT_RUNNING_SCHEDULED_ALARM = "CurrentScheduledAlarm";
+    public static final String CURRENT_SCHEDULED_ALARM_TITLE = "CurrentScheduledAlarmTitle";
     public static final String ALARM_SCHEDULE_DELETED = "AlarmDeleted";
     public static final String NEXT_ALARM_TIME_STRING = "NextAlarmTimeString";
     public static final String NEXT_ALARM_TIME_MILLIS = "NextAlarmTimeMillis";

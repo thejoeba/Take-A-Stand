@@ -24,20 +24,23 @@ import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 
 /**
  * Created by Sean on 2014-10-04.
- * This class includes commonly used methods.
+ * This class contains commonly used methods.
  */
 public final class Utils {
 
     private static String TAG = "Utils ";
 
-    /* Start time and end time are stored in the database as a string.
-       This method converts the string to a Calendar object */
+    //Start time and end time are stored in the database as a string.
+    //This method converts the string to a Calendar object
+    //Used by ScheduleEditor, ScheduleDatabaseAdapter, scheduleListAdapter, and within Utils
     public static Calendar convertToCalendarTime(String time){
         Calendar calendar = Calendar.getInstance();
         calendar = setCalendarTime(calendar, readHourFromString(time), readMinutesFromString(time));
@@ -45,6 +48,7 @@ public final class Utils {
     }
 
     //Converts the Calendar object to a string for storage in the database
+    //Used by TimePickerFragment, ScheduleEditor, and within Utils
     public static String calendarToTimeString(Calendar calendar){
         String time = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
         time += ":";
@@ -56,7 +60,7 @@ public final class Utils {
         return time;
     }
 
-    //Used by other Utils methods and for setting the starting time for the time picker
+    //Used by TimePickerFragment and within Utils
     public static int readHourFromString(String alarmTime){
         boolean twelveHourClock = false;
         boolean pm = false;
@@ -93,7 +97,7 @@ public final class Utils {
         }
     }
 
-    //Used by other Utils methods and for setting the starting time for the time picker
+    //Used by TimePickerFragment and within Utils
     public static int readMinutesFromString(String alarmTime){
         if(alarmTime.contains("am")){
             alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
@@ -114,13 +118,6 @@ public final class Utils {
         }
     }
 
-    private static Calendar setCalendarTime(Calendar calendar, int hour, int minute){
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-        return calendar;
-    }
-
     //Can't store booleans in a SQL database;
     //Retrieval method for database
     //Used by the ScheduleDatabaseAdapter and ScheduleListAdapter
@@ -134,6 +131,7 @@ public final class Utils {
        return bool ? 1 : 0;
     }
 
+    //Used by BootReceiver, StartScheduleReceiver, ScheduleEditor, and within Utils
     public static int getTodayWeekdayNum(){
         Calendar today = Calendar.getInstance();
         return today.get(Calendar.DAY_OF_WEEK);
@@ -141,6 +139,7 @@ public final class Utils {
 
     //This method takes a string in 24-hour format.  If the user is using a 12-hour clock,
     //it formats the string accordingly, other it returns the 24-hour string back
+    //Used by ScheduleListAdapter and within Utils
     public static String getFormattedTimeString(String time, Context context){
         if (!DateFormat.is24HourFormat(context))
         {
@@ -171,13 +170,15 @@ public final class Utils {
         }
     }
 
+    //Similar to getFormattedTimeString but takes a calendar object as its argument.
+    //Used by ScheduleListAdapter and within Utils.”
     public static String getFormattedCalendarTime(Calendar calendar, Context context){
         String calendarTime = calendarToTimeString(calendar);
         String formattedForAmPm = getFormattedTimeString(calendarTime, context);
         return formattedForAmPm;
     }
 
-
+    //Used by ScheduleEditor
     public static boolean isTodayActivated(boolean sunday, boolean monday, boolean tuesday,
                                            boolean wednesday, boolean thursday, boolean friday,
                                            boolean saturday){
@@ -201,6 +202,7 @@ public final class Utils {
         }
     }
 
+    //Used by ScheduleListAdapter and ScheduleEditor
     public static boolean isTodayActivated(AlarmSchedule alarmSchedule){
         switch(getTodayWeekdayNum()){
             case 1:
@@ -222,6 +224,7 @@ public final class Utils {
         }
     }
 
+    //Used by ScheduledRepeatingAlarm and AlarmReceiver
     public static void setRunningScheduledAlarm(Context context, int uid){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
@@ -230,13 +233,16 @@ public final class Utils {
         editor.commit();
     }
 
+    //Used by ScheduleEditor
     public static int getRunningScheduledAlarm(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         return sharedPreferences.getInt(Constants.CURRENT_RUNNING_SCHEDULED_ALARM, -1);
     }
 
-    public static void setCurrentMainActivityImage(Context context, int imageStatus){
+    //Used by AlarmService, ScheduleEditor, ScheduledRepeatingAlarm, UnscheduledRepeatingAlarm,
+    //ImageStatusFragment, AlarmReceiver, StartScheduleReceiver, and MainActivity
+    public static void setImageStatus(Context context, int imageStatus){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -246,12 +252,15 @@ public final class Utils {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
-    public static int getCurrentImageStatus(Context context){
+    //Used by AlarmFragment and ImageStatusFragment. This method is used to find out
+    //which images to display and which onClickListeners to set.
+    public static int getImageStatus(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         return sharedPreferences.getInt(Constants.MAIN_IMAGE_STATUS, 1);
     }
 
+    //Used by TimePickerFragment and within Utils
     public static String correctMinuteFormat(String minute){
         if(minute.length() == 1){
             minute = "0" + minute;
@@ -343,5 +352,80 @@ public final class Utils {
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         return sharedPreferences.getString(Constants.NEXT_ALARM_TIME_STRING, "");
+    }
+
+    /*
+   If there is an alarmSchedule for today's weekday, return it. If not
+   return null.
+    */
+    public static FixedAlarmSchedule findTodaysSchedule(ArrayList<FixedAlarmSchedule> fixedAlarmSchedules){
+
+        switch(getTodayWeekdayNum()){
+            case 1:
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules){
+                    //If alarmSchedule i has an alarm for Sunday, get
+                    //this alarmSchedule to be used for today.
+                    if(alarmSchedule.getSunday()){
+                        return alarmSchedule;
+                    }
+                }
+                break;
+            case 2:
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
+                    if (alarmSchedule.getMonday()) {
+                        return alarmSchedule;
+                    }
+                }
+                break;
+            case 3:
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
+                    if (alarmSchedule.getTuesday()) {
+                        return alarmSchedule;
+                    }
+                }
+                break;
+            case 4:
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
+                    if (alarmSchedule.getWednesday()) {
+                        return alarmSchedule;
+                    }
+                }
+                break;
+            case 5:
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
+                    if (alarmSchedule.getThursday()) {
+                        return alarmSchedule;
+                    }
+                }
+                break;
+            case 6:
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
+                    if (alarmSchedule.getFriday()) {
+                        return alarmSchedule;
+                    }
+                }
+                break;
+            case 7:
+                for(FixedAlarmSchedule alarmSchedule : fixedAlarmSchedules) {
+                    if (alarmSchedule.getSaturday()) {
+                        return alarmSchedule;
+                    }
+                }
+                break;
+        }
+        //Return a dummy alarmSchedule with a UID of -100 which signals alarm was not found
+        return new FixedAlarmSchedule(-100, false, null, null, null, 0, "", false,
+                false, false, false, false, false, false);
+
+    }
+
+
+
+
+    private static Calendar setCalendarTime(Calendar calendar, int hour, int minute){
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar;
     }
 }

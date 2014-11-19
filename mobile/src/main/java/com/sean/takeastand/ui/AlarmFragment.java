@@ -107,7 +107,7 @@ public class AlarmFragment extends Fragment{
     Don't show the animation again.
      */
     private void updateLayoutAnimated(){
-        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        int imageStatus = Utils.getImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
                 currentAlarmStatus = Constants.NO_ALARM_RUNNING;
@@ -176,7 +176,7 @@ public class AlarmFragment extends Fragment{
     }
 
     private void updateLayoutStatic(){
-        int imageStatus = Utils.getCurrentImageStatus(getActivity());
+        int imageStatus = Utils.getImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
                 currentAlarmStatus = Constants.NO_ALARM_RUNNING;
@@ -194,6 +194,8 @@ public class AlarmFragment extends Fragment{
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
                 currentAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
                 stoodDelayLayout.setVisibility(View.VISIBLE);
+                stoodText.setVisibility(View.VISIBLE);
+                delayText.setVisibility(View.VISIBLE);
                 nextAlertLayout.setVisibility(View.GONE);
                 previousAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
                 break;
@@ -213,6 +215,8 @@ public class AlarmFragment extends Fragment{
             case Constants.SCHEDULE_TIME_TO_STAND:
                 currentAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
                 stoodDelayLayout.setVisibility(View.VISIBLE);
+                stoodText.setVisibility(View.VISIBLE);
+                delayText.setVisibility(View.VISIBLE);
                 nextAlertLayout.setVisibility(View.GONE);
                 previousAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
                 break;

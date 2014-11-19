@@ -32,7 +32,9 @@ import com.sean.takeastand.util.Utils;
 import java.util.ArrayList;
 import java.util.Calendar;
 /* All the alarm schedules are saved in a SQLite database.  This class provides methods for
-communicating with the SQLite database in order to retrieve, edit, and delete information.  */
+ communicating with the SQLite database in order to retrieve, edit, and delete information.
+ This class and its methods are primarily used by the ScheduleEditor.  The main exception is it’s
+ getFixedAlarmSchedules which is called by the StartScheduleReceiver and the BootReceiver.*/
 
 public class ScheduleDatabaseAdapter
 {
