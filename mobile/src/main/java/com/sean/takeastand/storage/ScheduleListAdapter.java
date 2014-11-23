@@ -21,7 +21,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.sean.takeastand.R;
-import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 

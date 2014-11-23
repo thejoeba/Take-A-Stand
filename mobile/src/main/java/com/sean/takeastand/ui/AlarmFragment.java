@@ -24,6 +24,7 @@ import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 /**
+ * Small view that pops up depending on current alarm status
  * Created by Sean on 2014-11-08.
  */
 public class AlarmFragment extends Fragment{
@@ -272,7 +273,7 @@ public class AlarmFragment extends Fragment{
         public void run() {
             nextAlertLayout.setVisibility(View.VISIBLE);
             nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
-            Animation slideIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up);
+            Animation slideIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_up);
             nextAlertLayout.startAnimation(slideIn);
         }
     };
@@ -282,7 +283,7 @@ public class AlarmFragment extends Fragment{
         public void run() {
 
                 nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
-                Animation slideOut = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down);
+                Animation slideOut = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_down);
                 slideOut.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {}

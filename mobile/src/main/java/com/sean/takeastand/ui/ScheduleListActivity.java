@@ -18,45 +18,29 @@
 package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
-import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.TimePicker;
 
 import com.sean.takeastand.R;
-import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.ExpandableAdapter;
-import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
-import com.sean.takeastand.storage.ScheduleEditor;
 import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
-import com.sean.takeastand.util.Utils;
 import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 /**
  * Created by Sean on 2014-09-21.
@@ -64,12 +48,10 @@ import java.util.Calendar;
 public class ScheduleListActivity extends ListActivity {
 
     private static final String TAG = "SchedulesListActivity";
-    private static final int REQUEST_CODE = 1;
     private ImageView imgAddAlarm;
     private ScheduleListAdapter scheduleListAdapter;
     private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> alarmSchedules;
-    private static final String EDIT_SCHEDULE = "edit";
     private String mNewAlarmStartTime;
     private boolean mJustReceivedTimePicker;
     private boolean mJustReceivedResponse;
@@ -108,10 +90,18 @@ public class ScheduleListActivity extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //No call for super(). Bug on API Level > 11.
+    }
+
     private void setUpLayout(){
         ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Schedules");
+        //Is possible actionBar will be null
+        if(actionBar !=null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("Schedules");
+        }
         imgAddAlarm = (ImageView)this.findViewById(R.id.btn_add_alarm);
         imgAddAlarm.setOnClickListener(addAlarmOnClickListener);
         ListView listView = getListView();

@@ -2,7 +2,6 @@ package com.sean.takeastand.widget;
 
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.widget.Button;
 import android.widget.TimePicker;
 
 /**

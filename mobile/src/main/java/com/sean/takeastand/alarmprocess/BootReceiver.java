@@ -24,7 +24,6 @@ import android.widget.Toast;
 
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
-import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;

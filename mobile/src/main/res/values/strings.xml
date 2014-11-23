@@ -14,19 +14,15 @@
     </string-array>
     <string name="select_frequency">Select Frequency</string>
     <string name="medical_studies">Medical Studies</string>
-    <string-array name="science_text_medical">
-        <item>A large <a href = "http://www.ncbi.nlm.nih.gov/pubmed/19996993">long-term study</a> with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent to percent.</item>
-        <item>A Danish <a href = "http://sjp.sagepub.com/content/35/5/510.abstract"> medical study </a>that looked into factors which decreased life quality found sedentary lifestyles reduced the quality-adjusted life years by 7 years.</item>
-        <item>A British <a href = " http://bjsm.bmj.com/content/43/2/81.full">research study</a>  found that even exercising for 30 minutes or more a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.</item>
-        <item>Sitting for prolonged periods of time may contribute to <a href = "http://diabetes.diabetesjournals.org/content/56/11/2655.long">metabolic diseases</a> such as diabetes and cardiovascular disease.</item>
-    </string-array>
+    <string name="medical1">A large <a href = "http://www.ncbi.nlm.nih.gov/pubmed/19996993">long-term study</a> with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent.</string>
+    <string name="medical2">A Danish <a href = "http://sjp.sagepub.com/content/35/5/510.abstract"> medical study </a>that looked into factors which decreased life quality found sedentary lifestyles reduced the quality-adjusted life years by 7 years.</string>
+    <string name="medical3">A British <a href = " http://bjsm.bmj.com/content/43/2/81.full">research study</a>  found that even exercising for more than 30 minutes a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.</string>
+    <string name="medical4">Sitting for prolonged periods of time may contribute to <a href = "http://diabetes.diabetesjournals.org/content/56/11/2655.long">metabolic diseases</a> such as diabetes and cardiovascular disease.</string>
     <string name="news_articles">News Articles</string>
-    <string-array name="science_text_news">
-        <item><a href="http://lifehacker.com/tag/sitting">Lifehacker</a></item>
-        <item><a href="http://news.bbc.co.uk/2/hi/6187080.stm">BBC</a></item>
-        <item><a href="http://www.economist.com/news/science-and-technology/21583239-real-science-lies-behind-fad-standing-up-work-standing-orders">The Economist</a></item>
-        <item><a href="http://www.businessweek.com/magazine/content/10_19/b4177071221162.htm">Businessweek </a></item>
-        <item><a href= "http://www.nytimes.com/2011/04/17/magazine/mag-17sitting-t.html?_r=0">New York Times</a></item>
-        <item><a href = "http://www.nbcnews.com/id/39523298/ns/health-ments_health/#.VFWu-PmG9V1">NBC News</a></item>
-    </string-array>
+    <string name="news1"><a href="http://lifehacker.com/tag/sitting">Lifehacker</a></string>
+    <string name="news2"><a href="http://news.bbc.co.uk/2/hi/6187080.stm">BBC</a></string>
+    <string name="news3"><a href="http://www.economist.com/news/science-and-technology/21583239-real-science-lies-behind-fad-standing-up-work-standing-orders">The Economist</a></string>
+    <string name="news4"><a href="http://www.businessweek.com/magazine/content/10_19/b4177071221162.htm">Businessweek </a></string>
+    <string name="news5"><a href= "http://www.nytimes.com/2011/04/17/magazine/mag-17sitting-t.html?_r=0">New York Times</a></string>
+    <string name="news6"><a href = "http://www.nbcnews.com/id/39523298/ns/health-ments_health/#.VFWu-PmG9V1">NBC News</a></string>
 </resources>

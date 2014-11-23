@@ -32,8 +32,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -285,8 +285,9 @@ public class AlarmService extends Service  {
                 .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
                 .addAction(R.drawable.ic_action_time, "Delay", pendingIntents[2])
                 .setTicker("Time to stand up");
+
         //Purpose of below is to figure out what type of user alert to give with the notification
-        //If scheduled, check schedule preferences
+        //If scheduled, check settings for that schedule
         //If unscheduled, check user defaults
         if(mCurrentAlarmSchedule!=null){
             int[] alertType = mCurrentAlarmSchedule.getAlertType();
@@ -354,14 +355,12 @@ public class AlarmService extends Service  {
                 .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
                 .addAction(R.drawable.ic_action_time, "Delay", pendingIntents[2])
                 .setTicker("Time to stand up");
-        //Only keep the LED lights going on new notifications, if user has them set
-        //Don't vibrate or make a sound
         if(mCurrentAlarmSchedule != null){
             int[] alertType = mCurrentAlarmSchedule.getAlertType();
             if((alertType[0]) == 1){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1 && mNotifTimePassed < 2){
+            if(alertType[1] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
                 AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                 if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -369,13 +368,17 @@ public class AlarmService extends Service  {
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     v.vibrate(mVibrationPattern, -1);
                 }
+            }
+            if(alertType[2] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
+                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                alarmNotificationBuilder.setSound(soundUri);
             }
         } else {
             int[] alertType = Utils.getDefaultAlertType(this);
             if((alertType[0]) == 1){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1 && mNotifTimePassed < 2){
+            if(alertType[1] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
                 AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                 if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -383,6 +386,10 @@ public class AlarmService extends Service  {
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     v.vibrate(mVibrationPattern, -1);
                 }
+            }
+            if(alertType[2] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
+                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                alarmNotificationBuilder.setSound(soundUri);
             }
         }
         Notification alarmNotification = alarmNotificationBuilder.build();
@@ -409,7 +416,7 @@ public class AlarmService extends Service  {
         Intent delayAlarmIntent = new Intent("DelayAlarm");
         PendingIntent delayAlarmPendingIntent = PendingIntent.getBroadcast(this, 0,
                 delayAlarmIntent, 0);
-        PendingIntent[] pendingIntents =
+        PendingIntent [] pendingIntents =
                 {launchActivityPendingIntent, stoodUpPendingIntent, delayAlarmPendingIntent};
         return pendingIntents;
     }

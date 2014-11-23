@@ -4,102 +4,71 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.sean.takeastand.R;
 
-import org.w3c.dom.Text;
 
-import java.util.ArrayList;
-
-
-/**
+/**  Displays links to science that supports the reason behind our app
  * Created by Sean on 2014-11-01.
  */
-public class ScienceActivity extends Activity {
 
-    LinearLayout medicalLinear;
-    LinearLayout newsLinear;
-    private static String TAG = "ScienceActivity";
+public class ScienceActivity extends Activity {
 
     /*
     Need to figure out a way uo dynamically increase the parent layout's (scrollview's) height based
     on the new textviews added. GetHeight returns pixels.
      */
 
+    private TextView txtMedical1;
+    private TextView txtMedical2;
+    private TextView txtMedical3;
+    private TextView txtMedical4;
+    private TextView txtNews1;
+    private TextView txtNews2;
+    private TextView txtNews3;
+    private TextView txtNews4;
+    private TextView txtNews5;
+    private TextView txtNews6;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_science, null);
-        medicalLinear = (LinearLayout)view.findViewById(R.id.medical_studies);
-        newsLinear = (LinearLayout)view.findViewById(R.id.news_articles);
+        setContentView(R.layout.activity_science);
         ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Science Behind The App");
-        int addedHeight = setUpTextViews();
-        //setNewScrollViewHeight(view, addedHeight);
-        setContentView(view);
+        //Is possible actionBar will be null
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("Science Behind The App");
+        }
+        setUpTextViews();
 
     }
 
-    private int setUpTextViews(){
-        int newHeight = 0;
-        String[] medicalStudies = getResources().getStringArray(R.array.science_text_medical);
-        String[] newsArticles = getResources().getStringArray(R.array.science_text_news);
-        int textViewsIndex = 0;
-        for(int i = 0; i < medicalStudies.length; i ++){
-            LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lParams.setMargins(0, 10, 0, 10);
-            TextView textView=new TextView(this);
-            textView.setLayoutParams(lParams);
-            textView.setText(medicalStudies[i]);
-            textView.setId(textViewsIndex);
-            //In order for links to pop up browser, setMovementMethod
-            textView.setMovementMethod(LinkMovementMethod.getInstance());
-            newHeight += textView.getMeasuredHeight();
-            medicalLinear.addView(textView);
-            textViewsIndex++;
-        }
-        for(int i = 0; i < newsArticles.length; i++){
-            LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lParams.setMargins(0, 10, 0, 10);
-            TextView textView=new TextView(this);
-            textView.setLayoutParams(lParams);
-            textView.setText(newsArticles[i]);
-            textView.setId(textViewsIndex);
-            //In order for links to pop up browser, setMovementMethod
-            textView.setMovementMethod(LinkMovementMethod.getInstance());
-            newHeight += textView.getMeasuredHeight();
-            newsLinear.addView(textView);
-            textViewsIndex++;
-        }
-        return newHeight;
+    private void setUpTextViews(){
+        txtMedical1 = (TextView)findViewById(R.id.medical1);
+        txtMedical2 = (TextView)findViewById(R.id.medical2);
+        txtMedical3 = (TextView)findViewById(R.id.medical3);
+        txtMedical4 = (TextView)findViewById(R.id.medical4);
+        txtNews1 = (TextView)findViewById(R.id.news1);
+        txtNews2 = (TextView)findViewById(R.id.news2);
+        txtNews3 = (TextView)findViewById(R.id.news3);
+        txtNews4 = (TextView)findViewById(R.id.news4);
+        txtNews5 = (TextView)findViewById(R.id.news5);
+        txtNews6 = (TextView)findViewById(R.id.news6);
+        txtMedical1.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMedical2.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMedical3.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMedical4.setMovementMethod(LinkMovementMethod.getInstance());
+        txtNews1.setMovementMethod(LinkMovementMethod.getInstance());
+        txtNews2.setMovementMethod(LinkMovementMethod.getInstance());
+        txtNews3.setMovementMethod(LinkMovementMethod.getInstance());
+        txtNews4.setMovementMethod(LinkMovementMethod.getInstance());
+        txtNews5.setMovementMethod(LinkMovementMethod.getInstance());
+        txtNews6.setMovementMethod(LinkMovementMethod.getInstance());
     }
-
-    /*private void setNewScrollViewHeight(View view, int newHeight){
-        ScrollView scrollView = (ScrollView)view.findViewById(R.id.science_scroll_view);
-        int height = scrollView.getMeasuredHeight();
-        Log.i(TAG, Integer.toString(height) + " " + Integer.toString(newHeight));
-        height += newHeight;
-        if(scrollView == null){
-            Log.i(TAG, "ScrollView null");
-        }
-        ScrollView.LayoutParams params = new ScrollView.LayoutParams(ScrollView.LayoutParams.MATCH_PARENT,
-                height);
-        scrollView.setLayoutParams(params);
-    }*/
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

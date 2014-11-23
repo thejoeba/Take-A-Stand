@@ -39,8 +39,6 @@ import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
-import java.util.Arrays;
-
 
 public class MainActivity extends Activity {
 
@@ -53,18 +51,6 @@ public class MainActivity extends Activity {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
         //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
-        setUpLayout();
-        if(isNewUser()){
-            setUserDefaults();
-            setNotNewUser();
-            Log.i(TAG, "New User");
-        } else {
-            Log.i(TAG, "Not New User");
-        }
-    }
-
-    private void setUpLayout()
-    {
         setContentView(R.layout.activity_main);
     }
 
@@ -76,13 +62,6 @@ public class MainActivity extends Activity {
         mainMenu = menu;
         setVibrateText();
         return true;
-    }
-
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
     }
 
     @Override
@@ -102,7 +81,7 @@ public class MainActivity extends Activity {
                 break;
             case R.id.default_delay_length:
                 showNumberPickerDialog(Utils.getDefaultDelay(this), 1,
-                        (Utils.getDefaultFrequency(this) - 1),
+                        60,
                         "Select Default Delay Length", false);
                 break;
             case R.id.science:
@@ -113,7 +92,6 @@ public class MainActivity extends Activity {
                 vibrateOnSilent();
                 break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -247,33 +225,6 @@ public class MainActivity extends Activity {
         alertDialog.show();
     }
 
-    private boolean isNewUser(){
-        //This is used to identify a new user in order to set defaults
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        return sharedPreferences.getBoolean(Constants.NEW_USER, true);
-    }
-
-    private void setUserDefaults(){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        int[] alertType = new int[] {1, 1, 0};
-        editor.putString(Constants.USER_ALERT_TYPE, Utils.convertIntArrayToString(alertType));
-        editor.putInt(Constants.USER_FREQUENCY, 20);
-        editor.putInt(Constants.USER_DELAY, 5);
-        editor.putBoolean(Constants.VIBRATE_SILENT, false);
-        editor.commit();
-    }
-
-    private void setNotNewUser(){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Constants.NEW_USER, false);
-        editor.commit();
-    }
-
     private void vibrateOnSilent(){
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
@@ -293,6 +244,7 @@ public class MainActivity extends Activity {
             vibrateSilent.setTitle("Vibrate when Silent: OFF");
         }
     }
+
     public static void setDefaultAlertType(Context context, int[] alertType){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);

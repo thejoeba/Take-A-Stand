@@ -4,8 +4,6 @@ package com.sean.takeastand.storage;
  * https://github.com/dmitry-zaitsev/ExpandableAdapter
  * Created by Sean on 2014-10-17.
  */
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -20,6 +18,9 @@ import android.view.animation.Transformation;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExpandableAdapter implements ListAdapter {
 

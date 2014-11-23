@@ -21,7 +21,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -54,6 +53,11 @@ public class TimePickerFragment
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        //No call for super(). Bug on API Level > 11.
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle bundle)
     {
         Log.i(TAG, "onCreate");
@@ -76,7 +80,7 @@ public class TimePickerFragment
                     Utils.readMinutesFromString(endTime), DateFormat.is24HourFormat(getActivity()), "Select End Time");
             timePickerDialog.setTitle("Select End Time");
             return timePickerDialog;
-        } else if(mStartTime && mNewAlarm){
+        } else if(mStartTime){
             Calendar rightNow = Calendar.getInstance();
             String startTime = Utils.calendarToTimeString(rightNow);
             Log.i(TAG, startTime);
@@ -84,7 +88,7 @@ public class TimePickerFragment
                     Utils.readMinutesFromString(startTime), DateFormat.is24HourFormat(getActivity()), "Select Start Time");
             timePickerDialog.setTitle("Select Start Time");
             return timePickerDialog;
-        } else if(!mStartTime && mNewAlarm){
+        } else if(!mStartTime){
             Calendar rightNow = Calendar.getInstance();
             rightNow.add(Calendar.HOUR_OF_DAY, 3);
             String endTime = Utils.calendarToTimeString(rightNow);
