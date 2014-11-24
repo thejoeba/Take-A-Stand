@@ -21,38 +21,38 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.sean.takeastand.storage.AlarmSchedule;
-import com.sean.takeastand.storage.AlarmsDatabaseAdapter;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;
 
+/* When the user creates a new schedule, a system daily repeating alarm is set in Android’s
+AlarmManager class.  When the daily repeating alarm goes off, an intent is sent to this class which
+then starts the relevant alarm schedule.  */
+
 /**
  * Created by Sean on 2014-09-03.
- * AlarmSchedule Class
  */
 public class StartScheduleReceiver extends BroadcastReceiver
 {
-    
+
     private static final String TAG = "StartScheduleReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent)
     {
         Log.i(TAG, "StartScheduleReceiver has received an intent");
-        Toast.makeText(context, "StartReceiver is starting an alarm schedule", Toast.LENGTH_LONG);
-        ArrayList<AlarmSchedule> alarmSchedules =
-                new AlarmsDatabaseAdapter(context).getAlarmSchedules();
-        if(!alarmSchedules.isEmpty()){
-            AlarmSchedule todayAlarm = findIfAlarmToday(Utils.getTodayWeekday(),
-                    alarmSchedules, intent.getIntExtra(Constants.ALARM_UID, 0));
-            if(!(todayAlarm.getUID()==-100)){
+        ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
+                new ScheduleDatabaseAdapter(context).getFixedAlarmSchedules();
+        if(!fixedAlarmSchedules.isEmpty()){
+            FixedAlarmSchedule todayAlarm = Utils.findTodaysSchedule(fixedAlarmSchedules);
+            if(!(todayAlarm.getUID()== -100)){
                 if(todayAlarm.getActivated()){
-                    setFirstAlarm(context, todayAlarm);
-                    Utils.setCurrentMainActivityImage(context, Constants.SCHEDULE_RUNNING);
+                    new ScheduledRepeatingAlarm(context, todayAlarm).setRepeatingAlarm();
+                    Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
                 } else {
                     Log.i(TAG, "Today's alarm is not activated.");
                 }
@@ -64,75 +64,4 @@ public class StartScheduleReceiver extends BroadcastReceiver
                     " There should not be an alarm set in AlarmManager");
         }
     }
-
-    private void setFirstAlarm(Context context, AlarmSchedule alarmSchedule)
-    {
-        new ScheduledRepeatingAlarm(context, alarmSchedule).setRepeatingAlarm();
-    }
-
-    /*
-    If there is an alarmSchedule for today's weekday, return it. If not
-    return null.
-     */
-    private AlarmSchedule findIfAlarmToday(int day, ArrayList<AlarmSchedule> alarmSchedules, int UID){
-
-        switch(day){
-            case 1:
-                for(AlarmSchedule alarmSchedule : alarmSchedules){
-                    //If alarmSchedule i has an alarm for Sunday, get
-                    //this alarmSchedule to be used for today.
-                    if(alarmSchedule.getUID()==UID && alarmSchedule.getSunday()){
-                        return alarmSchedule;
-                    }
-                }
-                break;
-            case 2:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
-                    if (alarmSchedule.getUID()==UID && alarmSchedule.getMonday()) {
-                        return alarmSchedule;
-                    }
-                }
-                break;
-            case 3:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
-                    if (alarmSchedule.getUID()==UID && alarmSchedule.getTuesday()) {
-                        return alarmSchedule;
-                    }
-                }
-                break;
-            case 4:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
-                    if (alarmSchedule.getUID()==UID && alarmSchedule.getWednesday()) {
-                        return alarmSchedule;
-                    }
-                }
-                break;
-            case 5:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
-                    if (alarmSchedule.getUID()==UID && alarmSchedule.getThursday()) {
-                        return alarmSchedule;
-                    }
-                }
-                break;
-            case 6:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
-                    if (alarmSchedule.getUID()==UID && alarmSchedule.getFriday()) {
-                        return alarmSchedule;
-                    }
-                }
-                break;
-            case 7:
-                for(AlarmSchedule alarmSchedule : alarmSchedules) {
-                    if (alarmSchedule.getUID()==UID && alarmSchedule.getSaturday()) {
-                        return alarmSchedule;
-                    }
-                }
-                break;
-        }
-        //Return a dummy alarmSchedule with a UID of -100 which signals alarm was not found
-        return new AlarmSchedule(-100, false, "", null, null, 0, "", false,
-                false, false, false, false, false, false);
-
-    }
-
 }

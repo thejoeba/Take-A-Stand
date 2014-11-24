@@ -22,6 +22,11 @@ import android.os.Parcelable;
 
 import java.util.Calendar;
 
+/*“This class is used for storing alarm schedule data, modifying them through “set” methods, and
+returning the data via “get” methods.  In contrast to the FixedAlarmSchedule this one
+is modifiable so is only used within the storage classes, which often need to change the schedule.
+The Alarm process classes use the FixedAlarmSchedule which is immutable.   */
+
 /**
  * Created by Sean on 2014-10-03.
  */
@@ -29,7 +34,7 @@ public class AlarmSchedule implements Parcelable {
 
     private int UID;
     private boolean activated;
-    private String alertType;
+    private int[] alertType = {1, 1, 0};
     private Calendar startTime;
     private Calendar endTime;
     private int frequency;
@@ -42,9 +47,7 @@ public class AlarmSchedule implements Parcelable {
     private boolean friday;
     private boolean saturday;
 
-    //This constructor is the only way for the class variables to be initialized
-    //This class was intentionally restricted, so it could not be modified after creation
-    public AlarmSchedule(int UID, boolean activated, String alertType, Calendar startTime, Calendar endTime,
+    public AlarmSchedule(int UID, boolean activated, int[] alertType, Calendar startTime, Calendar endTime,
                          int frequency, String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday){
         this.UID = UID;
@@ -76,7 +79,9 @@ public class AlarmSchedule implements Parcelable {
         friday = arrayBooleans[6];
         saturday = arrayBooleans[7];
         UID = inParcel.readInt();
-        alertType = inParcel.readString();
+        alertType[0] = inParcel.readInt();
+        alertType[1] = inParcel.readInt();
+        alertType[2] = inParcel.readInt();
         title = inParcel.readString();
         startTime = Calendar.getInstance();
         startTime.setTimeInMillis(Long.decode(inParcel.readString()));
@@ -97,7 +102,9 @@ public class AlarmSchedule implements Parcelable {
                                     thursday, friday, saturday};
         outParcel.writeBooleanArray(arrayBooleans);
         outParcel.writeInt(UID);
-        outParcel.writeString(alertType);
+        outParcel.writeInt(alertType[0]);
+        outParcel.writeInt(alertType[1]);
+        outParcel.writeInt(alertType[2]);
         outParcel.writeString(title);
         outParcel.writeString(Long.toString(startTime.getTimeInMillis()));
         outParcel.writeString(Long.toString(endTime.getTimeInMillis()));
@@ -125,7 +132,7 @@ public class AlarmSchedule implements Parcelable {
         return activated;
     }
 
-    public String getAlertType(){
+    public int[] getAlertType(){
         return alertType;
     }
 
@@ -170,5 +177,31 @@ public class AlarmSchedule implements Parcelable {
     public boolean getSaturday(){
         return saturday;
     }
+
+    public void setActivated(boolean activated) {this.activated = activated; }
+
+    public void setAlertType(int[] alertType) {this.alertType = alertType; }
+
+    public void setStartTime(Calendar startTime) {this.startTime = startTime; }
+
+    public void setEndTime(Calendar endTime) {this.endTime = endTime; }
+
+    public void setFrequency(int frequency) {this.frequency = frequency;}
+
+    public void setTitle(String title) {this.title = title;}
+
+    public void setSunday(boolean sunday) {this.sunday = sunday; }
+
+    public void setMonday(boolean monday) {this.monday = monday;}
+
+    public void setTuesday(boolean tuesday) {this.tuesday = tuesday;}
+
+    public void setWednesday(boolean wednesday) {this.wednesday = wednesday;}
+
+    public void setThursday(boolean thursday) {this.thursday = thursday;}
+
+    public void setFriday(boolean friday) {this.friday = friday;}
+
+    public void setSaturday(boolean saturday) {this.saturday = saturday;}
 
 }

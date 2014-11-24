@@ -20,13 +20,28 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.SystemClock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sean.takeastand.storage.AlarmSchedule;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+
+/* This class is responsible for setting the next repeating alarm for alarm schedules.  It
+does this by setting an inexact alarm in the future based on the user defined time period
+(“the frequency” in the alarm schedule) and uses the Android System’s AlarmManager class to do so.
+This class is also responsible for setting the delay alarm, when it is time to stand up and
+the user is not quite ready to stand up; for implementing the “break” element, for
+users who need to stop receiving stand up notifications for a certain amount of time; and
+for the canceling of the alarm, which is used at different points throughout the app.
+Before setting an alarm, it checks to see if the next alarm would be past the schedules end time.*/
 
 /**
  * Created by Sean on 2014-10-11.
@@ -35,56 +50,60 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     private static final String TAG = "ScheduledRepeatingAlarm";
     private Context mContext;
-    private AlarmSchedule mCurrentAlarmSchedule;
+    private FixedAlarmSchedule mCurrentAlarmSchedule;
     private static final int REPEATING_ALARM_ID = 987654321;
-    /*
-    Once done testing, convert all doubles to longs
-     */
 
-    //For scheduled alarms use this constructor
-    public ScheduledRepeatingAlarm(Context context, AlarmSchedule alarmSchedule)
+    public ScheduledRepeatingAlarm(Context context, FixedAlarmSchedule alarmSchedule)
     {
         mContext = context;
         mCurrentAlarmSchedule = alarmSchedule;
     }
 
+    /*
+       Once done testing, convert all doubles to longs
+        */
     @Override
     public void setRepeatingAlarm() {
-        //In future will check mAlarmSchedule.alarmType() and set alarm accordingly
-        double alarmPeriodMinutes = .5;  //In future will check mAlarmSchedule.getFrequency() and set
+        double alarmPeriodMinutes = mCurrentAlarmSchedule.getFrequency();
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
                 Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " + SystemClock.elapsedRealtime());
-        setAlarm(triggerTime);
-        //The purpose of this is to have a way of keeping track of which scheduled alarm is running
-        //It helps when cancelling a deleted alarm
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
+        Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
+        setNextAlarmTimeMillis(nextAlarmTime);
+        if(mCurrentAlarmSchedule.getUID() != Utils.getRunningScheduledAlarm(mContext)){
+            //Expensive to constantly access database and use for statement, only do if necessary
+            setScheduleTitle();
+        }
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
-        updateStatusImage();
-        Log.i(TAG, "New Scheduled Repeating Alarm Set");
-        Toast.makeText(mContext, "Set New Alarm", Toast.LENGTH_LONG).show();
+        setAlarm(triggerTime);
+        Log.i(TAG, "Alarm set");
+    }
+
+    public void updateAlarm() {
+        cancelAlarm();
+        long alarmTimeInMillis = getNextAlarmTimeMillis();
+        if(alarmTimeInMillis != -1){
+            Calendar alarmTime = Calendar.getInstance();
+            alarmTime.setTimeInMillis(alarmTimeInMillis);
+            Utils.setNextAlarmTimeString(alarmTime, mContext);
+            Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
+            setAlarm(alarmTimeInMillis);
+        } else {
+            setRepeatingAlarm();
+        }
     }
 
     @Override
-    public void setShortBreakAlarm() {
-        long alarmTimeInMillis = 1 * Constants.secondsInMinute  * Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
-                SystemClock.elapsedRealtime());
+    public void delayAlarm() {
+        long delayTime = Utils.getDefaultDelay(mContext);
+        long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
+        long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
+        Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
-        Log.i(TAG, "Short Break Alarm set");
-        Toast.makeText(mContext, "Set Short Break Alarm", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void setLongBreakAlarm() {
-        long alarmTimeInMillis = 1 * Constants.secondsInMinute * Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
-        Log.i(TAG, "alarm time: " + triggerTime + "  current time: " +
-                SystemClock.elapsedRealtime());
-        setAlarm(triggerTime);
-        Log.i(TAG, "Long Break Alarm set");
-        Toast.makeText(mContext, "Set Long Break Alarm", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -93,28 +112,83 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
+        endAlarmService();
         Log.i(TAG, "Alarm canceled");
-        Toast.makeText(mContext, "Alarm Canceled", Toast.LENGTH_LONG).show();
-        Utils.setCurrentMainActivityImage(mContext, Constants.NO_ALARM_RUNNING);
+        Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
+        Utils.setRunningScheduledAlarm(mContext, -1);
+    }
+
+    @Override
+    public void takeBreak() {
+
     }
 
     private void setAlarm(long triggerTime){
-        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
-        AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
-        am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MINUTE, mCurrentAlarmSchedule.getFrequency());
+        if((mCurrentAlarmSchedule.getEndTime()).before(nextAlarmTime)){
+            Utils.setRunningScheduledAlarm(mContext, -1);
+            Log.i(TAG, "Alarm day is over.");
+            Toast.makeText(mContext, "Scheduled reminders over", Toast.LENGTH_LONG).show();
+            Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
+            endAlarmService();
+            cancelAlarm();
+        } else {
+            PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
+            AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
+            am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
+            Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
+        }
     }
 
-    private PendingIntent createPendingIntent(Context context, AlarmSchedule alarmSchedule){
+    private PendingIntent createPendingIntent(Context context, FixedAlarmSchedule alarmSchedule){
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra(Constants.ALARM_SCHEDULE, alarmSchedule);
         return PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    private void updateStatusImage(){
-        if(Utils.getCurrentImageStatus(mContext) == Constants.NO_ALARM_RUNNING ||
-                Utils.getCurrentImageStatus(mContext) == Constants.NON_SCHEDULE_ALARM_RUNNING){
-            Utils.setCurrentMainActivityImage(mContext, Constants.SCHEDULE_RUNNING);
+    private void endAlarmService(){
+        Intent intent = new Intent(Constants.END_ALARM_SERVICE);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+
+    private void setNextAlarmTimeMillis(Calendar calendar){
+        long nextAlarmTime = calendar.getTimeInMillis();
+        SharedPreferences sharedPreferences =
+                mContext.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(Constants.NEXT_ALARM_TIME_MILLIS, nextAlarmTime);
+        editor.commit();
+    }
+
+    private long getNextAlarmTimeMillis(){
+        SharedPreferences sharedPreferences =
+                mContext.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getLong(Constants.NEXT_ALARM_TIME_MILLIS, -1);
+    }
+
+    private void setScheduleTitle(){
+        String title = mCurrentAlarmSchedule.getTitle();
+        if(title.equals("")){
+            ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
+                    new ScheduleDatabaseAdapter(mContext).getFixedAlarmSchedules();
+            int schedulePosition =  1;
+            for (int i = 0; i < fixedAlarmSchedules.size(); i++)
+            {
+                if (mCurrentAlarmSchedule.getUID() == fixedAlarmSchedules.get(i).getUID())
+                {
+                    schedulePosition += fixedAlarmSchedules.indexOf(fixedAlarmSchedules.get(i));
+                }
+            }
+            title = "Schedule " + schedulePosition;
+            Log.i(TAG, title);
         }
+        Log.i(TAG, title);
+        SharedPreferences sharedPreferences =
+                mContext.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.CURRENT_SCHEDULED_ALARM_TITLE, title);
+        editor.commit();
     }
 }

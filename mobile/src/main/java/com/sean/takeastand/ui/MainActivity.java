@@ -17,44 +17,51 @@
 package com.sean.takeastand.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.NumberPicker;
 
 import com.sean.takeastand.R;
+import com.sean.takeastand.util.Constants;
+import com.sean.takeastand.util.Utils;
 
 
 public class MainActivity extends Activity {
 
-    //private static final String TAG = "MainActivity";
-
+    private static final String TAG = "MainActivity";
+    private Menu mainMenu;
 
     @Override
     protected void onCreate(Bundle paramBundle)
     {
         super.onCreate(paramBundle);
-        setLayout();
-    }
-
-    private void setLayout()
-    {
+        //deleteDatabase("alarms_database");
+        //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
         setContentView(R.layout.activity_main);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
+        mainMenu = menu;
+        setVibrateText();
+        return true;
     }
 
     @Override
@@ -62,25 +69,203 @@ public class MainActivity extends Activity {
     {
         switch(item.getItemId()){
             case R.id.schedules:
-                Intent intent = new Intent(this, SchedulesListActivity.class);
+                Intent intent = new Intent(this, ScheduleListActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.default_frequency:
+                showNumberPickerDialog(Utils.getDefaultFrequency(this), 2 , 100,
+                        "Select Default Frequency", true);
+                break;
+            case R.id.default_alert_type:
+                showAlertTypePicker();
+                break;
+            case R.id.default_delay_length:
+                showNumberPickerDialog(Utils.getDefaultDelay(this), 1,
+                        60,
+                        "Select Default Delay Length", false);
+                break;
+            case R.id.science:
+                Intent intentScience = new Intent(this, ScienceActivity.class);
+                startActivity(intentScience);
+                break;
+            case R.id.vibrateOnSilent:
+                vibrateOnSilent();
+                break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-
-
     @Override
-    protected void onPause()
-    {
-        super.onPause();
+    protected void onStop() {
+        Intent intent = new Intent("VisibilityStatus");
+        intent.putExtra("Visible", false);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        super.onStop();
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onPause() {
+        super.onPause();
+        unregisterReceivers();
+    }
+
+    @Override
+    protected void onResume() {
+        registerReceivers();
+        Intent intent = new Intent("VisibilityStatus");
+        intent.putExtra("Visible", true);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         super.onResume();
+    }
+
+    private void registerReceivers(){
+        LocalBroadcastManager.getInstance(this).registerReceiver(visibilityReceiver,
+                new IntentFilter("Visible"));
+    }
+
+    private void unregisterReceivers(){
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(visibilityReceiver);
+    }
+
+    private BroadcastReceiver visibilityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent newIntent = new Intent("VisibilityStatus");
+            newIntent.putExtra("Visible", true);
+            LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(newIntent);
+        }
+    };
+
+    //Must be class-level to access within onClick
+    NumberPicker numberPicker;
+
+    private void showNumberPickerDialog(int startingValue, int min, int max, String title,
+                                        final boolean frequency)
+    {
+        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
+        builder.setView(dialogView);
+        numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
+        numberPicker.setMaxValue(max);
+        numberPicker.setMinValue(min);
+        numberPicker.setValue(startingValue);
+        numberPicker.setWrapSelectorWheel(false);
+        builder.setMessage(title);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(frequency){
+                    setDefaultFrequency(MainActivity.this, numberPicker.getValue());
+                } else {
+                    setDefaultDelay(MainActivity.this, numberPicker.getValue());
+                }
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, "Cancel");
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    View dialogView;
+    private void showAlertTypePicker(){
+        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        dialogView = inflater.inflate(R.layout.dialog_alert_type, null);
+        int[] currentNotification = Utils.getDefaultAlertType(this);
+        CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
+        LED.setChecked(Utils.convertIntToBoolean(currentNotification[0]));
+        CheckBox vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
+        vibrate.setChecked(Utils.convertIntToBoolean(currentNotification[1]));
+        CheckBox sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
+        sound.setChecked(Utils.convertIntToBoolean(currentNotification[2]));
+        builder.setView(dialogView);
+        builder.setMessage("Set Default Notification Types");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                int[] notificationTypes = new int[3];
+                CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
+                CheckBox Vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
+                CheckBox Sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
+                if(LED.isChecked()){
+                    notificationTypes[0] = 1;
+                } else {
+                    notificationTypes[0] = 0;
+                }
+                if(Vibrate.isChecked()){
+                    notificationTypes[1] = 1;
+                } else {
+                    notificationTypes[1] = 0;
+                }
+                if(Sound.isChecked()){
+                    notificationTypes[2] = 1;
+                } else {
+                    notificationTypes[2] = 0;
+                }
+                setDefaultAlertType(MainActivity.this, notificationTypes);
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, "Cancel");
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void vibrateOnSilent(){
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        boolean vibrate = !(sharedPreferences.getBoolean(Constants.VIBRATE_SILENT, true));
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constants.VIBRATE_SILENT, vibrate);
+        editor.commit();
+        setVibrateText();
+    }
+
+    private void setVibrateText(){
+        MenuItem vibrateSilent = mainMenu.findItem(R.id.vibrateOnSilent);
+        boolean vibrate = Utils.getVibrateOverride(this);
+        if(vibrate){
+            vibrateSilent.setTitle("Vibrate when Silent: ON");
+        } else {
+            vibrateSilent.setTitle("Vibrate when Silent: OFF");
+        }
+    }
+
+    public static void setDefaultAlertType(Context context, int[] alertType){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.USER_ALERT_TYPE, Utils.convertIntArrayToString(alertType));
+        editor.commit();
+    }
+
+    public static void setDefaultFrequency(Context context, int frequency){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.USER_FREQUENCY, frequency);
+        editor.commit();
+    }
+
+    public static void setDefaultDelay(Context context, int delay){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.USER_DELAY, delay);
+        editor.commit();
     }
 }

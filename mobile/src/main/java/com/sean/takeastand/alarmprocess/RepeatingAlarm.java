@@ -22,16 +22,14 @@ package com.sean.takeastand.alarmprocess;
 
 public interface RepeatingAlarm
 {
-    /*
-    This class in the future should be divided into scheduledRepeatingAlarmController and
-    unscheduledRepeatingAlarmController
-     */
+    /* This interface sets the required methods for the ScheduledRepeatingAlarm class and
+    UnscheduledRepeatingAlarm class, which both implement this interface.  */
     public void setRepeatingAlarm();
 
-    public void setShortBreakAlarm();
-
-    public void setLongBreakAlarm();
+    public void delayAlarm();
 
     public void cancelAlarm();
+
+    public void takeBreak();
 
 }
