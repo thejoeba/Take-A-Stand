@@ -152,7 +152,7 @@ public class ImageStatusFragment
                 if(getCurrentTitle().equals("")){
                     txtTap.setText("Schedule Running");
                 } else {
-                    txtTap.setText(getCurrentTitle() + " Running");
+                    txtTap.setText(getCurrentTitle());
                 }
                 mCurrentText = "Schedule Running";
                 break;
@@ -230,7 +230,7 @@ public class ImageStatusFragment
                 if(getCurrentTitle().equals("")){
                     txtTap.setCurrentText("Schedule Running");
                 } else {
-                    txtTap.setCurrentText(getCurrentTitle() + " Running");
+                    txtTap.setCurrentText(getCurrentTitle());
                 }
                 mCurrentText = "Schedule Running";
                 break;

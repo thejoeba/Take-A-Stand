@@ -74,7 +74,8 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         setNextAlarmTimeMillis(nextAlarmTime);
         if(mCurrentAlarmSchedule.getUID() != Utils.getRunningScheduledAlarm(mContext)){
             //Expensive to constantly access database and use for statement, only do if necessary
-            setScheduleTitle();
+            Utils.setScheduleTitle(mCurrentAlarmSchedule.getTitle(), mContext,
+                    mCurrentAlarmSchedule.getUID());
         }
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
         setAlarm(triggerTime);
@@ -113,7 +114,6 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         endAlarmService();
-        Log.i(TAG, "Alarm canceled");
         Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
         Utils.setRunningScheduledAlarm(mContext, -1);
     }
@@ -168,27 +168,4 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         return sharedPreferences.getLong(Constants.NEXT_ALARM_TIME_MILLIS, -1);
     }
 
-    private void setScheduleTitle(){
-        String title = mCurrentAlarmSchedule.getTitle();
-        if(title.equals("")){
-            ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
-                    new ScheduleDatabaseAdapter(mContext).getFixedAlarmSchedules();
-            int schedulePosition =  1;
-            for (int i = 0; i < fixedAlarmSchedules.size(); i++)
-            {
-                if (mCurrentAlarmSchedule.getUID() == fixedAlarmSchedules.get(i).getUID())
-                {
-                    schedulePosition += fixedAlarmSchedules.indexOf(fixedAlarmSchedules.get(i));
-                }
-            }
-            title = "Schedule " + schedulePosition;
-            Log.i(TAG, title);
-        }
-        Log.i(TAG, title);
-        SharedPreferences sharedPreferences =
-                mContext.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.CURRENT_SCHEDULED_ALARM_TITLE, title);
-        editor.commit();
-    }
 }

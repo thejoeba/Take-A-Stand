@@ -32,9 +32,11 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.sean.takeastand.R;
@@ -269,21 +271,16 @@ public class AlarmService extends Service  {
         NotificationManager notificationManager = (NotificationManager)this.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         PendingIntent[] pendingIntents = makeNotificationIntents();
-        Bitmap largeIcon = BitmapFactory.decodeResource(this.getResources(),
-                R.drawable.ic_notification);
+        RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
+        rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
+        rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
         Notification.Builder alarmNotificationBuilder =  new Notification.Builder(this);
+        alarmNotificationBuilder.setContent(rvRibbon);
         alarmNotificationBuilder
-                .setContentTitle("Take A Stand")
-                .setStyle(new Notification.InboxStyle()
-                        .addLine("Time to Stand Up"))
-                .setContentText("Time to stand up")
                 .setContentIntent(pendingIntents[0])
-                .setLargeIcon(largeIcon)
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
-                .addAction(R.drawable.ic_action_time, "Delay", pendingIntents[2])
                 .setTicker("Time to stand up");
 
         //Purpose of below is to figure out what type of user alert to give with the notification
@@ -336,24 +333,19 @@ public class AlarmService extends Service  {
         NotificationManager notificationManager = (NotificationManager)this.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         PendingIntent[] pendingIntents = makeNotificationIntents();
-        Bitmap largeIcon = BitmapFactory.decodeResource(this.getResources(),
-                R.drawable.ic_notification);
-
+        RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
+        rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
+        rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
+        rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
+                setMinutes(mNotifTimePassed));
+        rvRibbon.setTextViewText(R.id.topTextView, "Time to Stand Up");
         Notification.Builder alarmNotificationBuilder =  new Notification.Builder(this);
+        alarmNotificationBuilder.setContent(rvRibbon);
         alarmNotificationBuilder
-                .setContentTitle("Take A Stand")
-                .setStyle(new Notification.InboxStyle()
-                        .addLine("Time to stand up: " + mNotifTimePassed +
-                                setMinutes(mNotifTimePassed)))
-                .setContentText("Time to stand up: " + mNotifTimePassed +
-                        setMinutes(mNotifTimePassed))
                 .setContentIntent(pendingIntents[0])
-                .setLargeIcon(largeIcon)
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .addAction(R.drawable.ic_action_done, "Stood", pendingIntents[1])
-                .addAction(R.drawable.ic_action_time, "Delay", pendingIntents[2])
                 .setTicker("Time to stand up");
         if(mCurrentAlarmSchedule != null){
             int[] alertType = mCurrentAlarmSchedule.getAlertType();
@@ -434,7 +426,6 @@ public class AlarmService extends Service  {
         NotificationManager notificationManager = (NotificationManager)this.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(R.integer.AlarmNotificationID);
-
     }
 
 

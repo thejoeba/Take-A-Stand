@@ -120,8 +120,6 @@ public class ScheduleListActivity extends ListActivity {
                 new IntentFilter("TitleChange"));
         LocalBroadcastManager.getInstance(this).registerReceiver(timePickerResponseReceiver,
                 new IntentFilter("TimePicker"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(numberPickerReceiver,
-                new IntentFilter("NumberPicker"));
         LocalBroadcastManager.getInstance(this).registerReceiver(showTimePickerReceiver,
                 new IntentFilter("ShowTimePicker"));
     }
@@ -202,14 +200,6 @@ public class ScheduleListActivity extends ListActivity {
                 mHandler.postDelayed(updateStatusPicker, 290);
             }
 
-        }
-    };
-
-    private BroadcastReceiver numberPickerReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            scheduleListAdapter.updateFrequency(intent.getIntExtra("NewFrequency", -1),
-                    intent.getIntExtra("Position", -1));
         }
     };
 

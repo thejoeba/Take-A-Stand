@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -306,7 +307,7 @@ public final class Utils {
     public static int[] getDefaultAlertType(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        String alertType = sharedPreferences.getString(Constants.USER_ALERT_TYPE, "1-1-0");
+        String alertType = sharedPreferences.getString(Constants.USER_ALERT_TYPE, "1-1-0-");
         Log.i(TAG, alertType);
         return convertStringToIntArray(alertType);
     }
@@ -419,7 +420,27 @@ public final class Utils {
 
     }
 
-
+    //Called by ScheduledRepeatingAlarm and ScheduleListAdapter
+    public static void setScheduleTitle(String title, Context context, int UID){
+        if(title.equals("")){
+            ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
+                    new ScheduleDatabaseAdapter(context).getFixedAlarmSchedules();
+            int schedulePosition =  1;
+            for (int i = 0; i < fixedAlarmSchedules.size(); i++)
+            {
+                if (UID == fixedAlarmSchedules.get(i).getUID())
+                {
+                    schedulePosition += fixedAlarmSchedules.indexOf(fixedAlarmSchedules.get(i));
+                }
+            }
+            title = "Schedule " + schedulePosition;
+        }
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.CURRENT_SCHEDULED_ALARM_TITLE, title);
+        editor.commit();
+    }
 
 
     private static Calendar setCalendarTime(Calendar calendar, int hour, int minute){
