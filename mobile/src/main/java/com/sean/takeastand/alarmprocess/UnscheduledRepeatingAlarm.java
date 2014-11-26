@@ -87,7 +87,6 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         endAlarmService();
-        Log.i(TAG, "Alarm canceled");
         Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
     }
 

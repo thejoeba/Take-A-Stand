@@ -410,12 +410,18 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                selectedFrequencyValue = (TextView)selectedFrequencyView.findViewById(R.id.txtFrequencyValue);
-                selectedFrequencyValue.setText(String.valueOf(numberPicker.getValue()));
-                Intent intent = new Intent("NumberPicker");
-                intent.putExtra("NewFrequency", numberPicker.getValue());
-                intent.putExtra("Position", (Integer) selectedFrequencyView.getTag());
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+                //selectedFrequencyValue = (TextView)selectedFrequencyView.findViewById(R.id.txtFrequencyValue);
+                //selectedFrequencyValue.setText(String.valueOf(numberPicker.getValue()));
+                int position = (Integer)selectedFrequencyView.getTag();
+                AlarmSchedule newFrequencySchedule = mAlarmSchedules.get(position);
+                newFrequencySchedule.setFrequency(numberPicker.getValue());
+                mAlarmSchedules.remove(position);
+                mAlarmSchedules.add(position, newFrequencySchedule);
+                notifyDataSetChanged();
+                AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
+                newAlarmSchedule.setFrequency(numberPicker.getValue());
+                ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+                scheduleEditor.editFrequency(newAlarmSchedule);
                 dialogInterface.dismiss();
             }
         });
@@ -432,53 +438,42 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
 
     //This method is called by SchedulesListActivity after showTitleDialog is called here
     public void updateTitle(String newTitle, int position){
-        selectedTitle.setText(newTitle);
         ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
         scheduleEditor.editTitle(mAlarmSchedules.get(position).getUID(), newTitle);
+        AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
+        newAlarmSchedule.setTitle(newTitle);
+        mAlarmSchedules.remove(position);
+        mAlarmSchedules.add(position, newAlarmSchedule);
+        Utils.setScheduleTitle(newTitle, mContext, newAlarmSchedule.getUID());
+        notifyDataSetChanged();
+
     }
 
     //This method is called by SchedulesListActivity after showTimePickerDialog is called here
     public void updateStartEndTime(String newStartTime, int position) {
-        Log.i(TAG, newStartTime + " " + position);
-        String formattedStartEndTime = Utils.getFormattedTimeString(newStartTime, mContext);
-        txtTimeSelected.setText(newStartTime);
-        saveStartEndTime(newStartTime, position);
-        notifyDataSetChanged();
+        ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+        AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
+        if (mStartEndButtonSelected)
+        {
+            Calendar startTime = Utils.convertToCalendarTime(newStartTime);
+            newAlarmSchedule.setStartTime(startTime);
+            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
+            scheduleEditor.editStartTime(todayActivated, newAlarmSchedule);
+            mAlarmSchedules.remove(position);
+            mAlarmSchedules.add(position, newAlarmSchedule);
+        } else {
+            Calendar endTime = Utils.convertToCalendarTime(newStartTime);
+            newAlarmSchedule.setEndTime(endTime);
+            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
+            scheduleEditor.editEndTime(todayActivated, newAlarmSchedule);
+            mAlarmSchedules.remove(position);
+            mAlarmSchedules.add(position, newAlarmSchedule);
+        }
     }
 
     public void newSchedule(String startTime, String endTime){
             createNewSchedule(startTime, endTime);
 
-    }
-
-    //This method is called by SchedulesListActivity after showNumberPickerDialog is called here
-    public void updateFrequency(int frequency, int position){
-        Log.i(TAG, "New frequency: " + frequency + " Position: " + position);
-        AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
-        newAlarmSchedule.setFrequency(frequency);
-        ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
-        scheduleEditor.editFrequency(newAlarmSchedule);
-    }
-    //Use the below method in onTimeSelected
-    private void saveStartEndTime(String time, int position)
-    {
-        ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
-        AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
-        if (mStartEndButtonSelected)
-        {
-            txtStartTimeValue.setText(time);
-            Calendar startTime = Utils.convertToCalendarTime(time);
-            newAlarmSchedule.setStartTime(startTime);
-            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
-            scheduleEditor.editStartTime(todayActivated, newAlarmSchedule);
-            Log.i(TAG, "start time");
-        } else {
-            txtEndTimeValue.setText(time);
-            Calendar endTime = Utils.convertToCalendarTime(time);
-            newAlarmSchedule.setEndTime(endTime);
-            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
-            scheduleEditor.editEndTime(todayActivated, newAlarmSchedule);
-        }
     }
 
     private void setAvailableCheckboxes(AlarmSchedule alarmSchedule, int position){

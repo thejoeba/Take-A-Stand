@@ -25,4 +25,6 @@
     <string name="news4"><a href="http://www.businessweek.com/magazine/content/10_19/b4177071221162.htm">Businessweek </a></string>
     <string name="news5"><a href= "http://www.nytimes.com/2011/04/17/magazine/mag-17sitting-t.html?_r=0">New York Times</a></string>
     <string name="news6"><a href = "http://www.nbcnews.com/id/39523298/ns/health-ments_health/#.VFWu-PmG9V1">NBC News</a></string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_closed">Closed</string>
 </resources>

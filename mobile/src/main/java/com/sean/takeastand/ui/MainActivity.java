@@ -25,15 +25,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.NumberPicker;
 
 import com.heckbot.standdetector.StandDtectorTM;
@@ -41,11 +47,16 @@ import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
+import java.lang.reflect.Array;
+
 
 public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
     private Menu mainMenu;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle paramBundle)
@@ -53,7 +64,38 @@ public class MainActivity extends Activity {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
         //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
+        String[] sample_menu = {"About App", "Default Settings", "Science Behind App"};
         setContentView(R.layout.activity_main);
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_closed) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                getActionBar().setTitle("Take A Stand");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getActionBar().setTitle("Settings");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerList = (ListView)findViewById(R.id.left_drawer);
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, sample_menu));
+        //mDrawerList.setOnItemClickListener();
+
+        //Navigation Drawer icon won't display without this
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        //Styling
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
     }
 
     @Override
@@ -70,6 +112,9 @@ public class MainActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
         switch(item.getItemId()){
             case R.id.schedules:
                 Intent intent = new Intent(this, ScheduleListActivity.class);
@@ -170,6 +215,27 @@ public class MainActivity extends Activity {
         intent.putExtra("Visible", true);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         super.onResume();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        menu.findItem(R.id.schedules).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 
     private void registerReceivers(){
