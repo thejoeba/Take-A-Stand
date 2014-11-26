@@ -30,4 +30,12 @@
         android1:orderInCategory="6"
         android:showAsAction="never"
         />
+    <item android1:id="@+id/calibrate"
+        android1:title="Calibrate StandDtector™"
+        android1:orderInCategory="7"
+        android:showAsAction="never" />
+    <item android1:id="@+id/toggle_standdetector"
+        android1:title=""
+        android1:orderInCategory="8"
+        android:showAsAction="never" />
 </menu>

@@ -29,6 +29,7 @@ import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
@@ -37,6 +38,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.heckbot.standdetector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.ui.MainActivity;
@@ -101,7 +103,8 @@ public class AlarmService extends Service  {
 
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
-                new IntentFilter("StoodUp"));
+//                new IntentFilter("StoodUp"));
+                new IntentFilter("STOOD_RESULTS"));
         getApplicationContext().registerReceiver(delayAlarmReceiver,
                 new IntentFilter("DelayAlarm"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
@@ -137,6 +140,20 @@ public class AlarmService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
+            String action = intent.getAction();
+            Bundle extras = intent.getExtras();
+            if (action.equals("STOOD_RESULTS") && extras != null) {
+                String result = extras.getString("RESULT");
+                if (result.equals("STAND_DETECTED")) {
+                    Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
+                    long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
+                    v.vibrate(pattern, -1);
+                }
+                // else expired or not in pocket
+                else {
+                    return;
+                }
+            }
             cancelNotification();
             showPraise();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
@@ -328,6 +345,20 @@ public class AlarmService extends Service  {
         }
         Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
+
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STAND_DETECTOR, false))
+        {
+            Intent standSensorIntent = new Intent(this, StandDtectorTM.class);
+            standSensorIntent.putExtra("ACTION", "START");
+            standSensorIntent.putExtra("MILLISECONDS",(long) 60000);
+
+//            Intent returnIntent = new Intent(this, com.heckbot.standdetector.MyBroadcastReceiver.class);
+//            returnIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
+            standSensorIntent.putExtra("pendingIntent", pendingIntents[1]);
+
+            startService(standSensorIntent);
+        }
     }
 
     private void updateNotification(){
@@ -410,7 +441,8 @@ public class AlarmService extends Service  {
         stackBuilder.addNextIntent(launchActivityIntent);
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(this, 0,
                 launchActivityIntent, 0);
-        Intent stoodUpIntent = new Intent("StoodUp");
+//        Intent stoodUpIntent = new Intent("StoodUp");
+        Intent stoodUpIntent = new Intent("STOOD_RESULTS");
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
         Intent delayAlarmIntent = new Intent("DelayAlarm");

@@ -286,6 +286,7 @@ public final class Utils {
 
     //Used by ScheduleDatabaseAdapter and locally within Utils
     public static int[] convertStringToIntArray(String string){
+        Log.d(TAG,"array size: " + string.length());
         if(string.length()==6){
             int[] intArray = new int[3];
             int arrayIndex = 0;
@@ -306,7 +307,7 @@ public final class Utils {
     public static int[] getDefaultAlertType(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        String alertType = sharedPreferences.getString(Constants.USER_ALERT_TYPE, "1-1-0");
+        String alertType = sharedPreferences.getString(Constants.USER_ALERT_TYPE, "1-1-0-");
         Log.i(TAG, alertType);
         return convertStringToIntArray(alertType);
     }

@@ -32,6 +32,8 @@
             </intent-filter>
         </receiver>
         <service android:name=".alarmprocess.AlarmService"></service>
+        <service android:name="com.heckbot.standdetector.StandDtectorTM" />
+        <receiver android:name="com.heckbot.standdetector.MyBroadcastReceiver" />
     </application>
 
 </manifest>

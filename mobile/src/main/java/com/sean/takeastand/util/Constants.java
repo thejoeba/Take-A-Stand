@@ -52,4 +52,5 @@ public final class Constants {
     public static final String USER_DELAY = "UserDelay";
     public static final String VIBRATE_SILENT = "VibrateOnSilent";
     public static final String END_ALARM_SERVICE = "EndAlarmService";
+    public static final String STAND_DETECTOR = "StandDetector";
 }
