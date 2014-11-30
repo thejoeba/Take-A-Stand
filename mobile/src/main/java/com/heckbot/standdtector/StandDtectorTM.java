@@ -1,4 +1,4 @@
-package com.heckbot.standdetector;
+package com.heckbot.standdtector;
 
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -10,6 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.text.format.Time;
 import android.util.Log;
@@ -21,6 +22,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     private SensorManager mSensorManager;
     private Sensor mRotationSensor;
     private Sensor mLightSensor;
+    private Sensor mStepCounterSensor;
     private List<Float> RotXList;
     private List<Float> RotYList;
     private List<Float> RotZList;
@@ -72,7 +74,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     Intent returnIntent;
 
     public StandDtectorTM() {
-        super("StandSensor");
+        super("StandDtectorTM");
     }
 
     @Override
@@ -80,27 +82,44 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
         Bundle extras = intent.getExtras();
         if (extras != null) {
             sharedPref = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
-            String action = extras.getString("ACTION");
+            String action = intent.getAction();
             Log.d("Intent", action);
-            InitializeSensors();
             pendingIntent = intent.getParcelableExtra("pendingIntent");
             returnIntent = new Intent();
-            if (action.equals("CALIBRATE")) {
-                CalibrateSensor();
+            mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+            if (action.equals("LastStep")) {
+                if (getPackageManager().hasSystemFeature(getPackageManager().FEATURE_SENSOR_STEP_COUNTER)){
+                    Log.d("Step_Counter","Step Counter Available");
+                    mStepCounterSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+                    mSensorManager.registerListener(this, mStepCounterSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                }
+                else {
+                    Log.d("Step_Counter","No Step Counter Available");
+                    returnIntent.putExtra("Step_Hardware", false);
+                    try {
+                        pendingIntent.send(this, 0 , returnIntent);
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-            else if (action.equals("START")){
-                StartSensor(extras.getLong("MILLISECONDS", 0));
-            }
-            else if (action.equals("STOP")){
-                StopSensor();
-                return;
+            else {
+                InitializeStandSensors();
+                if (action.equals("CALIBRATE")) {
+                    CalibrateSensor();
+                } else if (action.equals("START")) {
+                    StartSensor(extras.getLong("MILLISECONDS", 0));
+                } else if (action.equals("STOP")) {
+                    StopSensor();
+                    return;
+                }
             }
         }
     }
 
-    private void InitializeSensors() {
+    private void InitializeStandSensors() {
         vibration = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) != null){
             mRotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
             SensorMethod = "Geomagnetic Rotation Sensor";
@@ -120,13 +139,42 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        long lUptime = SystemClock.uptimeMillis();
         Time tNow = new Time();
         tNow.set(System.currentTimeMillis());
-        if (Time.compare(tSensorEnd,tNow) < 0) {
+        if (event.sensor == mStepCounterSensor) {
+            StopSensor();
+            long timestamp = event.timestamp / 1000000L;
+            //determine if timestamp is erroneously reporting uptime
+            if ((lUptime - 2) <= timestamp && timestamp <= lUptime){
+                Log.d("Step_Counter","No Timestamp Available");
+                returnIntent.putExtra("Step_Hardware", false);
+                try {
+                    pendingIntent.send(this, 0 , returnIntent);
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+            //determine time(ms) since last step
+            if (timestamp > 86400000) {
+                timestamp = (System.currentTimeMillis() - timestamp);
+            }
+            Log.d("SensorEvent", "Last Step: " + (timestamp / 1000) + " seconds ago");
+            returnIntent.setAction("LastStep");
+            returnIntent.putExtra("Step_Hardware", true);
+            returnIntent.putExtra("Last_Step", timestamp);
+            try {
+                pendingIntent.send(this, 0 , returnIntent);
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (Time.compare(tSensorEnd,tNow) < 0) {
             StopSensor();
             if(!bCalibrate) {
                 try {
-                    Log.d("StandSensor", "Expired");
+//                    Log.d("StandSensor", "Expired");
                     returnIntent.setAction("STOOD_RESULTS");
                     returnIntent.putExtra("RESULT", "EXPIRED");
                     pendingIntent.send(this, 0 , returnIntent);
@@ -202,7 +250,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                             editor.putFloat("CALIBRATEDVARIATION", LargestVariation * .5f);
                             editor.commit();
                             try {
-                                Log.d("Calibrate","Calibrate Finished");
+//                                Log.d("Calibrate","Calibrate Finished");
                                 returnIntent.setAction("CALIBRATION_FINISHED");
                                 pendingIntent.send(this, 0 , returnIntent);
                             } catch (PendingIntent.CanceledException e) {
@@ -248,22 +296,22 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
 
                 if (RotXListOld.size() >= 10) {
                     if (RotXAverage > RotXAverageOld + flCalibratedVariation ||
-                        RotXAverage < RotXAverageOld - flCalibratedVariation) {
+                            RotXAverage < RotXAverageOld - flCalibratedVariation) {
                         bDetectedStand = true;
                     }
                     if (RotYAverage > RotYAverageOld + flCalibratedVariation ||
-                        RotYAverage < RotYAverageOld - flCalibratedVariation) {
+                            RotYAverage < RotYAverageOld - flCalibratedVariation) {
                         bDetectedStand = true;
                     }
                     if (RotZAverage > RotZAverageOld + flCalibratedVariation ||
-                        RotZAverage < RotZAverageOld - flCalibratedVariation) {
+                            RotZAverage < RotZAverageOld - flCalibratedVariation) {
                         bDetectedStand = true;
                     }
 
                     if(bDetectedStand){
                         StopSensor();
                         try {
-                            Log.d("StandSensor", "Stood");
+//                            Log.d("StandSensor", "Stood");
                             returnIntent.setAction("STOOD_RESULTS");
                             returnIntent.putExtra("RESULT", "STAND_DETECTED");
                             pendingIntent.send(this, 0 ,returnIntent);
@@ -337,6 +385,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     public void StopSensor() {
         mSensorManager.unregisterListener(this, mRotationSensor);
         mSensorManager.unregisterListener(this, mLightSensor);
+        mSensorManager.unregisterListener(this, mStepCounterSensor);
     }
 
     public void CalibrateSensor() {

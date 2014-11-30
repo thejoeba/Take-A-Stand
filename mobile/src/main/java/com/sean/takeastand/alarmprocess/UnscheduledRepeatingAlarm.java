@@ -82,6 +82,16 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     }
 
     @Override
+    public void postponeAlarm(long milliseconds) {
+        long delayTimeInMillis = milliseconds;
+        long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
+        Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
+        setAlarm(triggerTime);
+    }
+
+    @Override
     public void cancelAlarm() {
         PendingIntent pendingIntent = createPendingIntent(mContext);
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);

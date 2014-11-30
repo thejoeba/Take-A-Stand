@@ -1,4 +1,4 @@
-package com.heckbot.standdetector;
+package com.heckbot.standdtector;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +26,9 @@ public class MyBroadcastReceiver extends android.content.BroadcastReceiver {
                 }
                 Log.d("MyBroadcastReceiver", result);
             }
+        }
+        else if (action.equals("LastStep")) {
+            Log.d("MyBroadcastReceiver", action);
         }
     }
 }

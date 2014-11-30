@@ -239,7 +239,8 @@ public class AlarmFragment extends Fragment{
     private View.OnClickListener stoodListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent stoodUpIntent = new Intent("StoodUp");
+//            Intent stoodUpIntent = new Intent("StoodUp");
+            Intent stoodUpIntent = new Intent("STOOD_RESULTS");
             getActivity().sendBroadcast(stoodUpIntent);
             stoodDelay = true;
         }

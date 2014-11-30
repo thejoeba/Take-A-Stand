@@ -3,9 +3,8 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 20
     buildToolsVersion "20.0.0"
-
     defaultConfig {
-        applicationId "com.sean.myapplication"
+        applicationId 'com.sean.takeastand'
         minSdkVersion 16
         targetSdkVersion 20
 
@@ -18,11 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-//    wearApp project(':wear')
-//    compile 'com.google.android.gms:play-services-wearable:+'
+    //    wearApp project(':wear')
+    //    compile 'com.google.android.gms:play-services-wearable:+'
     compile 'com.android.support:appcompat-v7:20.+'
 }

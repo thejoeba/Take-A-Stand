@@ -32,4 +32,6 @@ public interface RepeatingAlarm
 
     public void takeBreak();
 
+    public void postponeAlarm(long milliseconds);
+
 }

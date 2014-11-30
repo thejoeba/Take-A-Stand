@@ -42,12 +42,10 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 
-import com.heckbot.standdetector.StandDtectorTM;
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
-
-import java.lang.reflect.Array;
 
 
 public class MainActivity extends Activity {
@@ -180,9 +178,9 @@ public class MainActivity extends Activity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent calibrationIntent = new Intent(MainActivity.this, StandDtectorTM.class);
-                        calibrationIntent.putExtra("ACTION", "CALIBRATE");
+                        calibrationIntent.setAction("CALIBRATE");
 
-                        Intent intent = new Intent(MainActivity.this, com.heckbot.standdetector.MyBroadcastReceiver.class);
+                        Intent intent = new Intent(MainActivity.this, com.heckbot.standdtector.MyBroadcastReceiver.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
                         calibrationIntent.putExtra("pendingIntent", pendingIntent);
