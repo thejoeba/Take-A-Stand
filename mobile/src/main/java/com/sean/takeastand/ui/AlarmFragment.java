@@ -78,6 +78,8 @@ public class AlarmFragment extends Fragment{
     private void registerReceivers(){
         LocalBroadcastManager.getInstance(getActivity())
                 .registerReceiver(updateReceiver, new IntentFilter(Constants.INTENT_MAIN_IMAGE));
+        LocalBroadcastManager.getInstance(getActivity())
+                .registerReceiver(updateTimeReceiver, new IntentFilter(Constants.UPDATE_NEXT_ALARM_TIME));
     }
 
     private void unregisterReceivers(){
@@ -93,6 +95,13 @@ public class AlarmFragment extends Fragment{
                 mHandler.postDelayed(updating, 290);
             }
 
+        }
+    };
+
+    private BroadcastReceiver updateTimeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateLayoutStatic();
         }
     };
 
