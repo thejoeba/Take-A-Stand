@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -60,7 +61,7 @@ public class AlarmReceiver
             } else {
                 //-1 indicates that there is no currently running scheduled alarm
                 Utils.setRunningScheduledAlarm(mContext, -1);
-                Log.i(TAG, "Alarm day is over.");
+                Log.i(TAG, context.getString(R.string.alarm_day_over));
                 Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
                 endAlarmService();
             }

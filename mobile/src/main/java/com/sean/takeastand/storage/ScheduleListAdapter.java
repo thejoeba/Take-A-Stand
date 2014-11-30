@@ -112,7 +112,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         txtTitle.setText(alarmSchedule.getTitle());
         if((alarmSchedule.getTitle()).equals("")){
             int schedulePosition = position + 1;
-            txtTitle.setText("Schedule " + schedulePosition);
+            txtTitle.setText(mContext.getString(R.string.schedule) + schedulePosition);
         }
         btnActivated.setChecked(alarmSchedule.getActivated());
         int[] alertType = alarmSchedule.getAlertType();
@@ -334,14 +334,15 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         builder.setView(dialogView);
         EditText editText = (EditText)dialogView.findViewById(R.id.editText);
         String currentTitle = selectedTitle.getText().toString();
-        if(currentTitle.startsWith("Schedule ")){
+        if(currentTitle.startsWith(mContext.getString(R.string.schedule))){
             editText.setHint(currentTitle);
         } else {
             editText.setText(currentTitle);
             editText.setSelection(currentTitle.length());
         }
-        builder.setMessage("New Title");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(mContext.getString(R.string.new_schedule_title));
+        builder.setPositiveButton(mContext.getString(R.string.ok),
+                new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 EditText editText = (EditText)dialogView.findViewById(R.id.editText);
@@ -352,7 +353,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 dialogInterface.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(mContext.getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Log.i(TAG, "Cancel");
@@ -406,8 +407,9 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         numberPicker.setMinValue(2);
         numberPicker.setValue(Integer.valueOf(selectedFrequencyValue.getText().toString()));
         numberPicker.setWrapSelectorWheel(false);
-        builder.setMessage("Select Frequency");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(mContext.getString(R.string.select_frequency));
+        builder.setPositiveButton(mContext.getString(R.string.ok),
+                new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //selectedFrequencyValue = (TextView)selectedFrequencyView.findViewById(R.id.txtFrequencyValue);
@@ -425,7 +427,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 dialogInterface.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(mContext.getString(R.string.cancel),
+                new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Log.i(TAG, "Cancel");
@@ -455,14 +458,14 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
         if (mStartEndButtonSelected)
         {
-            Calendar startTime = Utils.convertToCalendarTime(newStartTime);
+            Calendar startTime = Utils.convertToCalendarTime(newStartTime, mContext);
             newAlarmSchedule.setStartTime(startTime);
             boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
             scheduleEditor.editStartTime(todayActivated, newAlarmSchedule);
             mAlarmSchedules.remove(position);
             mAlarmSchedules.add(position, newAlarmSchedule);
         } else {
-            Calendar endTime = Utils.convertToCalendarTime(newStartTime);
+            Calendar endTime = Utils.convertToCalendarTime(newStartTime, mContext);
             newAlarmSchedule.setEndTime(endTime);
             boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
             scheduleEditor.editEndTime(todayActivated, newAlarmSchedule);

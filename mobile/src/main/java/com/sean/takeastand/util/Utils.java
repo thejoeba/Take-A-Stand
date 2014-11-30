@@ -23,6 +23,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
@@ -42,9 +43,10 @@ public final class Utils {
     //Start time and end time are stored in the database as a string.
     //This method converts the string to a Calendar object
     //Used by ScheduleEditor, ScheduleDatabaseAdapter, scheduleListAdapter, and within Utils
-    public static Calendar convertToCalendarTime(String time){
+    public static Calendar convertToCalendarTime(String time, Context context){
         Calendar calendar = Calendar.getInstance();
-        calendar = setCalendarTime(calendar, readHourFromString(time), readMinutesFromString(time));
+        calendar = setCalendarTime(calendar, readHourFromString(time, context),
+                readMinutesFromString(time, context));
         return calendar;
     }
 
@@ -62,14 +64,14 @@ public final class Utils {
     }
 
     //Used by TimePickerFragment and within Utils
-    public static int readHourFromString(String alarmTime){
+    public static int readHourFromString(String alarmTime, Context context){
         boolean twelveHourClock = false;
         boolean pm = false;
-        if(alarmTime.contains("am")){
+        if(alarmTime.contains(context.getString(R.string.AM))){
             alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
             twelveHourClock = true;
         }
-        if(alarmTime.contains("pm")){
+        if(alarmTime.contains(context.getString(R.string.PM))){
             alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
             twelveHourClock = true;
             pm = true;
@@ -99,11 +101,9 @@ public final class Utils {
     }
 
     //Used by TimePickerFragment and within Utils
-    public static int readMinutesFromString(String alarmTime){
-        if(alarmTime.contains("am")){
-            alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
-        }
-        if(alarmTime.contains("pm")){
+    public static int readMinutesFromString(String alarmTime, Context context){
+        if(alarmTime.contains(context.getString(R.string.AM)) ||
+                alarmTime.contains(context.getString(R.string.PM)) ){
             alarmTime = alarmTime.substring(0, alarmTime.length() - 3);
         }
         if(alarmTime.length() == 5){
@@ -144,24 +144,25 @@ public final class Utils {
     public static String getFormattedTimeString(String time, Context context){
         if (!DateFormat.is24HourFormat(context))
         {
-            int hour = readHourFromString(time);
-            String minutes = correctMinuteFormat(Integer.toString((readMinutesFromString(time))));
+            int hour = readHourFromString(time, context);
+            String minutes = correctMinuteFormat(Integer.toString((readMinutesFromString(time, context))));
             if(hour >= 12)
             {
                 if(hour == 12){
                     //Noon
-                    return "12:" + minutes + " pm";
+                    return "12:" + minutes + " " + context.getString(R.string.PM);
                 } else {
                     //Afternoon
-                    return Integer.toString(hour - 12) + ":" + minutes + " pm";
+                    return Integer.toString(hour - 12) + ":" + minutes + " " +
+                            context.getString(R.string.PM);
                 }
             } else {
                 if( hour == 0){
                     //12 am
-                    return "12:" + minutes + " am";
+                    return "12:" + minutes + " " + context.getString(R.string.AM);
                 } else {
                     //Morning, string is ready to go after adding am
-                    return time + " am";
+                    return time + " " + context.getString(R.string.AM);
                 }
             }
         }
@@ -434,7 +435,7 @@ public final class Utils {
                     schedulePosition += fixedAlarmSchedules.indexOf(fixedAlarmSchedules.get(i));
                 }
             }
-            title = "Schedule " + schedulePosition;
+            title = context.getString(R.string.schedule) + schedulePosition;
         }
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);

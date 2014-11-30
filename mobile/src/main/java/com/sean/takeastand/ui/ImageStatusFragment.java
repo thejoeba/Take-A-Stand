@@ -150,11 +150,11 @@ public class ImageStatusFragment
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
                 if(getCurrentTitle().equals("")){
-                    txtTap.setText("Schedule Running");
+                    txtTap.setText(mContext.getString(R.string.schedule_running));
                 } else {
                     txtTap.setText(getCurrentTitle());
                 }
-                mCurrentText = "Schedule Running";
+                mCurrentText = mContext.getString(R.string.schedule_running);
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_passed);
@@ -216,7 +216,7 @@ public class ImageStatusFragment
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
                 if(mPraise == null){
-                    txtTap.setCurrentText("Good job!");
+                    txtTap.setCurrentText(mContext.getString(R.string.default_praise));
                 } else {
                     txtTap.setCurrentText(mPraise);
                     mCurrentText = mPraise;
@@ -228,11 +228,11 @@ public class ImageStatusFragment
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
                 if(getCurrentTitle().equals("")){
-                    txtTap.setCurrentText("Schedule Running");
+                    txtTap.setCurrentText(mContext.getString(R.string.schedule_running));
                 } else {
                     txtTap.setCurrentText(getCurrentTitle());
                 }
-                mCurrentText = "Schedule Running";
+                mCurrentText = mContext.getString(R.string.schedule_running);
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_passed);
@@ -246,7 +246,7 @@ public class ImageStatusFragment
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
                 if(mPraise == null){
-                    txtTap.setCurrentText("Good Job");
+                    txtTap.setCurrentText(mContext.getString(R.string.default_praise));
                 } else {
                     txtTap.setCurrentText(mPraise);
                     mCurrentText = mPraise;
@@ -267,7 +267,7 @@ public class ImageStatusFragment
         LocalBroadcastManager.getInstance(getActivity())
                 .registerReceiver(updateImageReceiver, new IntentFilter(Constants.INTENT_MAIN_IMAGE));
         LocalBroadcastManager.getInstance(getActivity())
-                .registerReceiver(praiseTextReceiver, new IntentFilter("PraiseForUser"));
+                .registerReceiver(praiseTextReceiver, new IntentFilter(Constants.PRAISE_FOR_USER));
     }
 
     private void unregisterReceivers(){

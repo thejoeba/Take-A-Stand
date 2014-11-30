@@ -71,7 +71,7 @@ public class AlarmService extends Service  {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "AlarmService started");
-
+        mainActivityVisible = false;
         registerReceivers();
 
         if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STAND_DETECTOR, false)) {
@@ -113,6 +113,7 @@ public class AlarmService extends Service  {
         } else {
             Utils.setImageStatus(this, Constants.SCHEDULE_TIME_TO_STAND);
         }
+        return START_REDELIVER_INTENT;
     }
 
     @Override
@@ -129,14 +130,15 @@ public class AlarmService extends Service  {
 
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
+//                new IntentFilter(Constants.USER_STOOD));
 //                new IntentFilter("StoodUp"));
                 new IntentFilter("STOOD_RESULTS"));
         getApplicationContext().registerReceiver(delayAlarmReceiver,
-                new IntentFilter("DelayAlarm"));
+                new IntentFilter(Constants.USER_DELAYED));
         getApplicationContext().registerReceiver(lastStepReceiver,
                 new IntentFilter("LastStep"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
-                new IntentFilter("VisibilityStatus"));
+                new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
                 new IntentFilter(Constants.END_ALARM_SERVICE));
         LocalBroadcastManager.getInstance(this).registerReceiver(deletedAlarm,
@@ -347,7 +349,7 @@ public class AlarmService extends Service  {
     private void showPraise(){
         String praise = praiseForUser();
         if(mainActivityVisible){
-            Intent intent = new Intent("PraiseForUser");
+            Intent intent = new Intent(Constants.PRAISE_FOR_USER);
             intent.putExtra("Praise", praise);
             LocalBroadcastManager.getInstance(this).sendBroadcastSync(intent);
         } else {
@@ -376,7 +378,7 @@ public class AlarmService extends Service  {
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .setTicker("Time to stand up");
+                .setTicker(getString(R.string.stand_up_time_low));
 
         //Purpose of below is to figure out what type of user alert to give with the notification
         //If scheduled, check settings for that schedule
@@ -444,7 +446,7 @@ public class AlarmService extends Service  {
         rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
         rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
-        rvRibbon.setTextViewText(R.id.topTextView, "Time to Stand Up");
+        rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));
         Notification.Builder alarmNotificationBuilder =  new Notification.Builder(this);
         alarmNotificationBuilder.setContent(rvRibbon);
         alarmNotificationBuilder
@@ -452,7 +454,7 @@ public class AlarmService extends Service  {
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .setTicker("Time to stand up");
+                .setTicker(getString(R.string.stand_up_time_low));
         if(mCurrentAlarmSchedule != null){
             int[] alertType = mCurrentAlarmSchedule.getAlertType();
             if((alertType[0]) == 1){
@@ -510,9 +512,10 @@ public class AlarmService extends Service  {
                 launchActivityIntent, 0);
 //        Intent stoodUpIntent = new Intent("StoodUp");
         Intent stoodUpIntent = new Intent("STOOD_RESULTS");
+//        Intent stoodUpIntent = new Intent(Constants.USER_STOOD);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
-        Intent delayAlarmIntent = new Intent("DelayAlarm");
+        Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);
         PendingIntent delayAlarmPendingIntent = PendingIntent.getBroadcast(this, 0,
                 delayAlarmIntent, 0);
         PendingIntent [] pendingIntents =
@@ -522,9 +525,9 @@ public class AlarmService extends Service  {
 
     private String setMinutes(int minutes){
         if(minutes > 1 ){
-            return " minutes ago";
+            return getString(R.string.minutes_ago);
         } else {
-            return " minute ago";
+            return getString(R.string.minute_ago);
         }
     }
 

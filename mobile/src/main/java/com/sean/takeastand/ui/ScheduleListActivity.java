@@ -100,7 +100,7 @@ public class ScheduleListActivity extends ListActivity {
         //Is possible actionBar will be null
         if(actionBar !=null){
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("Schedules");
+            actionBar.setTitle(getString(R.string.schedules));
         }
         imgAddAlarm = (ImageView)this.findViewById(R.id.btn_add_alarm);
         imgAddAlarm.setOnClickListener(addAlarmOnClickListener);

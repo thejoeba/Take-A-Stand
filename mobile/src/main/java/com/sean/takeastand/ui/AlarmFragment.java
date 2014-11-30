@@ -78,6 +78,8 @@ public class AlarmFragment extends Fragment{
     private void registerReceivers(){
         LocalBroadcastManager.getInstance(getActivity())
                 .registerReceiver(updateReceiver, new IntentFilter(Constants.INTENT_MAIN_IMAGE));
+        LocalBroadcastManager.getInstance(getActivity())
+                .registerReceiver(updateTimeReceiver, new IntentFilter(Constants.UPDATE_NEXT_ALARM_TIME));
     }
 
     private void unregisterReceivers(){
@@ -96,6 +98,13 @@ public class AlarmFragment extends Fragment{
         }
     };
 
+    private BroadcastReceiver updateTimeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateLayoutStatic();
+        }
+    };
+
     private Runnable updating = new Runnable() {
         @Override
         public void run() {
@@ -103,10 +112,6 @@ public class AlarmFragment extends Fragment{
         }
     };
 
-    /*
-    Whenever previousStatus == currentStatus, it means user has closed the app, and came back
-    Don't show the animation again.
-     */
     private void updateLayoutAnimated(){
         int imageStatus = Utils.getImageStatus(getActivity());
         switch (imageStatus){
@@ -239,6 +244,7 @@ public class AlarmFragment extends Fragment{
     private View.OnClickListener stoodListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+//            Intent stoodUpIntent = new Intent(Constants.USER_STOOD);
 //            Intent stoodUpIntent = new Intent("StoodUp");
             Intent stoodUpIntent = new Intent("STOOD_RESULTS");
             getActivity().sendBroadcast(stoodUpIntent);
@@ -249,7 +255,7 @@ public class AlarmFragment extends Fragment{
     private View.OnClickListener delayListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent delayAlarmIntent = new Intent("DelayAlarm");
+            Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);
             getActivity().sendBroadcast(delayAlarmIntent);
             stoodDelay = false;
         }
@@ -292,6 +298,7 @@ public class AlarmFragment extends Fragment{
                     @Override
                     public void onAnimationEnd(Animation animation) {
                         nextAlertLayout.setVisibility(View.GONE);
+                        nextAlertLayout.clearAnimation();
                         if(currentAlarmStatus == Constants.NON_SCHEDULE_TIME_TO_STAND ||
                                 currentAlarmStatus == Constants.SCHEDULE_TIME_TO_STAND){
                             mHandler.postDelayed(showStoodDelayAnimation, 100);
@@ -339,6 +346,7 @@ public class AlarmFragment extends Fragment{
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     stoodText.setVisibility(View.INVISIBLE);
+                    stoodText.clearAnimation();
                     if(stoodDelay){
                         stoodDelayLayout.setVisibility(View.GONE);
                     }
@@ -362,6 +370,7 @@ public class AlarmFragment extends Fragment{
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     delayText.setVisibility(View.INVISIBLE);
+                    delayText.clearAnimation();
                     if(!stoodDelay){
                         stoodDelayLayout.setVisibility(View.GONE);
                         mHandler.post(showNextAlertAnimation);
