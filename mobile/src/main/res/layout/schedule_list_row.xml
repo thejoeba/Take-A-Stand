@@ -30,7 +30,6 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="dummy"
             android:id="@+id/btnActivated"
             android:layout_alignParentRight="true"
             android:layout_marginRight="60dp"/>
@@ -74,14 +73,14 @@
                 android:id="@+id/chbxLED"
                 android:layout_toLeftOf="@+id/chbxVibrate"
                 android:layout_marginRight="11dp"
-                android:text="LED Light"
+                android:text="@string/led_light"
                 android:textSize="14sp"/>
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/chbxVibrate"
                 android:layout_centerHorizontal="true"
-                android:text="Vibrate"
+                android:text="@string/vibrate"
                 android:textSize="14sp"/>
             <CheckBox
                 android:layout_width="wrap_content"
@@ -89,7 +88,7 @@
                 android:id="@+id/chbxSound"
                 android:layout_toRightOf="@id/chbxVibrate"
                 android:layout_marginLeft="10dp"
-                android:text="Sound"
+                android:text="@string/sound"
                 android:textSize="14sp"/>
             <View
                 android:layout_width="match_parent"
@@ -115,7 +114,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Frequency"
+                    android:text="@string/frequency"
                     android:id="@+id/txtFrequency"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -137,7 +136,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Start Time"
+                    android:text="@string/start_time"
                     android:id="@+id/txtStartTime"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -158,7 +157,7 @@
                <TextView
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:text="End Time"
+                   android:text="@string/end_time"
                    android:id="@+id/txtEndTime"/>
                <TextView
                    android:layout_width="wrap_content"
@@ -193,7 +192,7 @@
                 android:id="@+id/txtWed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="W"
+                android:text="@string/abbWed"
                 android:layout_centerHorizontal="true" />
             <TextView
                 android:textSize="14.0sp"
@@ -201,7 +200,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="33dp"
-                android:text="T"
+                android:text="@string/abbTue"
                 android:layout_toLeftOf="@id/txtWed"/>
             <TextView
                 android:textSize="14.0sp"
@@ -209,7 +208,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="33dp"
-                android:text="M"
+                android:text="@string/abbMon"
                 android:layout_toLeftOf="@id/txtTue" />
             <TextView
                 android:textSize="14.0sp"
@@ -217,7 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="33dp"
-                android:text="S"
+                android:text="@string/abbSun"
                 android:layout_toLeftOf="@id/txtMon"/>
             <TextView
                 android:textSize="14.0sp"
@@ -225,7 +224,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="33dp"
-                android:text="T"
+                android:text="@string/abbThu"
                 android:layout_toRightOf="@id/txtWed" />
             <TextView
                 android:textSize="14.0sp"
@@ -233,7 +232,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="33dp"
-                android:text="F"
+                android:text="@string/abbFri"
                 android:layout_toRightOf="@id/txtThu" />
             <TextView
                 android:textSize="14.0sp"
@@ -241,7 +240,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="33dp"
-                android:text="S"
+                android:text="@string/abbSat"
                 android:layout_toRightOf="@id/txtFri" />
         </RelativeLayout>
         <RelativeLayout

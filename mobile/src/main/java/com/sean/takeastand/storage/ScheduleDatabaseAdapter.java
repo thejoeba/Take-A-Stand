@@ -332,8 +332,8 @@ public class ScheduleDatabaseAdapter
                 Log.i(TAG, "Row UID " + Integer.toString(UID));
                 boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
                 int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
-                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
-                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4));
+                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3), mContext);
+                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4), mContext);
                 int frequency = cursor.getInt(5);
                 String title = cursor.getString(6);
                 boolean sunday = Utils.convertIntToBoolean(cursor.getInt(7));
@@ -367,8 +367,8 @@ public class ScheduleDatabaseAdapter
                 Log.i(TAG, "Row UID " + Integer.toString(UID));
                 boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
                 int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
-                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3));
-                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4));
+                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3), mContext);
+                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4), mContext);
                 int frequency = cursor.getInt(5);
                 String title = cursor.getString(6);
                 boolean sunday = Utils.convertIntToBoolean(cursor.getInt(7));

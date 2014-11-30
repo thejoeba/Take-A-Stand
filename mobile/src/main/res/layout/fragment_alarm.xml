@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="13dp"
-            android:text="Next Alert At:"
+            android:text="@string/next_alert_at"
             android:textSize="20sp"
             android:textColor="@android:color/primary_text_light"
             android:layout_gravity="center"/>
@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="23dp"
-            android:text="Stood"
+            android:text="@string/stood"
             android:textSize="32sp"
             android:textColor="@android:color/primary_text_light"/>
         <TextView
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="23dp"
-            android:text="Delay"
+            android:text="@string/delay"
             android:textSize="32sp"
             android:textColor="@android:color/primary_text_light"/>
     </LinearLayout>

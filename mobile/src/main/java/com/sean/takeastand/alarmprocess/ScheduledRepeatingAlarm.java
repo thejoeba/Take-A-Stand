@@ -26,6 +26,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
@@ -128,7 +129,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         nextAlarmTime.add(Calendar.MINUTE, mCurrentAlarmSchedule.getFrequency());
         if((mCurrentAlarmSchedule.getEndTime()).before(nextAlarmTime)){
             Utils.setRunningScheduledAlarm(mContext, -1);
-            Log.i(TAG, "Alarm day is over.");
+            Log.i(TAG, mContext.getString(R.string.alarm_day_over));
             Toast.makeText(mContext, "Scheduled reminders over", Toast.LENGTH_LONG).show();
             Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
             endAlarmService();

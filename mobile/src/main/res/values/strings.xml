@@ -7,11 +7,14 @@
     <string name="tap_to_start">Tap to Start</string>
     <string name="tap_to_stop">Tap to Stop</string>
     <string name="stand_time">Time to Stand</string>
+    <string name="stand_up_time_low">Time to stand up</string>
+    <string name="stand_up_time_up">Time to Stand Up</string>
     <string-array name="praise">
         <item>Good job!</item>
         <item>Way to go!</item>
         <item>Excellent!</item>
     </string-array>
+    <string name="default_praise">Good Job!</string>
     <string name="select_frequency">Select Frequency</string>
     <string name="medical_studies">Medical Studies</string>
     <string name="medical1">A large <a href = "http://www.ncbi.nlm.nih.gov/pubmed/19996993">long-term study</a> with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent.</string>
@@ -27,4 +30,38 @@
     <string name="news6"><a href = "http://www.nbcnews.com/id/39523298/ns/health-ments_health/#.VFWu-PmG9V1">NBC News</a></string>
     <string name="drawer_open">Open</string>
     <string name="drawer_closed">Closed</string>
+    <string name="minutes_ago">" minutes ago"</string>
+    <string name="minute_ago">" minute ago"</string>
+    <string name="boot_schedule_running">Take A Stand Schedule is Running</string>
+    <string name="alarm_day_over">Alarm day is over.</string>
+    <string name="schedule">"Schedule "</string>
+    <string name="new_schedule_title">New Title</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="schedule_running">Schedule Running</string>
+    <string name="settings">Settings</string>
+    <string name="select_frequency_default">Select Default Frequency</string>
+    <string name="select_delay_default">Select Default Delay Length</string>
+    <string name="select_alert_types">Set Default Notification Types</string>
+    <string name="vibrate_silent_on">Vibrate when Silent: ON</string>
+    <string name="vibrate_silent_off">Vibrate when Silent: OFF</string>
+    <string name="schedules">Schedules</string>
+    <string name="AM">am</string>
+    <string name="PM">pm</string>
+    <string name="led_light">LED Light</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="sound">Sound</string>
+    <string name="next_alert_at">Next Alert At:</string>
+    <string name="stood">Stood</string>
+    <string name="delay">Delay</string>
+    <string name="frequency">Frequency</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
+    <string name="abbSun">S</string>
+    <string name="abbMon">M</string>
+    <string name="abbTue">T</string>
+    <string name="abbWed">W</string>
+    <string name="abbThu">T</string>
+    <string name="abbFri">F</string>
+    <string name="abbSat">S</string>
 </resources>

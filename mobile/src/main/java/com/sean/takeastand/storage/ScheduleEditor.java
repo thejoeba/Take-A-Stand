@@ -69,7 +69,8 @@ public class ScheduleEditor {
                 if(setRepeatingAlarmNow(startTime, endTime)){
                     //Because we already now activated is true, just put true
                     FixedAlarmSchedule newAlarmSchedule = new FixedAlarmSchedule(UID, true, alarmType,
-                            Utils.convertToCalendarTime(startTime), Utils.convertToCalendarTime(endTime),
+                            Utils.convertToCalendarTime(startTime, mContext),
+                            Utils.convertToCalendarTime(endTime, mContext),
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
                     new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
@@ -294,8 +295,8 @@ public class ScheduleEditor {
     private boolean setRepeatingAlarmNow(String startTime, String endTime){
         //Set repeating alarm if in between start and end time
         Calendar rightNow = Calendar.getInstance();
-        Calendar startTimeDate = Utils.convertToCalendarTime(startTime);
-        Calendar endTimeDate = Utils.convertToCalendarTime(endTime);
+        Calendar startTimeDate = Utils.convertToCalendarTime(startTime, mContext);
+        Calendar endTimeDate = Utils.convertToCalendarTime(endTime, mContext);
         if(startTimeDate.before(rightNow)&&endTimeDate.after(rightNow)){
             Log.i(TAG, "New alarm is within current day's timeframe.  Starting RepeatingAlarm.");
             return true;
@@ -306,7 +307,7 @@ public class ScheduleEditor {
     }
 
     private Calendar nextAlarmTime(String time){
-        Calendar alarmTime = Utils.convertToCalendarTime(time);
+        Calendar alarmTime = Utils.convertToCalendarTime(time, mContext);
         Calendar rightNow = Calendar.getInstance();
         if(alarmTime.after(rightNow)){
             return alarmTime;

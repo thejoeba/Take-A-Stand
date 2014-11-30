@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
         //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
-        String[] sample_menu = {"About App", "Default Settings", "Science Behind App"};
+        String[] sample_menu = {"About App", "Default Settings", "Science Behind App", "Take A Break"};
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -71,14 +71,14 @@ public class MainActivity extends Activity {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                getActionBar().setTitle("Take A Stand");
+                getActionBar().setTitle(getString(R.string.app_name));
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getActionBar().setTitle("Settings");
+                getActionBar().setTitle(getString(R.string.settings));
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
                 break;
             case R.id.default_frequency:
                 showNumberPickerDialog(Utils.getDefaultFrequency(this), 2 , 100,
-                        "Select Default Frequency", true);
+                        getString(R.string.select_frequency_default), true);
                 break;
             case R.id.default_alert_type:
                 showAlertTypePicker();
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
             case R.id.default_delay_length:
                 showNumberPickerDialog(Utils.getDefaultDelay(this), 1,
                         60,
-                        "Select Default Delay Length", false);
+                        getString(R.string.select_delay_default), false);
                 break;
             case R.id.science:
                 Intent intentScience = new Intent(this, ScienceActivity.class);
@@ -142,7 +142,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStop() {
-        Intent intent = new Intent("VisibilityStatus");
+        Intent intent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
         intent.putExtra("Visible", false);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         super.onStop();
@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         registerReceivers();
-        Intent intent = new Intent("VisibilityStatus");
+        Intent intent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
         intent.putExtra("Visible", true);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         super.onResume();
@@ -196,7 +196,7 @@ public class MainActivity extends Activity {
     private BroadcastReceiver visibilityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent newIntent = new Intent("VisibilityStatus");
+            Intent newIntent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
             newIntent.putExtra("Visible", true);
             LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(newIntent);
         }
@@ -218,7 +218,7 @@ public class MainActivity extends Activity {
         numberPicker.setValue(startingValue);
         numberPicker.setWrapSelectorWheel(false);
         builder.setMessage(title);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(frequency){
@@ -229,7 +229,7 @@ public class MainActivity extends Activity {
                 dialogInterface.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Log.i(TAG, "Cancel");
@@ -253,8 +253,8 @@ public class MainActivity extends Activity {
         CheckBox sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
         sound.setChecked(Utils.convertIntToBoolean(currentNotification[2]));
         builder.setView(dialogView);
-        builder.setMessage("Set Default Notification Types");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.select_alert_types));
+        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 int[] notificationTypes = new int[3];
@@ -280,7 +280,7 @@ public class MainActivity extends Activity {
                 dialogInterface.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Log.i(TAG, "Cancel");
@@ -305,9 +305,9 @@ public class MainActivity extends Activity {
         MenuItem vibrateSilent = mainMenu.findItem(R.id.vibrateOnSilent);
         boolean vibrate = Utils.getVibrateOverride(this);
         if(vibrate){
-            vibrateSilent.setTitle("Vibrate when Silent: ON");
+            vibrateSilent.setTitle(getString(R.string.vibrate_silent_on));
         } else {
-            vibrateSilent.setTitle("Vibrate when Silent: OFF");
+            vibrateSilent.setTitle(getString(R.string.vibrate_silent_off));
         }
     }
 

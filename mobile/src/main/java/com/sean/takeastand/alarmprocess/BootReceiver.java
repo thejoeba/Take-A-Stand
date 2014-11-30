@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Utils;
@@ -53,7 +54,8 @@ public class BootReceiver extends BroadcastReceiver
                 Calendar endTime = todayAlarm.getEndTime();
                 if(rightNow.after(startTime) && rightNow.before(endTime)){
                     new ScheduledRepeatingAlarm(context, todayAlarm).setRepeatingAlarm();
-                    Toast.makeText(context, "Take A Stand Schedule is Running", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(R.string.boot_schedule_running),
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     Log.i(TAG, "Today’s alarm has either already run or will run later.");
                 }

@@ -9,14 +9,14 @@
             android:id="@+id/chbxLED"
             android:layout_toLeftOf="@+id/chbxVibrate"
             android:layout_marginRight="11dp"
-            android:text="LED Light"
+            android:text="@string/led_light"
             android:textSize="14sp"/>
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/chbxVibrate"
             android:layout_centerInParent="true"
-            android:text="Vibrate"
+            android:text="@string/vibrate"
             android:textSize="14sp"/>
         <CheckBox
             android:layout_width="wrap_content"
@@ -24,6 +24,6 @@
             android:id="@+id/chbxSound"
             android:layout_toRightOf="@id/chbxVibrate"
             android:layout_marginLeft="10dp"
-            android:text="Sound"
+            android:text="@string/sound"
             android:textSize="14sp"/>
 </RelativeLayout>
