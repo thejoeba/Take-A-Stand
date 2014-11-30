@@ -113,7 +113,6 @@ public class AlarmService extends Service  {
         } else {
             Utils.setImageStatus(this, Constants.SCHEDULE_TIME_TO_STAND);
         }
-        return START_REDELIVER_INTENT;
     }
 
     @Override
@@ -130,9 +129,7 @@ public class AlarmService extends Service  {
 
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
-//                new IntentFilter(Constants.USER_STOOD));
-//                new IntentFilter("StoodUp"));
-                new IntentFilter("STOOD_RESULTS"));
+                new IntentFilter(Constants.STOOD_RESULTS));
         getApplicationContext().registerReceiver(delayAlarmReceiver,
                 new IntentFilter(Constants.USER_DELAYED));
         getApplicationContext().registerReceiver(lastStepReceiver,
@@ -232,13 +229,13 @@ public class AlarmService extends Service  {
             bStepCounterReturned = true;
             Bundle extras = intent.getExtras();
             //ToDo: Update next alarm textview
-            boolean bStepHardware = extras.getBoolean("Step_Hardware");
-            if (bStepHardware) {
+            boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
+            if (bHasStepHardware) {
                 long lLastStep = extras.getLong("Last_Step");
                 long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
                 if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
                     postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
-                    return;
+                    stopSelf();
                 }
             }
             //if no hardware or over user frequency minutes since last step, regular schedule
@@ -510,9 +507,7 @@ public class AlarmService extends Service  {
         stackBuilder.addNextIntent(launchActivityIntent);
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(this, 0,
                 launchActivityIntent, 0);
-//        Intent stoodUpIntent = new Intent("StoodUp");
-        Intent stoodUpIntent = new Intent("STOOD_RESULTS");
-//        Intent stoodUpIntent = new Intent(Constants.USER_STOOD);
+        Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
         Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);
