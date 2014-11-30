@@ -27,6 +27,7 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
@@ -36,6 +37,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.ui.MainActivity;
@@ -64,12 +66,40 @@ public class AlarmService extends Service  {
     private int mNotifTimePassed = 0;
     long[] mVibrationPattern = {(long)200, (long)300, (long)200, (long)300, (long)200, (long)300};
     private boolean mainActivityVisible;
+    private boolean bStepCounterReturned = false;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "AlarmService started");
         mainActivityVisible = false;
         registerReceivers();
+
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STAND_DETECTOR, false)) {
+            Intent stepDetectorIntent = new Intent(this, com.heckbot.standdtector.StandDtectorTM.class);
+            stepDetectorIntent.setAction(Constants.LAST_STEP);
+
+            Intent returnIntent = new Intent(Constants.LAST_STEP);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
+
+            stepDetectorIntent.putExtra("pendingIntent", pendingIntent);
+
+            startService(stepDetectorIntent);
+
+            //error handling if no step detector results are returned.
+            mHandler = new Handler();
+            int oneSecondMillis = 1000;
+
+            Runnable lastStepReceiverTimeout = new MyRunnable(intent);
+            mHandler.postDelayed(lastStepReceiverTimeout, oneSecondMillis);
+        }
+        else {
+            StartNotification(intent);
+        }
+        return START_REDELIVER_INTENT;
+    }
+
+    private void StartNotification(Intent intent) {
+        mainActivityVisible = false;
         mHandler = new Handler();
         checkMainActivityVisible();
         sendNotification();
@@ -83,7 +113,6 @@ public class AlarmService extends Service  {
         } else {
             Utils.setImageStatus(this, Constants.SCHEDULE_TIME_TO_STAND);
         }
-        return START_REDELIVER_INTENT;
     }
 
     @Override
@@ -100,9 +129,11 @@ public class AlarmService extends Service  {
 
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
-                new IntentFilter(Constants.USER_STOOD));
+                new IntentFilter(Constants.STOOD_RESULTS));
         getApplicationContext().registerReceiver(delayAlarmReceiver,
                 new IntentFilter(Constants.USER_DELAYED));
+        getApplicationContext().registerReceiver(lastStepReceiver,
+                new IntentFilter("LastStep"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
@@ -114,10 +145,10 @@ public class AlarmService extends Service  {
     private void unregisterReceivers(){
         getApplicationContext().unregisterReceiver(stoodUpReceiver);
         getApplicationContext().unregisterReceiver(delayAlarmReceiver);
+        getApplicationContext().unregisterReceiver(lastStepReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainVisibilityReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(endAlarmService);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(deletedAlarm);
-
     }
 
     @Override
@@ -136,6 +167,20 @@ public class AlarmService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
+            String action = intent.getAction();
+            Bundle extras = intent.getExtras();
+            if (action.equals("STOOD_RESULTS") && extras != null) {
+                String result = extras.getString("RESULT");
+                if (result.equals("STAND_DETECTED")) {
+                    Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
+                    long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
+                    v.vibrate(pattern, -1);
+                }
+                // else expired or not in pocket
+                else {
+                    return;
+                }
+            }
             cancelNotification();
             showPraise();
             mHandler.removeCallbacks(oneMinuteForNotificationResponse);
@@ -177,6 +222,27 @@ public class AlarmService extends Service  {
         }
     };
 
+    private BroadcastReceiver lastStepReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Step Data Received");
+            bStepCounterReturned = true;
+            Bundle extras = intent.getExtras();
+            //ToDo: Update next alarm textview
+            boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
+            if (bHasStepHardware) {
+                long lLastStep = extras.getLong("Last_Step");
+                long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
+                if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
+                    postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
+                    stopSelf();
+                }
+            }
+            //if no hardware or over user frequency minutes since last step, regular schedule
+            StartNotification(intent);
+        }
+    };
+
     private BroadcastReceiver deletedAlarm = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -204,6 +270,23 @@ public class AlarmService extends Service  {
             mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
         }
     };
+
+    private class MyRunnable implements Runnable {
+        private final Intent intent;
+
+        MyRunnable(final Intent intent) {
+            this.intent = intent;
+        }
+
+        public void run() {
+            if (!bStepCounterReturned) {
+                Intent stopStepDetectorIntent = new Intent("STOP");
+                startService(stopStepDetectorIntent);
+                Log.i(TAG, "Step Data Timeout");
+                StartNotification(intent);
+            }
+        }
+    }
 
     private Runnable stoodUp = new Runnable() {
         @Override
@@ -244,6 +327,20 @@ public class AlarmService extends Service  {
             Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
         }
         repeatingAlarm.delayAlarm();
+    }
+
+    private void postponeAlarm(Context context, long milliseconds){
+        RepeatingAlarm repeatingAlarm;
+        if(mCurrentAlarmSchedule == null){
+            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
+            Utils.setImageStatus(context, Constants.NON_SCHEDULE_ALARM_RUNNING);
+        } else {
+            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
+            Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
+        }
+        repeatingAlarm.postponeAlarm(milliseconds);
+        Intent intent = new Intent(Constants.UPDATE_NEXT_ALARM_TIME);
+        LocalBroadcastManager.getInstance(this).sendBroadcastSync(intent);
     }
 
     private void showPraise(){
@@ -322,6 +419,17 @@ public class AlarmService extends Service  {
         }
         Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
+
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STAND_DETECTOR, false))
+        {
+            Intent standSensorIntent = new Intent(this, StandDtectorTM.class);
+            standSensorIntent.setAction("START");
+            standSensorIntent.putExtra("MILLISECONDS",(long) 60000);
+
+            standSensorIntent.putExtra("pendingIntent", pendingIntents[1]);
+
+            startService(standSensorIntent);
+        }
     }
 
     private void updateNotification(){
@@ -399,7 +507,7 @@ public class AlarmService extends Service  {
         stackBuilder.addNextIntent(launchActivityIntent);
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(this, 0,
                 launchActivityIntent, 0);
-        Intent stoodUpIntent = new Intent(Constants.USER_STOOD);
+        Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
         Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);

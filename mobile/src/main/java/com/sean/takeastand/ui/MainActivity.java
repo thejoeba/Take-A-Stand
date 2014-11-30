@@ -18,6 +18,7 @@ package com.sean.takeastand.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,6 +42,7 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -103,6 +105,7 @@ public class MainActivity extends Activity {
         inflater.inflate(R.menu.main_menu, menu);
         mainMenu = menu;
         setVibrateText();
+        setStandDetectorMenuText();
         return true;
     }
 
@@ -136,8 +139,59 @@ public class MainActivity extends Activity {
             case R.id.vibrateOnSilent:
                 vibrateOnSilent();
                 break;
+            case R.id.calibrate:
+                calibrateStandDetector();
+                break;
+            case R.id.toggle_standdetector:
+                toggleStandDetector();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleStandDetector() {
+        // shared preferences declared on create
+        // skip declaring boolean and just drop it into the editor
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        boolean bStandDetector = !(sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constants.STAND_DETECTOR, bStandDetector);
+        editor.commit();
+        setStandDetectorMenuText();
+    }
+
+    private void setStandDetectorMenuText(){
+        MenuItem miStandDetector = mainMenu.findItem(R.id.toggle_standdetector);
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
+        if(bStandDetector){
+            miStandDetector.setTitle("StandDtector™: ON");
+        } else {
+            miStandDetector.setTitle("StandDtector™: OFF");
+        }
+    }
+
+    private void calibrateStandDetector() {
+        new AlertDialog.Builder(this)
+                .setTitle("Calibration")
+                .setMessage("To calibrate, the phone must be in your pocket and you must be sitting. The phone will Vibrate once, indicating you should stand. Once calibration is complete, the phone will vibrate again. Once you press OK, you will have 5 seconds to put the phone in your pocket and be sitting before you feel the first vibration.")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent calibrationIntent = new Intent(MainActivity.this, StandDtectorTM.class);
+                        calibrationIntent.setAction("CALIBRATE");
+
+                        Intent intent = new Intent(MainActivity.this, com.heckbot.standdtector.MyBroadcastReceiver.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+                        calibrationIntent.putExtra("pendingIntent", pendingIntent);
+
+                        startService(calibrationIntent);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override

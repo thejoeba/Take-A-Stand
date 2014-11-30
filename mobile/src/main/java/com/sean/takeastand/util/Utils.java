@@ -288,6 +288,7 @@ public final class Utils {
 
     //Used by ScheduleDatabaseAdapter and locally within Utils
     public static int[] convertStringToIntArray(String string){
+        Log.d(TAG,"array size: " + string.length());
         if(string.length()==6){
             int[] intArray = new int[3];
             int arrayIndex = 0;
