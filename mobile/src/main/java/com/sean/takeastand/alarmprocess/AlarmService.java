@@ -24,6 +24,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -31,6 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -235,7 +237,7 @@ public class AlarmService extends Service  {
                 long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
                 if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
                     postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
-                    stopSelf();
+                    AlarmService.this.stopSelf();
                 }
             }
             //if no hardware or over user frequency minutes since last step, regular schedule
@@ -368,14 +370,26 @@ public class AlarmService extends Service  {
         RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
         rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
-        Notification.Builder alarmNotificationBuilder =  new Notification.Builder(this);
-        alarmNotificationBuilder.setContent(rvRibbon);
+        NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
         alarmNotificationBuilder
+                .setContent(rvRibbon)
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
-                .setOngoing(true)
-                .setTicker(getString(R.string.stand_up_time_low));
+//                .setOngoing(true)
+                .setTicker(getString(R.string.stand_up_time_low))
+                .setSmallIcon(R.drawable.ic_notification_small)
+                .setContentTitle("Take A Stand ✔")
+                .setContentText("Mark Stood")
+                .extend(
+                        new NotificationCompat.WearableExtender()
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
+                                .setContentAction(0)
+                                .setHintHideIcon(true)
+//                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
+
+                )
+        ;
 
         //Purpose of below is to figure out what type of user alert to give with the notification
         //If scheduled, check settings for that schedule
@@ -444,14 +458,26 @@ public class AlarmService extends Service  {
         rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
         rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));
-        Notification.Builder alarmNotificationBuilder =  new Notification.Builder(this);
+        NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
         alarmNotificationBuilder.setContent(rvRibbon);
         alarmNotificationBuilder
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
-                .setOngoing(true)
-                .setTicker(getString(R.string.stand_up_time_low));
+//                .setOngoing(true)
+                .setTicker(getString(R.string.stand_up_time_low))
+                .setSmallIcon(R.drawable.ic_notification_small)
+                .setContentTitle("Take A Stand ✔")
+                .setContentText("Mark Stood\n" + mNotifTimePassed + setMinutes(mNotifTimePassed))
+                .extend(
+                        new NotificationCompat.WearableExtender()
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
+                                .setContentAction(0)
+                                .setHintHideIcon(true)
+//                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
+
+                )
+        ;
         if(mCurrentAlarmSchedule != null){
             int[] alertType = mCurrentAlarmSchedule.getAlertType();
             if((alertType[0]) == 1){
