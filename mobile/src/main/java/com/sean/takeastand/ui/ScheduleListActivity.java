@@ -28,9 +28,13 @@ import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
@@ -51,12 +55,14 @@ public class ScheduleListActivity extends ListActivity {
     private ImageView imgAddAlarm;
     private ScheduleListAdapter scheduleListAdapter;
     private ExpandableAdapter expandableAdapter;
-    private  ArrayList<AlarmSchedule> alarmSchedules;
+    private  ArrayList<AlarmSchedule> mAlarmSchedules;
     private String mNewAlarmStartTime;
     private boolean mJustReceivedTimePicker;
     private boolean mJustReceivedResponse;
     private Handler mHandler;
     private TimePickerFragment timePickerFragment;
+    private TextView txtNoAlarms;
+    private RelativeLayout rlScheduleList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +78,17 @@ public class ScheduleListActivity extends ListActivity {
     protected void onResume() {
         super.onResume();
         setUpLayout();
-        alarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
+        mAlarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
+        if(mAlarmSchedules.isEmpty()){
+            txtNoAlarms = (TextView)findViewById(R.id.no_alarms);
+            txtNoAlarms.setVisibility(View.VISIBLE);
+            rlScheduleList = (RelativeLayout)findViewById(R.id.rl_schedule_list);
+            rlScheduleList.setOnClickListener(addAlarmOnClickListener);
+            findViewById(R.id.fl_schedule_list).setVisibility(View.GONE);
+            imgAddAlarm.setVisibility(View.GONE);
+        }
         scheduleListAdapter =
-                new ScheduleListAdapter(this, android.R.id.list, alarmSchedules, getLayoutInflater());
+                new ScheduleListAdapter(this, android.R.id.list, mAlarmSchedules, getLayoutInflater());
         Log.i(TAG, "Number of Rows: " + Integer.toString(scheduleListAdapter.getCount()));
         expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
         setListAdapter(expandableAdapter);
@@ -111,6 +125,7 @@ public class ScheduleListActivity extends ListActivity {
     private View.OnClickListener addAlarmOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Log.i(TAG, "OnClick");
             createNewAlarm();
         }
     };
@@ -164,6 +179,13 @@ public class ScheduleListActivity extends ListActivity {
                     } else {
                         Log.i(TAG, "end time");
                         scheduleListAdapter.newSchedule(mNewAlarmStartTime, intent.getStringExtra("TimeSelected"));
+                        //If there are no alarms, and a new one has been created, update layout
+                        if(imgAddAlarm.getVisibility() == View.GONE){
+                            txtNoAlarms.setVisibility(View.GONE);
+                            rlScheduleList.setOnClickListener(null);
+                            findViewById(R.id.fl_schedule_list).setVisibility(View.VISIBLE);
+                            imgAddAlarm.setVisibility(View.VISIBLE);
+                        }
                     }
 
                 } else {

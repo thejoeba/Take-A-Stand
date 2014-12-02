@@ -77,14 +77,10 @@ public class AlarmService extends Service  {
         if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STAND_DETECTOR, false)) {
             Intent stepDetectorIntent = new Intent(this, com.heckbot.standdtector.StandDtectorTM.class);
             stepDetectorIntent.setAction(Constants.LAST_STEP);
-
             Intent returnIntent = new Intent(Constants.LAST_STEP);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
-
             stepDetectorIntent.putExtra("pendingIntent", pendingIntent);
-
             startService(stepDetectorIntent);
-
             //error handling if no step detector results are returned.
             mHandler = new Handler();
             int oneSecondMillis = 1000;
@@ -93,12 +89,12 @@ public class AlarmService extends Service  {
             mHandler.postDelayed(lastStepReceiverTimeout, oneSecondMillis);
         }
         else {
-            StartNotification(intent);
+            beginStandNotifications(intent);
         }
         return START_REDELIVER_INTENT;
     }
 
-    private void StartNotification(Intent intent) {
+    private void beginStandNotifications(Intent intent) {
         mainActivityVisible = false;
         mHandler = new Handler();
         checkMainActivityVisible();
@@ -228,7 +224,6 @@ public class AlarmService extends Service  {
             Log.i(TAG, "Step Data Received");
             bStepCounterReturned = true;
             Bundle extras = intent.getExtras();
-            //ToDo: Update next alarm textview
             boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
             if (bHasStepHardware) {
                 long lLastStep = extras.getLong("Last_Step");
@@ -239,7 +234,7 @@ public class AlarmService extends Service  {
                 }
             }
             //if no hardware or over user frequency minutes since last step, regular schedule
-            StartNotification(intent);
+            beginStandNotifications(intent);
         }
     };
 
@@ -283,7 +278,7 @@ public class AlarmService extends Service  {
                 Intent stopStepDetectorIntent = new Intent("STOP");
                 startService(stopStepDetectorIntent);
                 Log.i(TAG, "Step Data Timeout");
-                StartNotification(intent);
+                beginStandNotifications(intent);
             }
         }
     }

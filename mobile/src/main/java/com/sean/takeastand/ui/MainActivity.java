@@ -37,26 +37,29 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 
+import com.heckbot.standdtector.MyBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
-    private Menu mainMenu;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private ArrayList<String> mNavDrawerOptions;
+    private ArrayAdapter mListAdapter;
 
     @Override
     protected void onCreate(Bundle paramBundle)
@@ -64,7 +67,29 @@ public class MainActivity extends Activity {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
         //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
-        String[] sample_menu = {"About App", "Default Settings", "Science Behind App", "Take A Break"};
+        mNavDrawerOptions = new ArrayList<String>();
+        //Find out how to initialize an arraylist; then update the arraylist when vibrate status changes
+        //or standdtector status changes
+        mNavDrawerOptions.add(getString(R.string.default_frequency));
+        mNavDrawerOptions.add(getString(R.string.default_notification));
+        mNavDrawerOptions.add(getString(R.string.default_delay));
+        boolean vibrate = Utils.getVibrateOverride(this);
+        if(vibrate){
+            mNavDrawerOptions.add(getString(R.string.vibrate_silent_on));
+        } else {
+            mNavDrawerOptions.add(getString(R.string.vibrate_silent_off));
+        }
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
+        if(bStandDetector){
+            mNavDrawerOptions.add(getString(R.string.stand_detector_on));
+        } else {
+            mNavDrawerOptions.add(getString(R.string.stand_detector_off));
+        }
+        mNavDrawerOptions.add(getString(R.string.calibrate_detector));
+        mNavDrawerOptions.add(getString(R.string.science_app));
+
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -88,8 +113,9 @@ public class MainActivity extends Activity {
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList = (ListView)findViewById(R.id.left_drawer);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, sample_menu));
+        mListAdapter = new ArrayAdapter(this, R.layout.drawer_list_item, mNavDrawerOptions);
+        mDrawerList.setAdapter(mListAdapter);
+        mDrawerList.setOnItemClickListener(drawerClickListener);
         //mDrawerList.setOnItemClickListener();
 
         //Navigation Drawer icon won't display without this
@@ -98,16 +124,40 @@ public class MainActivity extends Activity {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        mainMenu = menu;
-        setVibrateText();
-        setStandDetectorMenuText();
-        return true;
-    }
+    private AdapterView.OnItemClickListener drawerClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            switch (position){
+                case 0:
+                    showNumberPickerDialog(Utils.getDefaultFrequency(MainActivity.this), 2 , 100,
+                            getString(R.string.select_frequency_default), true);
+                    break;
+                case 1:
+                    showAlertTypePicker();
+                    break;
+                case 2:
+                    showNumberPickerDialog(Utils.getDefaultDelay(MainActivity.this), 1,
+                            60,
+                            getString(R.string.select_delay_default), false);
+                    break;
+                case 3:
+                    vibrateOnSilent();
+                    break;
+                case 4:
+                    toggleStandDetector();
+                    break;
+                case 5:
+                    calibrateStandDetector();
+                    break;
+                case 6:
+                    Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
+                    startActivity(intentScience);
+                    break;
+            }
+        }
+
+
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -119,31 +169,6 @@ public class MainActivity extends Activity {
             case R.id.schedules:
                 Intent intent = new Intent(this, ScheduleListActivity.class);
                 startActivity(intent);
-                break;
-            case R.id.default_frequency:
-                showNumberPickerDialog(Utils.getDefaultFrequency(this), 2 , 100,
-                        getString(R.string.select_frequency_default), true);
-                break;
-            case R.id.default_alert_type:
-                showAlertTypePicker();
-                break;
-            case R.id.default_delay_length:
-                showNumberPickerDialog(Utils.getDefaultDelay(this), 1,
-                        60,
-                        getString(R.string.select_delay_default), false);
-                break;
-            case R.id.science:
-                Intent intentScience = new Intent(this, ScienceActivity.class);
-                startActivity(intentScience);
-                break;
-            case R.id.vibrateOnSilent:
-                vibrateOnSilent();
-                break;
-            case R.id.calibrate:
-                calibrateStandDetector();
-                break;
-            case R.id.toggle_standdetector:
-                toggleStandDetector();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -162,35 +187,37 @@ public class MainActivity extends Activity {
     }
 
     private void setStandDetectorMenuText(){
-        MenuItem miStandDetector = mainMenu.findItem(R.id.toggle_standdetector);
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
+        int standDetectorPosition = 4;
         if(bStandDetector){
-            miStandDetector.setTitle("StandDtector™: ON");
+            mNavDrawerOptions.remove(standDetectorPosition);
+            mNavDrawerOptions.add(standDetectorPosition, "StandDtector™: ON");
         } else {
-            miStandDetector.setTitle("StandDtector™: OFF");
+            mNavDrawerOptions.remove(standDetectorPosition);
+            mNavDrawerOptions.add(standDetectorPosition, "StandDtector™: OFF");
         }
+        mListAdapter.notifyDataSetChanged();
     }
 
     private void calibrateStandDetector() {
         new AlertDialog.Builder(this)
-                .setTitle("Calibration")
-                .setMessage("To calibrate, the phone must be in your pocket and you must be sitting. The phone will Vibrate once, indicating you should stand. Once calibration is complete, the phone will vibrate again. Once you press OK, you will have 5 seconds to put the phone in your pocket and be sitting before you feel the first vibration.")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.calibration))
+                .setMessage(getString(R.string.calibration_instructions))
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent calibrationIntent = new Intent(MainActivity.this, StandDtectorTM.class);
                         calibrationIntent.setAction("CALIBRATE");
-
-                        Intent intent = new Intent(MainActivity.this, com.heckbot.standdtector.MyBroadcastReceiver.class);
+                        Intent intent = new Intent(MainActivity.this, MyBroadcastReceiver.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,
+                                0, intent, PendingIntent.FLAG_ONE_SHOT);
                         calibrationIntent.putExtra("pendingIntent", pendingIntent);
-
                         startService(calibrationIntent);
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(getString(R.string.cancel), null)
                 .show();
     }
 
@@ -215,6 +242,14 @@ public class MainActivity extends Activity {
         intent.putExtra("Visible", true);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     @Override
@@ -356,13 +391,16 @@ public class MainActivity extends Activity {
     }
 
     private void setVibrateText(){
-        MenuItem vibrateSilent = mainMenu.findItem(R.id.vibrateOnSilent);
         boolean vibrate = Utils.getVibrateOverride(this);
+        int vibratePosition = 3;
         if(vibrate){
-            vibrateSilent.setTitle(getString(R.string.vibrate_silent_on));
+            mNavDrawerOptions.remove(vibratePosition);
+            mNavDrawerOptions.add(vibratePosition, getString(R.string.vibrate_silent_on));
         } else {
-            vibrateSilent.setTitle(getString(R.string.vibrate_silent_off));
+            mNavDrawerOptions.remove(vibratePosition);
+            mNavDrawerOptions.add(vibratePosition, getString(R.string.vibrate_silent_off));
         }
+        mListAdapter.notifyDataSetChanged();
     }
 
     public static void setDefaultAlertType(Context context, int[] alertType){
