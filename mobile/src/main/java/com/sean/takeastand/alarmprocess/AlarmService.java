@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -66,7 +67,7 @@ public class AlarmService extends Service  {
     private int mNotifTimePassed = 0;
     long[] mVibrationPattern = {(long)200, (long)300, (long)200, (long)300, (long)200, (long)300};
     private boolean mainActivityVisible;
-    private boolean bStepCounterReturned = false;
+    private boolean bStepCounterHandled = false;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -83,10 +84,10 @@ public class AlarmService extends Service  {
             startService(stepDetectorIntent);
             //error handling if no step detector results are returned.
             mHandler = new Handler();
-            int oneSecondMillis = 1000;
+            int tenSecondMillis = 10000;
 
             Runnable lastStepReceiverTimeout = new MyRunnable(intent);
-            mHandler.postDelayed(lastStepReceiverTimeout, oneSecondMillis);
+            mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
         }
         else {
             beginStandNotifications(intent);
@@ -129,7 +130,7 @@ public class AlarmService extends Service  {
         getApplicationContext().registerReceiver(delayAlarmReceiver,
                 new IntentFilter(Constants.USER_DELAYED));
         getApplicationContext().registerReceiver(lastStepReceiver,
-                new IntentFilter("LastStep"));
+                new IntentFilter(Constants.LAST_STEP));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
@@ -222,19 +223,25 @@ public class AlarmService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Step Data Received");
-            bStepCounterReturned = true;
-            Bundle extras = intent.getExtras();
-            boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
-            if (bHasStepHardware) {
-                long lLastStep = extras.getLong("Last_Step");
-                long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
-                if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
-                    postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
-                    stopSelf();
+            if (!bStepCounterHandled) {
+                bStepCounterHandled = true;
+                Bundle extras = intent.getExtras();
+                boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
+                boolean bPostponed = false;
+                if (bHasStepHardware) {
+                    long lLastStep = extras.getLong("Last_Step");
+                    long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
+                    if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
+                        bPostponed = true;
+                        Log.d(TAG, "Last step less than default frequency");
+                        postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
+                        AlarmService.this.stopSelf();
+                    }
+                }
+                if (!bPostponed) {
+                    beginStandNotifications(intent);
                 }
             }
-            //if no hardware or over user frequency minutes since last step, regular schedule
-            beginStandNotifications(intent);
         }
     };
 
@@ -274,7 +281,8 @@ public class AlarmService extends Service  {
         }
 
         public void run() {
-            if (!bStepCounterReturned) {
+            if (!bStepCounterHandled) {
+                bStepCounterHandled = true;
                 Intent stopStepDetectorIntent = new Intent("STOP");
                 startService(stopStepDetectorIntent);
                 Log.i(TAG, "Step Data Timeout");
@@ -363,14 +371,26 @@ public class AlarmService extends Service  {
         RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
         rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
-        Notification.Builder alarmNotificationBuilder =  new Notification.Builder(this);
-        alarmNotificationBuilder.setContent(rvRibbon);
+        NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
         alarmNotificationBuilder
+                .setContent(rvRibbon)
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
-                .setOngoing(true)
-                .setTicker(getString(R.string.stand_up_time_low));
+//                .setOngoing(true)
+                .setTicker(getString(R.string.stand_up_time_low))
+                .setSmallIcon(R.drawable.ic_notification_small)
+                .setContentTitle("Take A Stand ✔")
+                .setContentText("Mark Stood")
+                .extend(
+                        new NotificationCompat.WearableExtender()
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
+                                .setContentAction(0)
+                                .setHintHideIcon(true)
+//                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
+
+                )
+        ;
 
         //Purpose of below is to figure out what type of user alert to give with the notification
         //If scheduled, check settings for that schedule
@@ -439,14 +459,26 @@ public class AlarmService extends Service  {
         rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
         rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));
-        Notification.Builder alarmNotificationBuilder =  new Notification.Builder(this);
+        NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
         alarmNotificationBuilder.setContent(rvRibbon);
         alarmNotificationBuilder
                 .setContentIntent(pendingIntents[0])
-                .setSmallIcon(R.drawable.ic_notification_small)
                 .setAutoCancel(false)
-                .setOngoing(true)
-                .setTicker(getString(R.string.stand_up_time_low));
+//                .setOngoing(true)
+                .setTicker(getString(R.string.stand_up_time_low))
+                .setSmallIcon(R.drawable.ic_notification_small)
+                .setContentTitle("Take A Stand ✔")
+                .setContentText("Mark Stood\n" + mNotifTimePassed + setMinutes(mNotifTimePassed))
+                .extend(
+                        new NotificationCompat.WearableExtender()
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
+                                .setContentAction(0)
+                                .setHintHideIcon(true)
+//                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
+
+                )
+        ;
         if(mCurrentAlarmSchedule != null){
             int[] alertType = mCurrentAlarmSchedule.getAlertType();
             if((alertType[0]) == 1){
