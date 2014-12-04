@@ -24,7 +24,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -68,7 +67,7 @@ public class AlarmService extends Service  {
     private int mNotifTimePassed = 0;
     long[] mVibrationPattern = {(long)200, (long)300, (long)200, (long)300, (long)200, (long)300};
     private boolean mainActivityVisible;
-    private boolean bStepCounterReturned = false;
+    private boolean bStepCounterHandled = false;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -85,10 +84,10 @@ public class AlarmService extends Service  {
             startService(stepDetectorIntent);
             //error handling if no step detector results are returned.
             mHandler = new Handler();
-            int oneSecondMillis = 1000;
+            int tenSecondMillis = 10000;
 
             Runnable lastStepReceiverTimeout = new MyRunnable(intent);
-            mHandler.postDelayed(lastStepReceiverTimeout, oneSecondMillis);
+            mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
         }
         else {
             beginStandNotifications(intent);
@@ -131,7 +130,7 @@ public class AlarmService extends Service  {
         getApplicationContext().registerReceiver(delayAlarmReceiver,
                 new IntentFilter(Constants.USER_DELAYED));
         getApplicationContext().registerReceiver(lastStepReceiver,
-                new IntentFilter("LastStep"));
+                new IntentFilter(Constants.LAST_STEP));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
@@ -224,19 +223,25 @@ public class AlarmService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Step Data Received");
-            bStepCounterReturned = true;
-            Bundle extras = intent.getExtras();
-            boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
-            if (bHasStepHardware) {
-                long lLastStep = extras.getLong("Last_Step");
-                long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
-                if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
-                    postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
-                    AlarmService.this.stopSelf();
+            if (!bStepCounterHandled) {
+                bStepCounterHandled = true;
+                Bundle extras = intent.getExtras();
+                boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
+                boolean bPostponed = false;
+                if (bHasStepHardware) {
+                    long lLastStep = extras.getLong("Last_Step");
+                    long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
+                    if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
+                        bPostponed = true;
+                        Log.d(TAG, "Last step less than default frequency");
+                        postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
+                        AlarmService.this.stopSelf();
+                    }
+                }
+                if (!bPostponed) {
+                    beginStandNotifications(intent);
                 }
             }
-            //if no hardware or over user frequency minutes since last step, regular schedule
-            beginStandNotifications(intent);
         }
     };
 
@@ -276,7 +281,8 @@ public class AlarmService extends Service  {
         }
 
         public void run() {
-            if (!bStepCounterReturned) {
+            if (!bStepCounterHandled) {
+                bStepCounterHandled = true;
                 Intent stopStepDetectorIntent = new Intent("STOP");
                 startService(stopStepDetectorIntent);
                 Log.i(TAG, "Step Data Timeout");

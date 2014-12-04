@@ -156,9 +156,21 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 }
                 return;
             }
+            Log.d("SensorEvent", "Event Mills: " + timestamp);
             //determine time(ms) since last step
             if (timestamp > 86400000) {
-                timestamp = (System.currentTimeMillis() - timestamp);
+                timestamp = (tNow.toMillis(false) - timestamp);
+            }
+
+            if (timestamp <= 0 ) {
+                Log.d("Step_Counter","No Timestamp Available");
+                returnIntent.putExtra("Step_Hardware", false);
+                try {
+                    pendingIntent.send(this, 0 , returnIntent);
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
             Log.d("SensorEvent", "Last Step: " + (timestamp / 1000) + " seconds ago");
             returnIntent.setAction("LastStep");
