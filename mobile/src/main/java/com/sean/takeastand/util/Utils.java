@@ -306,12 +306,21 @@ public final class Utils {
     }
 
     //Used by the AlarmService, ScheduleListAdapter, MainActivity, ScheduleListActivity
-    public static int[] getDefaultAlertType(Context context){
+    public static boolean[] getDefaultAlertType(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        String alertType = sharedPreferences.getString(Constants.USER_ALERT_TYPE, "1-1-0-");
-        Log.i(TAG, alertType);
-        return convertStringToIntArray(alertType);
+        boolean led = sharedPreferences.getBoolean(Constants.USER_ALERT_LED, true);
+        boolean vibrate = sharedPreferences.getBoolean(Constants.USER_ALERT_VIBRATE, true);
+        boolean sound = sharedPreferences.getBoolean(Constants.USER_ALERT_SOUND, false);
+        return new boolean[]{led, vibrate, sound};
+    }
+
+    //Used by MainActivity and AlarmService
+    public static boolean getRepeatAlerts(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        boolean alertFrequency = sharedPreferences.getBoolean(Constants.USER_ALERT_FREQUENCY, true);
+        return alertFrequency;
     }
 
     //Used by UnscheduledRepeatingAlarm, ScheduleListAdapter, MainActivity, ScheduleListActivity
@@ -324,7 +333,7 @@ public final class Utils {
     }
 
     //Used by MainActivity, ScheduledRepeatingAlarm, UnscheduledRepeatingAlarm
-    public static int getDefaultDelay(Context context){
+    public static int getDefaultAlertDelay(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         int delay = sharedPreferences.getInt(Constants.USER_DELAY, 5);
@@ -417,7 +426,7 @@ public final class Utils {
                 break;
         }
         //Return a dummy alarmSchedule with a UID of -100 which signals alarm was not found
-        return new FixedAlarmSchedule(-100, false, null, null, null, 0, "", false,
+        return new FixedAlarmSchedule(-100, false, false, false, false, null, null, 0, "", false,
                 false, false, false, false, false, false);
 
     }

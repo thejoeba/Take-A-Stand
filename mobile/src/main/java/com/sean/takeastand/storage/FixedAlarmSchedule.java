@@ -19,7 +19,9 @@ public class FixedAlarmSchedule implements Parcelable{
 
     private int UID;
     private boolean activated;
-    private int[] alertType = {1, 1, 0};
+    private boolean led;
+    private boolean vibrate;
+    private boolean sound;
     private Calendar startTime;
     private Calendar endTime;
     private int frequency;
@@ -32,12 +34,15 @@ public class FixedAlarmSchedule implements Parcelable{
     private boolean friday;
     private boolean saturday;
 
-    public FixedAlarmSchedule(int UID, boolean activated, int[] alertType, Calendar startTime, Calendar endTime,
-                         int frequency, String title, boolean sunday, boolean monday, boolean tuesday,
+    public FixedAlarmSchedule(int UID, boolean activated, boolean led, boolean vibrate, boolean sound,
+                         Calendar startTime, Calendar endTime, int frequency, String title,
+                         boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday){
         this.UID = UID;
         this.activated = activated;
-        this.alertType = alertType;
+        this.led = led;
+        this.vibrate = vibrate;
+        this.sound = sound;
         this.startTime = startTime;
         this.endTime = endTime;
         this.frequency = frequency;
@@ -54,7 +59,9 @@ public class FixedAlarmSchedule implements Parcelable{
     public FixedAlarmSchedule(AlarmSchedule alarmSchedule){
         UID = alarmSchedule.getUID();
         activated = alarmSchedule.getActivated();
-        alertType = alarmSchedule.getAlertType();
+        led = alarmSchedule.getAlertType()[0];
+        vibrate = alarmSchedule.getAlertType()[1];
+        sound = alarmSchedule.getAlertType()[2];
         startTime = alarmSchedule.getStartTime();
         endTime = alarmSchedule.getEndTime();
         frequency = alarmSchedule.getFrequency();
@@ -81,15 +88,16 @@ public class FixedAlarmSchedule implements Parcelable{
         friday = arrayBooleans[6];
         saturday = arrayBooleans[7];
         UID = inParcel.readInt();
-        alertType[0] = inParcel.readInt();
-        alertType[1] = inParcel.readInt();
-        alertType[2] = inParcel.readInt();
+        led = arrayBooleans[8];
+        vibrate = arrayBooleans[9];
+        sound = arrayBooleans[10];
         title = inParcel.readString();
         startTime = Calendar.getInstance();
         startTime.setTimeInMillis(Long.decode(inParcel.readString()));
         endTime = Calendar.getInstance();
         endTime.setTimeInMillis(Long.decode(inParcel.readString()));
         frequency = inParcel.readInt();
+
     }
 
     @Override
@@ -100,12 +108,9 @@ public class FixedAlarmSchedule implements Parcelable{
     @Override
     public void writeToParcel(Parcel outParcel, int flags) {
         boolean[] arrayBooleans = {activated, sunday, monday, tuesday, wednesday,
-                thursday, friday, saturday};
+                thursday, friday, saturday, led, vibrate, sound};
         outParcel.writeBooleanArray(arrayBooleans);
         outParcel.writeInt(UID);
-        outParcel.writeInt(alertType[0]);
-        outParcel.writeInt(alertType[1]);
-        outParcel.writeInt(alertType[2]);
         outParcel.writeString(title);
         outParcel.writeString(Long.toString(startTime.getTimeInMillis()));
         outParcel.writeString(Long.toString(endTime.getTimeInMillis()));
@@ -113,8 +118,8 @@ public class FixedAlarmSchedule implements Parcelable{
 
     }
 
-    public static  final Parcelable.Creator<FixedAlarmSchedule> CREATOR =
-            new Parcelable.Creator<FixedAlarmSchedule>(){
+    public static  final Creator<FixedAlarmSchedule> CREATOR =
+            new Creator<FixedAlarmSchedule>(){
 
                 @Override
                 public FixedAlarmSchedule createFromParcel(Parcel inParcel) {
@@ -133,9 +138,7 @@ public class FixedAlarmSchedule implements Parcelable{
         return activated;
     }
 
-    public int[] getAlertType(){
-        return alertType;
-    }
+    public boolean[] getAlertType(){  return new boolean [] {led, vibrate, sound} ; }
 
     public Calendar getStartTime(){
         return startTime;

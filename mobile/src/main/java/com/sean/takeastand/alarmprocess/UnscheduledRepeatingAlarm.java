@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -72,7 +71,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
 
     @Override
     public void delayAlarm() {
-        long delayTime = Utils.getDefaultDelay(mContext);
+        long delayTime = Utils.getDefaultAlertDelay(mContext);
         long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
@@ -101,7 +100,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     }
 
     @Override
-    public void takeBreak() {
+    public void pause() {
 
     }
 

@@ -86,7 +86,7 @@ public class AlarmService extends Service  {
             mHandler = new Handler();
             int tenSecondMillis = 10000;
 
-            Runnable lastStepReceiverTimeout = new MyRunnable(intent);
+            Runnable lastStepReceiverTimeout = new StepCounterRunnable(intent);
             mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
         }
         else {
@@ -273,10 +273,10 @@ public class AlarmService extends Service  {
         }
     };
 
-    private class MyRunnable implements Runnable {
+    private class StepCounterRunnable implements Runnable {
         private final Intent intent;
 
-        MyRunnable(final Intent intent) {
+        StepCounterRunnable(final Intent intent) {
             this.intent = intent;
         }
 
@@ -396,11 +396,11 @@ public class AlarmService extends Service  {
         //If scheduled, check settings for that schedule
         //If unscheduled, check user defaults
         if(mCurrentAlarmSchedule!=null){
-            int[] alertType = mCurrentAlarmSchedule.getAlertType();
-            if((alertType[0]) == 1){
+            boolean[] alertType = mCurrentAlarmSchedule.getAlertType();
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1){
+            if(alertType[1]){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
                 AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                 if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -409,16 +409,16 @@ public class AlarmService extends Service  {
                     v.vibrate(mVibrationPattern, -1);
                 }
             }
-            if(alertType[2] == 1){
+            if(alertType[2]){
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 alarmNotificationBuilder.setSound(soundUri);
             }
         } else {
-            int[] alertType = Utils.getDefaultAlertType(this);
-            if((alertType[0]) == 1){
+            boolean[] alertType = Utils.getDefaultAlertType(this);
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1){
+            if(alertType[1]){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
                 AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                 if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -427,7 +427,7 @@ public class AlarmService extends Service  {
                     v.vibrate(mVibrationPattern, -1);
                 }
             }
-            if(alertType[2] == 1){
+            if(alertType[2]){
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 alarmNotificationBuilder.setSound(soundUri);
             }
@@ -480,40 +480,44 @@ public class AlarmService extends Service  {
                 )
         ;
         if(mCurrentAlarmSchedule != null){
-            int[] alertType = mCurrentAlarmSchedule.getAlertType();
-            if((alertType[0]) == 1){
+            boolean[] alertType = mCurrentAlarmSchedule.getAlertType();
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
-                        Utils.getVibrateOverride(this)) {
-                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    v.vibrate(mVibrationPattern, -1);
+            if(Utils.getRepeatAlerts(this)){
+                if(alertType[1] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                    alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                    if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                            Utils.getVibrateOverride(this)) {
+                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        v.vibrate(mVibrationPattern, -1);
+                    }
                 }
-            }
-            if(alertType[2] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                alarmNotificationBuilder.setSound(soundUri);
+                if(alertType[2] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    alarmNotificationBuilder.setSound(soundUri);
+                }
             }
         } else {
-            int[] alertType = Utils.getDefaultAlertType(this);
-            if((alertType[0]) == 1){
+            boolean[] alertType = Utils.getDefaultAlertType(this);
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
-                        Utils.getVibrateOverride(this)) {
-                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    v.vibrate(mVibrationPattern, -1);
+            if(Utils.getRepeatAlerts(this)){
+                if(alertType[1] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                    alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                    if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                            Utils.getVibrateOverride(this)) {
+                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        v.vibrate(mVibrationPattern, -1);
+                    }
                 }
-            }
-            if(alertType[2] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                alarmNotificationBuilder.setSound(soundUri);
+                if(alertType[2] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    alarmNotificationBuilder.setSound(soundUri);
+                }
             }
         }
         Notification alarmNotification = alarmNotificationBuilder.build();

@@ -100,6 +100,7 @@ public class ScheduleListActivity extends ListActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //Closes Activity when user presses title
         finish();
         return super.onOptionsItemSelected(item);
     }

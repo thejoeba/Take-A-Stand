@@ -28,11 +28,9 @@ import android.widget.Toast;
 
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
-import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
 /* This class is responsible for setting the next repeating alarm for alarm schedules.  It
@@ -99,7 +97,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     @Override
     public void delayAlarm() {
-        long delayTime = Utils.getDefaultDelay(mContext);
+        long delayTime = Utils.getDefaultAlertDelay(mContext);
         long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
@@ -130,7 +128,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     }
 
     @Override
-    public void takeBreak() {
+    public void pause() {
 
     }
 

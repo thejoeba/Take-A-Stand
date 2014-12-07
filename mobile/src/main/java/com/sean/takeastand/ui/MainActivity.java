@@ -42,6 +42,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.Switch;
 
 import com.heckbot.standdtector.MyBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
@@ -60,6 +61,7 @@ public class MainActivity extends Activity {
     private ActionBarDrawerToggle mDrawerToggle;
     private ArrayList<String> mNavDrawerOptions;
     private ArrayAdapter mListAdapter;
+    private View dialogView;
 
     @Override
     protected void onCreate(Bundle paramBundle)
@@ -72,13 +74,6 @@ public class MainActivity extends Activity {
         //or standdtector status changes
         mNavDrawerOptions.add(getString(R.string.default_frequency));
         mNavDrawerOptions.add(getString(R.string.default_notification));
-        mNavDrawerOptions.add(getString(R.string.default_delay));
-        boolean vibrate = Utils.getVibrateOverride(this);
-        if(vibrate){
-            mNavDrawerOptions.add(getString(R.string.vibrate_silent_on));
-        } else {
-            mNavDrawerOptions.add(getString(R.string.vibrate_silent_off));
-        }
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
@@ -133,23 +128,17 @@ public class MainActivity extends Activity {
                             getString(R.string.select_frequency_default), true);
                     break;
                 case 1:
-                    showAlertTypePicker();
+                    Intent intentNotification =
+                            new Intent(MainActivity.this, NotificationsActivity.class);
+                    startActivity(intentNotification);
                     break;
                 case 2:
-                    showNumberPickerDialog(Utils.getDefaultDelay(MainActivity.this), 1,
-                            60,
-                            getString(R.string.select_delay_default), false);
-                    break;
-                case 3:
-                    vibrateOnSilent();
-                    break;
-                case 4:
                     toggleStandDetector();
                     break;
-                case 5:
+                case 3:
                     calibrateStandDetector();
                     break;
-                case 6:
+                case 4:
                     Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
                     startActivity(intentScience);
                     break;
@@ -190,7 +179,7 @@ public class MainActivity extends Activity {
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
-        int standDetectorPosition = 4;
+        int standDetectorPosition = 2;
         if(bStandDetector){
             mNavDrawerOptions.remove(standDetectorPosition);
             mNavDrawerOptions.add(standDetectorPosition, "StandDtector™: ON");
@@ -313,7 +302,7 @@ public class MainActivity extends Activity {
                 if(frequency){
                     setDefaultFrequency(MainActivity.this, numberPicker.getValue());
                 } else {
-                    setDefaultDelay(MainActivity.this, numberPicker.getValue());
+                    setDefaultAlertDelay(MainActivity.this, numberPicker.getValue());
                 }
                 dialogInterface.dismiss();
             }
@@ -327,88 +316,6 @@ public class MainActivity extends Activity {
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
-    }
-
-    View dialogView;
-    private void showAlertTypePicker(){
-        LayoutInflater inflater = getLayoutInflater();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        dialogView = inflater.inflate(R.layout.dialog_alert_type, null);
-        int[] currentNotification = Utils.getDefaultAlertType(this);
-        CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
-        LED.setChecked(Utils.convertIntToBoolean(currentNotification[0]));
-        CheckBox vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
-        vibrate.setChecked(Utils.convertIntToBoolean(currentNotification[1]));
-        CheckBox sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
-        sound.setChecked(Utils.convertIntToBoolean(currentNotification[2]));
-        builder.setView(dialogView);
-        builder.setMessage(getString(R.string.select_alert_types));
-        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                int[] notificationTypes = new int[3];
-                CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
-                CheckBox Vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
-                CheckBox Sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
-                if(LED.isChecked()){
-                    notificationTypes[0] = 1;
-                } else {
-                    notificationTypes[0] = 0;
-                }
-                if(Vibrate.isChecked()){
-                    notificationTypes[1] = 1;
-                } else {
-                    notificationTypes[1] = 0;
-                }
-                if(Sound.isChecked()){
-                    notificationTypes[2] = 1;
-                } else {
-                    notificationTypes[2] = 0;
-                }
-                setDefaultAlertType(MainActivity.this, notificationTypes);
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, "Cancel");
-                dialogInterface.dismiss();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    private void vibrateOnSilent(){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        boolean vibrate = !(sharedPreferences.getBoolean(Constants.VIBRATE_SILENT, true));
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Constants.VIBRATE_SILENT, vibrate);
-        editor.commit();
-        setVibrateText();
-    }
-
-    private void setVibrateText(){
-        boolean vibrate = Utils.getVibrateOverride(this);
-        int vibratePosition = 3;
-        if(vibrate){
-            mNavDrawerOptions.remove(vibratePosition);
-            mNavDrawerOptions.add(vibratePosition, getString(R.string.vibrate_silent_on));
-        } else {
-            mNavDrawerOptions.remove(vibratePosition);
-            mNavDrawerOptions.add(vibratePosition, getString(R.string.vibrate_silent_off));
-        }
-        mListAdapter.notifyDataSetChanged();
-    }
-
-    public static void setDefaultAlertType(Context context, int[] alertType){
-        SharedPreferences sharedPreferences =
-                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.USER_ALERT_TYPE, Utils.convertIntArrayToString(alertType));
-        editor.commit();
     }
 
     public static void setDefaultFrequency(Context context, int frequency){
@@ -419,11 +326,12 @@ public class MainActivity extends Activity {
         editor.commit();
     }
 
-    public static void setDefaultDelay(Context context, int delay){
+    public static void setDefaultAlertDelay(Context context, int delay){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Constants.USER_DELAY, delay);
         editor.commit();
     }
+
 }

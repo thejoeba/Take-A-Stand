@@ -72,6 +72,7 @@ public class ScienceActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //Closes Activity when user presses title
         finish();
         return super.onOptionsItemSelected(item);
     }

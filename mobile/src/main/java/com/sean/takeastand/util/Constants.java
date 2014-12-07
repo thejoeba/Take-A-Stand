@@ -47,7 +47,10 @@ public final class Constants {
     public static final int SCHEDULE_TIME_TO_STAND = 6;
     public static final int SCHEDULE_STOOD_UP = 7;
     public static final String INTENT_MAIN_IMAGE = "UpdateMainImage";
-    public static final String USER_ALERT_TYPE = "UserAlertType";
+    public static final String USER_ALERT_LED = "UserAlertLED";
+    public static final String USER_ALERT_VIBRATE = "UserAlertVibrate";
+    public static final String USER_ALERT_SOUND = "UserAlertSound";
+    public static final String USER_ALERT_FREQUENCY = "UserAlertFrequency";
     public static final String USER_FREQUENCY = "UserFrequency";
     public static final String USER_DELAY = "UserDelay";
     public static final String VIBRATE_SILENT = "VibrateOnSilent";

@@ -115,11 +115,11 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             txtTitle.setText(mContext.getString(R.string.schedule) + schedulePosition);
         }
         btnActivated.setChecked(alarmSchedule.getActivated());
-        int[] alertType = alarmSchedule.getAlertType();
+        boolean[] alertType = alarmSchedule.getAlertType();
         Log.i(TAG, alertType.toString());
-        chBxLED.setChecked(Utils.convertIntToBoolean(alertType[0]));
-        chBxVibrate.setChecked(Utils.convertIntToBoolean((alertType[1])));
-        chBxSound.setChecked(Utils.convertIntToBoolean(alertType[2]));
+        chBxLED.setChecked(alertType[0]);
+        chBxVibrate.setChecked(alertType[1]);
+        chBxSound.setChecked(alertType[2]);
         txtFrequencyValue.setText(Integer.toString(alarmSchedule.getFrequency()));
         txtStartTimeValue.setText(Utils.getFormattedCalendarTime(alarmSchedule.getStartTime(), mContext));
         txtEndTimeValue.setText(Utils.getFormattedCalendarTime(alarmSchedule.getEndTime(), mContext));
@@ -220,23 +220,23 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             boolean isChecked = checkBox.isChecked();
             int position = (Integer) view.getTag();
             AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
-            int[] alertType = newAlarmSchedule.getAlertType();
+            boolean[] alertType = newAlarmSchedule.getAlertType();
             ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
             switch (view.getId()) {
                 case R.id.chbxLED:
-                    alertType[0] = Utils.convertBooleanToInt(isChecked);
+                    alertType[0] = isChecked;
                     newAlarmSchedule.setAlertType(alertType);
                     scheduleEditor.editAlertType(newAlarmSchedule);
                     Log.i(TAG, position + ".) LED is checked: " + Boolean.toString(isChecked));
                     break;
                 case R.id.chbxVibrate:
-                    alertType[1] = Utils.convertBooleanToInt(isChecked);
+                    alertType[1] = isChecked;
                     newAlarmSchedule.setAlertType(alertType);
                     scheduleEditor.editAlertType(newAlarmSchedule);
                     Log.i(TAG, position + ".) Vibrate is checked: " + Boolean.toString(isChecked));
                     break;
                 case R.id.chbxSound:
-                    alertType[2] = Utils.convertBooleanToInt(isChecked);
+                    alertType[2] = isChecked;
                     newAlarmSchedule.setAlertType(alertType);
                     scheduleEditor.editAlertType(newAlarmSchedule);
                     Log.i(TAG, position + ".) Sound is checked: " + Boolean.toString(isChecked));
@@ -592,7 +592,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         if(!availableDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)]){
             newActivatedDays[ (rightNow.get(Calendar.DAY_OF_WEEK) - 1)] = true;
         }
-        scheduleEditor.newAlarm(true, Utils.getDefaultAlertType(mContext), startTime,
+        boolean[] alertTypes = Utils.getDefaultAlertType(mContext);
+        scheduleEditor.newAlarm(true, alertTypes[0], alertTypes[1], alertTypes[2], startTime,
                 endTime, Utils.getDefaultFrequency(mContext), "", newActivatedDays[0],
                 newActivatedDays[1], newActivatedDays[2], newActivatedDays[3], newActivatedDays[4],
                 newActivatedDays[5], newActivatedDays[6]);

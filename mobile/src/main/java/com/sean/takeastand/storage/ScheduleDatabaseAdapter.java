@@ -48,7 +48,8 @@ public class ScheduleDatabaseAdapter
         mContext = context;
     }
 
-    public long newAlarm(boolean activated, int[] alertType, String startTime, String endTime, int frequency,
+    public long newAlarm(boolean activated, boolean led, boolean vibrate, boolean sound,
+                         String startTime, String endTime, int frequency,
                          String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
@@ -57,7 +58,9 @@ public class ScheduleDatabaseAdapter
         SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put("activated", Utils.convertBooleanToInt(activated));
-        databaseInfo.put("alert_type", Utils.convertIntArrayToString(alertType));
+        databaseInfo.put("alert_led", Utils.convertBooleanToInt(led));
+        databaseInfo.put("alert_vibrate", Utils.convertBooleanToInt(vibrate));
+        databaseInfo.put("alert_sound", Utils.convertBooleanToInt(sound));
         databaseInfo.put("start_time", startTime);
         databaseInfo.put("end_time", endTime);
         databaseInfo.put("frequency", frequency);
@@ -91,7 +94,8 @@ public class ScheduleDatabaseAdapter
     }
 
     //This method may be deletable; no longer used in interactive listview
-    public int editAlarm(boolean activated, int[] alertType, String startTime, String endTime, int frequency,
+    public int editAlarm(boolean activated, boolean led, boolean vibrate, boolean sound,
+                         String startTime, String endTime, int frequency,
                          String title, boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday, int rowID)
     {
@@ -100,7 +104,9 @@ public class ScheduleDatabaseAdapter
         SQLiteDatabase alarmsDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(ScheduleSQLHelper.ACTIVATED, Utils.convertBooleanToInt(activated));
-        databaseInfo.put(ScheduleSQLHelper.ALERT_TYPE, Utils.convertIntArrayToString(alertType));
+        databaseInfo.put(ScheduleSQLHelper.ALERT_LED, Utils.convertBooleanToInt(led));
+        databaseInfo.put(ScheduleSQLHelper.ALERT_VIBRATE, Utils.convertBooleanToInt(vibrate));
+        databaseInfo.put(ScheduleSQLHelper.ALERT_SOUND, Utils.convertBooleanToInt(sound));
         databaseInfo.put(ScheduleSQLHelper.START_TIME, startTime);
         databaseInfo.put(ScheduleSQLHelper.END_TIME, endTime);
         databaseInfo.put(ScheduleSQLHelper.FREQUENCY, frequency);
@@ -138,12 +144,14 @@ public class ScheduleDatabaseAdapter
         return count;
     }
 
-    public int updateAlertType(int UID, int[] alertTypes) {
+    public int updateAlertType(int UID, boolean led, boolean vibrate, boolean sound) {
         Log.i(TAG, "Updating AlertTypes");
         ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
         SQLiteDatabase scheduleDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues updatedInfo = new ContentValues();
-        updatedInfo.put(ScheduleSQLHelper.ALERT_TYPE, Utils.convertIntArrayToString(alertTypes));
+        updatedInfo.put(ScheduleSQLHelper.ALERT_LED, Utils.convertBooleanToInt(led));
+        updatedInfo.put(ScheduleSQLHelper.ALERT_VIBRATE, Utils.convertBooleanToInt(vibrate));
+        updatedInfo.put(ScheduleSQLHelper.ALERT_SOUND, Utils.convertBooleanToInt(sound));
         String[] arrayOfString = new String[1];
         arrayOfString[0] = Integer.toString(UID);
         int count = scheduleDatabase.update(ScheduleSQLHelper.TABLE_MAIN, updatedInfo,
@@ -331,19 +339,21 @@ public class ScheduleDatabaseAdapter
                 int UID = cursor.getInt(0);
                 Log.i(TAG, "Row UID " + Integer.toString(UID));
                 boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
-                int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
-                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3), mContext);
-                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4), mContext);
-                int frequency = cursor.getInt(5);
-                String title = cursor.getString(6);
-                boolean sunday = Utils.convertIntToBoolean(cursor.getInt(7));
-                boolean monday = Utils.convertIntToBoolean(cursor.getInt(8));
-                boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(9));
-                boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(10));
-                boolean thursday = Utils.convertIntToBoolean(cursor.getInt(11));
-                boolean friday = Utils.convertIntToBoolean(cursor.getInt(12));
-                boolean saturday = Utils.convertIntToBoolean(cursor.getInt(13));
-                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, alertType,
+                boolean led = Utils.convertIntToBoolean(cursor.getInt(2));
+                boolean vibrate = Utils.convertIntToBoolean(cursor.getInt(3));
+                boolean sound = Utils.convertIntToBoolean(cursor.getInt(4));
+                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(5), mContext);
+                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(6), mContext);
+                int frequency = cursor.getInt(7);
+                String title = cursor.getString(8);
+                boolean sunday = Utils.convertIntToBoolean(cursor.getInt(9));
+                boolean monday = Utils.convertIntToBoolean(cursor.getInt(10));
+                boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(11));
+                boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(12));
+                boolean thursday = Utils.convertIntToBoolean(cursor.getInt(13));
+                boolean friday = Utils.convertIntToBoolean(cursor.getInt(14));
+                boolean saturday = Utils.convertIntToBoolean(cursor.getInt(15));
+                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, led, vibrate, sound,
                         startTime, endTime, frequency, title, sunday, monday, tuesday, wednesday,
                         thursday, friday, saturday);
                 alarmSchedules.add(alarmSchedule);
@@ -366,19 +376,21 @@ public class ScheduleDatabaseAdapter
                 int UID = cursor.getInt(0);
                 Log.i(TAG, "Row UID " + Integer.toString(UID));
                 boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
-                int[] alertType = Utils.convertStringToIntArray(cursor.getString(2));
-                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(3), mContext);
-                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(4), mContext);
-                int frequency = cursor.getInt(5);
-                String title = cursor.getString(6);
-                boolean sunday = Utils.convertIntToBoolean(cursor.getInt(7));
-                boolean monday = Utils.convertIntToBoolean(cursor.getInt(8));
-                boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(9));
-                boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(10));
-                boolean thursday = Utils.convertIntToBoolean(cursor.getInt(11));
-                boolean friday = Utils.convertIntToBoolean(cursor.getInt(12));
-                boolean saturday = Utils.convertIntToBoolean(cursor.getInt(13));
-                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, alertType,
+                boolean led = Utils.convertIntToBoolean(cursor.getInt(2));
+                boolean vibrate = Utils.convertIntToBoolean(cursor.getInt(3));
+                boolean sound = Utils.convertIntToBoolean(cursor.getInt(4));
+                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(5), mContext);
+                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(6), mContext);
+                int frequency = cursor.getInt(7);
+                String title = cursor.getString(8);
+                boolean sunday = Utils.convertIntToBoolean(cursor.getInt(9));
+                boolean monday = Utils.convertIntToBoolean(cursor.getInt(10));
+                boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(11));
+                boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(12));
+                boolean thursday = Utils.convertIntToBoolean(cursor.getInt(13));
+                boolean friday = Utils.convertIntToBoolean(cursor.getInt(14));
+                boolean saturday = Utils.convertIntToBoolean(cursor.getInt(15));
+                AlarmSchedule alarmSchedule = new AlarmSchedule(UID, activated, led, vibrate, sound,
                         startTime, endTime, frequency, title, sunday, monday, tuesday, wednesday,
                         thursday, friday, saturday);
                 fixedAlarmSchedules.add(new FixedAlarmSchedule(alarmSchedule));
@@ -463,7 +475,9 @@ public class ScheduleDatabaseAdapter
         private static final String TABLE_MAIN = "alarms_table";
         private static final String UID = "_id";
         private static final String ACTIVATED = "activated";
-        private static final String ALERT_TYPE = "alert_type";
+        private static final String ALERT_LED = "alert_led";
+        private static final String ALERT_VIBRATE = "alert_vibrate";
+        private static final String ALERT_SOUND = "alert_sound";
         private static final String START_TIME = "start_time";
         private static final String END_TIME = "end_time";
         private static final String FREQUENCY = "frequency";
@@ -489,7 +503,8 @@ public class ScheduleDatabaseAdapter
             {
                 sQLiteDatabase.execSQL("CREATE TABLE " + ScheduleSQLHelper.TABLE_MAIN + " (" + ScheduleSQLHelper.UID
                         + " INTEGER PRIMARY KEY AUTOINCREMENT, " + ScheduleSQLHelper.ACTIVATED + " INTEGER, " +
-                        ScheduleSQLHelper.ALERT_TYPE + " TEXT, " + ScheduleSQLHelper.START_TIME + " TEXT, " +
+                        ScheduleSQLHelper.ALERT_LED + " INTEGER, " + ScheduleSQLHelper.ALERT_VIBRATE + " INTEGER, " +
+                        ScheduleSQLHelper.ALERT_SOUND + " INTEGER, " + ScheduleSQLHelper.START_TIME + " TEXT, " +
                         ScheduleSQLHelper.END_TIME + " TEXT, " + ScheduleSQLHelper.FREQUENCY + " INTEGER, " +
                         ScheduleSQLHelper.TITLE + " TEXT, " + ScheduleSQLHelper.SUNDAY + " INTEGER, " +
                         ScheduleSQLHelper.MONDAY + " INTEGER, " + ScheduleSQLHelper.TUESDAY + " INTEGER, " +

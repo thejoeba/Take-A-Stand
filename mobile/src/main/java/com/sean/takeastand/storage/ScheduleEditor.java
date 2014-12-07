@@ -54,12 +54,13 @@ public class ScheduleEditor {
         scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(context);
     }
 
-    public void newAlarm(boolean activated,  int[] alarmType, String startTime, String endTime, int frequency,
+    public void newAlarm(boolean activated,  boolean led, boolean vibrate, boolean sound,
+                            String startTime, String endTime, int frequency,
                             String title, boolean sunday, boolean monday, boolean tuesday,
                             boolean wednesday, boolean thursday, boolean friday, boolean saturday)
     {
-       scheduleDatabaseAdapter.newAlarm(activated, alarmType, startTime, endTime, frequency, title,
-                sunday, monday, tuesday, wednesday, thursday, friday, saturday);
+       scheduleDatabaseAdapter.newAlarm(activated, led, vibrate, sound, startTime, endTime, frequency,
+               title, sunday, monday, tuesday, wednesday, thursday, friday, saturday);
         if (activated)
         {
             int UID = new ScheduleDatabaseAdapter(mContext).getLastRowID();
@@ -68,8 +69,8 @@ public class ScheduleEditor {
             if(Utils.isTodayActivated(sunday, monday, tuesday, wednesday, thursday, friday, saturday)){
                 if(setRepeatingAlarmNow(startTime, endTime)){
                     //Because we already now activated is true, just put true
-                    FixedAlarmSchedule newAlarmSchedule = new FixedAlarmSchedule(UID, true, alarmType,
-                            Utils.convertToCalendarTime(startTime, mContext),
+                    FixedAlarmSchedule newAlarmSchedule = new FixedAlarmSchedule(UID, true, led,
+                            vibrate, sound, Utils.convertToCalendarTime(startTime, mContext),
                             Utils.convertToCalendarTime(endTime, mContext),
                             frequency, title, sunday, monday, tuesday, wednesday, thursday, friday,
                             saturday);
@@ -115,7 +116,9 @@ public class ScheduleEditor {
     }
 
     public void editAlertType(AlarmSchedule alarmSchedule){
-        scheduleDatabaseAdapter.updateAlertType(alarmSchedule.getUID(),alarmSchedule.getAlertType());
+        boolean[] alertTypes = alarmSchedule.getAlertType();
+        scheduleDatabaseAdapter.updateAlertType(alarmSchedule.getUID(), alertTypes[0],
+                alertTypes[1], alertTypes[2] );
         if(alarmSchedule.getUID() == Utils.getRunningScheduledAlarm(mContext)
                 && alarmSchedule.getActivated()){
             ScheduledRepeatingAlarm scheduledRepeatingAlarm = new ScheduledRepeatingAlarm(mContext,
