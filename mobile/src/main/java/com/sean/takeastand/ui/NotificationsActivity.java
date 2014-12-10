@@ -3,14 +3,10 @@ package com.sean.takeastand.ui;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.NumberPicker;
 import android.widget.Switch;
@@ -20,7 +16,7 @@ import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
-import org.w3c.dom.Text;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class NotificationsActivity extends Activity {
 
@@ -68,7 +64,7 @@ public class NotificationsActivity extends Activity {
         swRepeat.setOnClickListener(repeatListener);
         swRepeat.setChecked(Utils.getRepeatAlerts(this));
         npNotificationTime = (NumberPicker) findViewById(R.id.alertNumberPicker);
-        npNotificationTime.setMinValue(0);
+        npNotificationTime.setMinValue(1);
         npNotificationTime.setMaxValue(60);
         npNotificationTime.setValue(Utils.getDefaultAlertDelay(this));
         npNotificationTime.setWrapSelectorWheel(false);
@@ -115,32 +111,41 @@ public class NotificationsActivity extends Activity {
     };
 
     private void setGrayedAreas(){
+        if (Utils.getRepeatAlerts(NotificationsActivity.this)) {
+            txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
+            npNotificationTime.setEnabled(true);
+            npNotificationTime.setAlpha((float)1);
+            txtNotificationFrequency.setVisibility(View.VISIBLE);
+            npNotificationTime.setVisibility(View.VISIBLE);
+        } else {
+            txtNotificationFrequency.setVisibility(View.GONE);
+            npNotificationTime.setVisibility(View.GONE);
+        }
         if (chbxVibrate.isChecked() || chbxSound.isChecked()) {
-            txtSilentMode.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             txtRepeat.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-            swSilent.setEnabled(true);
             swRepeat.setEnabled(true);
-            swSilent.setAlpha((float)1);
             swRepeat.setAlpha((float)1);
-            if (Utils.getRepeatAlerts(NotificationsActivity.this)) {
-                txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-                npNotificationTime.setEnabled(true);
-                npNotificationTime.setAlpha((float)1);
-            } else {
+        } else {
+            txtRepeat.setTextColor(getResources().getColor(R.color.LightGrey));
+            txtNotificationFrequency.setTextColor(getResources().getColor(R.color.LightGrey));
+            swRepeat.setEnabled(false);
+            swRepeat.setAlpha((float)0.5);
+            npNotificationTime.setEnabled(false);
+            if(txtNotificationFrequency.getVisibility() != View.GONE){
                 txtNotificationFrequency.setTextColor(getResources().getColor(R.color.LightGrey));
                 npNotificationTime.setEnabled(false);
                 npNotificationTime.setAlpha((float)0.5);
             }
+        }
+        if (chbxVibrate.isChecked()){
+            txtSilentMode.setTextColor(getResources().getColor(android.R.color.primary_text_light));
+            swSilent.setEnabled(true);
+            swSilent.setAlpha((float)1);
         } else {
             txtSilentMode.setTextColor(getResources().getColor(R.color.LightGrey));
-            txtRepeat.setTextColor(getResources().getColor(R.color.LightGrey));
-            txtNotificationFrequency.setTextColor(getResources().getColor(R.color.LightGrey));
             swSilent.setEnabled(false);
-            swRepeat.setEnabled(false);
             swSilent.setAlpha((float)0.5);
-            swRepeat.setAlpha((float)0.5);
-            npNotificationTime.setEnabled(false);
         }
     }
 
@@ -184,4 +189,11 @@ public class NotificationsActivity extends Activity {
         finish();
         return super.onOptionsItemSelected(item);
     }
+
+    //For Calligraphy font library class
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(new CalligraphyContextWrapper(newBase));
+    }
+
 }

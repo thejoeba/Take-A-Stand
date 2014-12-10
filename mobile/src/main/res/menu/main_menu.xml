@@ -6,6 +6,13 @@
     <item android1:id="@+id/schedules"
         android1:icon="@drawable/ic_action_alarms"
         android1:title="Schedule"
+        android1:orderInCategory="2"
         android1:showAsAction="always"
+        app:showAsAction="always"/>
+    <item android1:id="@+id/pauseplay"
+        android1:icon="@drawable/ic_action_pause"
+        android1:title="Pause"
+        android1:showAsAction="always"
+        android1:orderInCategory="0"
         app:showAsAction="always"/>
 </menu>

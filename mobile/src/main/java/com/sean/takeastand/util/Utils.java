@@ -453,6 +453,19 @@ public final class Utils {
         editor.commit();
     }
 
+    //Used by MainActivity, ScheduledRepeatingAlarm, and UnscheduledRepeatingAlarm
+    public static int getDefaultPauseAmount(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getInt(Constants.PAUSE_TIME, 30);
+    }
+
+    //Used by MainActivity, ScheduledRepeatingAlarm, and UnscheduledRepeatingAlarm
+    public static boolean getDefaultPauseType(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getBoolean(Constants.PAUSE_TYPE, true);
+    }
 
     private static Calendar setCalendarTime(Calendar calendar, int hour, int minute){
         calendar.set(Calendar.HOUR_OF_DAY, hour);

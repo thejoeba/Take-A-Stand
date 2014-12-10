@@ -43,9 +43,11 @@ public final class Constants {
     public static final int NON_SCHEDULE_ALARM_RUNNING = 2;
     public static final int NON_SCHEDULE_TIME_TO_STAND = 3;
     public static final int NON_SCHEDULE_STOOD_UP = 4;
-    public static final int SCHEDULE_RUNNING = 5;
-    public static final int SCHEDULE_TIME_TO_STAND = 6;
-    public static final int SCHEDULE_STOOD_UP = 7;
+    public static final int NON_SCHEDULE_PAUSED = 5;
+    public static final int SCHEDULE_RUNNING = 6;
+    public static final int SCHEDULE_TIME_TO_STAND = 7;
+    public static final int SCHEDULE_STOOD_UP = 8;
+    public static final int SCHEDULE_PAUSED = 9;
     public static final String INTENT_MAIN_IMAGE = "UpdateMainImage";
     public static final String USER_ALERT_LED = "UserAlertLED";
     public static final String USER_ALERT_VIBRATE = "UserAlertVibrate";
@@ -62,4 +64,14 @@ public final class Constants {
     public static final String UPDATE_NEXT_ALARM_TIME = "UpdateNextAlarmTime";
     public static final String STAND_DETECTOR = "StandDetector";
     public static final String LAST_STEP = "LastStep";
+    public static final int STOOD_BEFORE = 1;
+    public static final int TAPPED_NOTIFICATION = 2;
+    public static final int TAPPED_ACTIVITY = 3;
+    public static final int STOOD_AFTER = 4;
+    public static final String STOOD_METHOD = "HowUserStood";
+    public static final String STAND_DETECTOR_RESULT = "StandDetectorResult";
+    public static final String STAND_DETECTED = "StandDetected";
+    public static final String UPDATE_ACTION_BAR = "UpdateActionBar";
+    public static final String PAUSE_TIME = "PauseTimeAmount";
+    public static final String PAUSE_TYPE = "PauseType";
 }

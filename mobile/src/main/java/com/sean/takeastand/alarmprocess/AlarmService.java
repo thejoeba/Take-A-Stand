@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.StoodLogsAdapter;
 import com.sean.takeastand.ui.MainActivity;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -164,19 +165,24 @@ public class AlarmService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
-            String action = intent.getAction();
-            Bundle extras = intent.getExtras();
-            if (action.equals("STOOD_RESULTS") && extras != null) {
-                String result = extras.getString("RESULT");
-                if (result.equals("STAND_DETECTED")) {
+            if (intent.hasExtra(Constants.STAND_DETECTOR_RESULT)) {
+                String result = intent.getStringExtra(Constants.STAND_DETECTOR_RESULT);
+                if (result.equals(Constants.STAND_DETECTED)) {
                     Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
                     long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
                     v.vibrate(pattern, -1);
+                    recordStand(Constants.STOOD_AFTER);
                 }
-                // else expired or not in pocket
+                // Expired or not in pocket
                 else {
                     return;
                 }
+            }
+            //0 signifies stand recorded incorrectly, for whatever reason
+            if(intent.hasExtra(Constants.STOOD_METHOD)){
+                recordStand(intent.getIntExtra(Constants.STOOD_METHOD, 0));
+            } else {
+                recordStand(0);
             }
             cancelNotification();
             showPraise();
@@ -235,6 +241,7 @@ public class AlarmService extends Service  {
                         bPostponed = true;
                         Log.d(TAG, "Last step less than default frequency");
                         postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
+                        recordStand(Constants.STOOD_BEFORE);
                         AlarmService.this.stopSelf();
                     }
                 }
@@ -295,6 +302,8 @@ public class AlarmService extends Service  {
         @Override
         public void run() {
             setStoodUpAlarm(getApplicationContext());
+            StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(AlarmService.this);
+            stoodLogsAdapter.getLastRow();
             AlarmService.this.stopSelf();
         }
     };
@@ -539,6 +548,7 @@ public class AlarmService extends Service  {
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(this, 0,
                 launchActivityIntent, 0);
         Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
+        stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
         Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);
@@ -564,5 +574,9 @@ public class AlarmService extends Service  {
         notificationManager.cancel(R.integer.AlarmNotificationID);
     }
 
+    private void recordStand(int stoodMethod){
+        StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(this);
+        stoodLogsAdapter.newStoodLog(stoodMethod);
+    }
 
 }

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp">
+    <TextView
+        android:id="@+id/pause_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Pause Type"
+        android:textSize="@dimen/alert_text_size"
+        android:layout_centerHorizontal="true"/>
+    <RadioGroup
+        android:id="@+id/pauseButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pause_title"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="4dp">
+        <RadioButton android:id="@+id/pause_indefinite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pause indefinitely"
+            android:layout_margin="2dp"/>
+        <RadioButton android:id="@+id/pause_set_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pause for a set time"
+            android:layout_margin="2dp"/>
+    </RadioGroup>
+    <View
+        android:id="@+id/numberPickerLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/LightGrey"
+        android:layout_below="@+id/pauseButtons"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginLeft="25dp"/>
+    <NumberPicker
+        android:id="@+id/pauseNumberPicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/numberPickerLine"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="4dp"/>
+    <LinearLayout
+        android:id="@+id/touch_for_pause"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pauseNumberPicker"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true"
+        android:paddingBottom="16dp"
+        android:layout_margin="4dp"
+        >
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/LightGrey"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginLeft="25dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="About pause for a set time"
+                android:textSize="@dimen/alert_text_size"
+                android:layout_margin="2dp"/>
+            <ImageView
+                android:id="@+id/pause_collapse_expand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="14sp"
+                android:src="@drawable/ic_action_expand"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/pause_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pause_description"
+            android:textSize="14sp"
+            android:layout_marginRight="27dp"
+            android:layout_marginLeft="27dp"
+            android:visibility="gone"/>
+    </LinearLayout>
+</RelativeLayout>

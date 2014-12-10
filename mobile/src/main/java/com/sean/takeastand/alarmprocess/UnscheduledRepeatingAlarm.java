@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -101,7 +102,15 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
 
     @Override
     public void pause() {
-
+        cancelAlarm();
+        if(!Utils.getDefaultPauseType(mContext)){
+            int totalPauseTime = Utils.getDefaultPauseAmount(mContext)
+                    + Utils.getDefaultFrequency(mContext);
+            long delayTimeInMillis = totalPauseTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
+            long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
+            setAlarm(triggerTime);
+        }
+        Utils.setImageStatus(mContext, Constants.NON_SCHEDULE_PAUSED);
     }
 
 

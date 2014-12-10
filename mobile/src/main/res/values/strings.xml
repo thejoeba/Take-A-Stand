@@ -41,7 +41,7 @@
     <string name="cancel">Cancel</string>
     <string name="schedule_running">Schedule Running</string>
     <string name="settings">Settings</string>
-    <string name="select_frequency_default">Set Default Reminder Frequency</string>
+    <string name="select_frequency_default">Default Reminder Frequency</string>
     <string name="select_alert_types">Set Default Notification</string>
     <string name="schedules">Schedules</string>
     <string name="AM">am</string>
@@ -71,11 +71,14 @@
     <string name="calibration">Calibration</string>
     <string name="calibration_instructions">To calibrate, the phone must be in your pocket and you must be sitting. The phone will Vibrate once, indicating you should stand. Once calibration is complete, the phone will vibrate again. Once you press OK, you will have 5 seconds to put the phone in your pocket and be sitting before you feel the first vibration.</string>
     <string name="click_for_first_schedule">No stand reminder schedules yet \n \n Click to Add</string>
-    <string name="vibrate_sound_on_silent">Vibrate/sound notification when device ringer is set to silent</string>
+    <string name="vibrate_sound_on_silent">Vibrate even when device ringer is set to silent</string>
     <string name="repeat_vibrate_sound">Repeat vibrate/sound reminders when it is time to stand</string>
-    <string name="vibrate_sound_frequency">Reminder frequency \n(minutes)</string>
+    <string name="vibrate_sound_frequency">Time to stand reminder frequency \n(minutes)</string>
     <string name="title_activity_notifications">NotificationsActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="notification_settings">Notification Settings</string>
+    <string name="pause_settings">Pause Settings</string>
+    <string name="pause_description">If pausing for a set time, the next reminder will happen your default frequency minutes after the paused time has passed (20 minute frequency and 30 minute pause = next stand reminder in 50 minutes)</string>
+
 
 </resources>

@@ -39,7 +39,7 @@ import java.util.Calendar;
 public class ScheduleDatabaseAdapter
 {
 
-    private static final String TAG = "Database Adapter: ";
+    private static final String TAG = "Schedule Database Adapter: ";
     private Context mContext;
 
 
@@ -448,12 +448,47 @@ public class ScheduleDatabaseAdapter
         return count;
     }
 
-
-
-
-
-
-
+    /*public AlarmSchedule getSpecificAlarmSchedule(int UID){
+        AlarmSchedule alarmSchedule;
+        ScheduleSQLHelper scheduleSQLHelper = new ScheduleSQLHelper(mContext);
+        //Need to create a string array for the whereArgs, which determine row(s) to update
+        String[] arrayOfString = new String[1];
+        arrayOfString[0] = Integer.toString(UID);
+        Cursor cursor = scheduleSQLHelper.getWritableDatabase().query(ScheduleSQLHelper.TABLE_MAIN,
+                null, null, null, null, null, null);
+        //Check to make sure there is a row; this prevents IndexOutOfBoundsException
+        if(!(cursor.getCount()==0)){
+                Log.i(TAG, "Row UID " + Integer.toString(UID));
+                boolean activated = Utils.convertIntToBoolean(cursor.getInt(1));
+                boolean led = Utils.convertIntToBoolean(cursor.getInt(2));
+                boolean vibrate = Utils.convertIntToBoolean(cursor.getInt(3));
+                boolean sound = Utils.convertIntToBoolean(cursor.getInt(4));
+                Calendar startTime = Utils.convertToCalendarTime(cursor.getString(5), mContext);
+                Calendar endTime = Utils.convertToCalendarTime(cursor.getString(6), mContext);
+                int frequency = cursor.getInt(7);
+                String title = cursor.getString(8);
+                boolean sunday = Utils.convertIntToBoolean(cursor.getInt(9));
+                boolean monday = Utils.convertIntToBoolean(cursor.getInt(10));
+                boolean tuesday = Utils.convertIntToBoolean(cursor.getInt(11));
+                boolean wednesday = Utils.convertIntToBoolean(cursor.getInt(12));
+                boolean thursday = Utils.convertIntToBoolean(cursor.getInt(13));
+                boolean friday = Utils.convertIntToBoolean(cursor.getInt(14));
+                boolean saturday = Utils.convertIntToBoolean(cursor.getInt(15));
+                alarmSchedule = new AlarmSchedule(UID, activated, led, vibrate, sound,
+                        startTime, endTime, frequency, title, sunday, monday, tuesday, wednesday,
+                        thursday, friday, saturday);
+            Log.i(TAG, "Activated" + Boolean.toString(alarmSchedule.getActivated()));
+            Log.i(TAG, "Sunday" + Boolean.toString(alarmSchedule.getSunday()));
+            Log.i(TAG, "Monday" + Boolean.toString(alarmSchedule.getMonday()));
+            Log.i(TAG, "Title" + alarmSchedule.getTitle());
+            scheduleSQLHelper.close();
+            cursor.close();
+            return alarmSchedule;
+        }
+        scheduleSQLHelper.close();
+        cursor.close();
+        return null;
+    }*/
 
     /*
     *
@@ -470,7 +505,7 @@ public class ScheduleDatabaseAdapter
     public class ScheduleSQLHelper
             extends SQLiteOpenHelper
     {
-        private static final String DATABASE_NAME = "alarms_database";
+        private static final String DATABASE_NAME = "schedules_database";
         private static final int DATABASE_VERSION = 1;
         private static final String TABLE_MAIN = "alarms_table";
         private static final String UID = "_id";

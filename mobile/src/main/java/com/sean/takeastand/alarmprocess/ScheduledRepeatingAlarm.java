@@ -129,7 +129,15 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     @Override
     public void pause() {
-
+        cancelAlarm();
+        if(!Utils.getDefaultPauseType(mContext)){
+            int totalPauseTime = Utils.getDefaultPauseAmount(mContext)
+                    + mCurrentAlarmSchedule.getFrequency();
+            long delayTimeInMillis = totalPauseTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
+            long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
+            setAlarm(triggerTime);
+        }
+        Utils.setImageStatus(mContext, Constants.SCHEDULE_PAUSED);
     }
 
     private void setAlarm(long triggerTime){
@@ -176,5 +184,4 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
                 mContext.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         return sharedPreferences.getLong(Constants.NEXT_ALARM_TIME_MILLIS, -1);
     }
-
 }

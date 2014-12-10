@@ -15,6 +15,9 @@ import android.os.Vibrator;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.sean.takeastand.R;
+import com.sean.takeastand.util.Constants;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -187,8 +190,8 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
             if(!bCalibrate) {
                 try {
 //                    Log.d("StandSensor", "Expired");
-                    returnIntent.setAction("STOOD_RESULTS");
-                    returnIntent.putExtra("RESULT", "EXPIRED");
+                    returnIntent.setAction(Constants.STOOD_RESULTS);
+                    returnIntent.putExtra(Constants.STAND_DETECTOR_RESULT, "EXPIRED");
                     pendingIntent.send(this, 0 , returnIntent);
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
@@ -324,8 +327,9 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                         StopSensor();
                         try {
 //                            Log.d("StandSensor", "Stood");
-                            returnIntent.setAction("STOOD_RESULTS");
-                            returnIntent.putExtra("RESULT", "STAND_DETECTED");
+                            returnIntent.setAction(Constants.STOOD_RESULTS);
+                            returnIntent.putExtra(Constants.STAND_DETECTOR_RESULT,
+                                    Constants.STAND_DETECTED);
                             pendingIntent.send(this, 0 ,returnIntent);
                         } catch (PendingIntent.CanceledException e) {
                             e.printStackTrace();
@@ -337,8 +341,8 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
             else {
                 try {
                     StopSensor();
-                    returnIntent.setAction("STOOD_RESULTS");
-                    returnIntent.putExtra("RESULT", "FAILED_POCKET");
+                    returnIntent.setAction(Constants.STOOD_RESULTS);
+                    returnIntent.putExtra(Constants.STAND_DETECTOR_RESULT, "FAILED_POCKET");
                     pendingIntent.send(this, 0 ,returnIntent);
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();

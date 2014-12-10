@@ -46,6 +46,8 @@ import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.ArrayList;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 /**
  * Created by Sean on 2014-09-21.
  */
@@ -239,5 +241,12 @@ public class ScheduleListActivity extends ListActivity {
             mJustReceivedTimePicker = true;
         }
     };
+
+    //For Calligraphy font library class
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(new CalligraphyContextWrapper(newBase));
+    }
+
 
 }
