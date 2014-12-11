@@ -51,6 +51,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     private Context mContext;
     private FixedAlarmSchedule mCurrentAlarmSchedule;
     private static final int REPEATING_ALARM_ID = 987654321;
+    private static final int PAUSE_ALARM_ID = 123456789;
 
     public ScheduledRepeatingAlarm(Context context, FixedAlarmSchedule alarmSchedule)
     {
@@ -63,8 +64,8 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         */
     @Override
     public void setRepeatingAlarm() {
-        double alarmPeriodMinutes = mCurrentAlarmSchedule.getFrequency();
-        double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
+        int alarmPeriodMinutes = mCurrentAlarmSchedule.getFrequency();
+        long alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
                 Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
@@ -129,15 +130,29 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     @Override
     public void pause() {
-        cancelAlarm();
+        //Cancel previous
+        PendingIntent pendingIntent = createPendingIntent(mContext, mCurrentAlarmSchedule);
+        AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(pendingIntent);
+        endAlarmService();
+        //Set pause alarm if relevant
         if(!Utils.getDefaultPauseType(mContext)){
-            int totalPauseTime = Utils.getDefaultPauseAmount(mContext)
-                    + mCurrentAlarmSchedule.getFrequency();
+            int totalPauseTime = Utils.getDefaultPauseAmount(mContext);
             long delayTimeInMillis = totalPauseTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
-            long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
-            setAlarm(triggerTime);
+            long  triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
+            PendingIntent pausePendingIntent = createPausePendingIntent(mContext, mCurrentAlarmSchedule);
+            am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pausePendingIntent);
         }
         Utils.setImageStatus(mContext, Constants.SCHEDULE_PAUSED);
+    }
+
+    @Override
+    public void unpause() {
+        PendingIntent pendingIntent = createPausePendingIntent(mContext, mCurrentAlarmSchedule);
+        AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(pendingIntent);
+        setRepeatingAlarm();
+        Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
     }
 
     private void setAlarm(long triggerTime){
@@ -162,6 +177,13 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra(Constants.ALARM_SCHEDULE, alarmSchedule);
         return PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private PendingIntent createPausePendingIntent(Context context, FixedAlarmSchedule alarmSchedule){
+        Intent intent = new Intent(context, EndPauseReceiver.class);
+        intent.putExtra(Constants.ALARM_SCHEDULE, alarmSchedule);
+        return PendingIntent.getBroadcast(context, PAUSE_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 

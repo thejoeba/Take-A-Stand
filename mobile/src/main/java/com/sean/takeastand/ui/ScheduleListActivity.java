@@ -176,6 +176,8 @@ public class ScheduleListActivity extends ListActivity {
                         args.putBoolean("StartOrEndButton", false);
                         args.putBoolean("NewAlarm", true);
                         mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
+                        //Once figure out how to restrict timepickerdialog
+                        //args.putString("StartTime", mNewAlarmStartTime);
                         final TimePickerFragment timePickerFragment = new TimePickerFragment();
                         timePickerFragment.setArguments(args);
                         timePickerFragment.show(getFragmentManager(), "timePicker");

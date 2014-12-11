@@ -73,7 +73,7 @@ public class AlarmSchedule implements Parcelable {
 
     //This constructor is only called when an object of this class is being remade from a Parcel
     private AlarmSchedule(Parcel inParcel){
-        boolean[] arrayBooleans = new boolean[8];
+        boolean[] arrayBooleans = new boolean[11];
         inParcel.readBooleanArray(arrayBooleans);
         activated = arrayBooleans[0];
         sunday = arrayBooleans[1];

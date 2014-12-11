@@ -48,6 +48,7 @@ import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.heckbot.standdtector.MyBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
@@ -87,7 +88,7 @@ public class MainActivity extends Activity {
         mNavDrawerOptions.add(getString(R.string.default_frequency));
         mNavDrawerOptions.add(getString(R.string.default_notification));
         SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 1);
         boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
         if(bStandDetector){
             mNavDrawerOptions.add(getString(R.string.stand_detector_on));
@@ -97,7 +98,6 @@ public class MainActivity extends Activity {
         mNavDrawerOptions.add(getString(R.string.calibrate_detector));
         mNavDrawerOptions.add(getString(R.string.pause_settings));
         mNavDrawerOptions.add(getString(R.string.science_app));
-
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -276,36 +276,18 @@ public class MainActivity extends Activity {
         int status = Utils.getImageStatus(this);
         if(status == Constants.NON_SCHEDULE_ALARM_RUNNING || status == Constants.NON_SCHEDULE_STOOD_UP ||
                 status == Constants.NON_SCHEDULE_TIME_TO_STAND){
-            new UnscheduledRepeatingAlarm(this).pause();
+            pauseUnscheduled();
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
         } else if (status == Constants.SCHEDULE_RUNNING || status == Constants.SCHEDULE_STOOD_UP ||
                 status == Constants.SCHEDULE_TIME_TO_STAND){
-            ArrayList<FixedAlarmSchedule> alarmSchedules =
-                    new ScheduleDatabaseAdapter(this).getFixedAlarmSchedules();
-            //ToDo: Finish off the database method getSpecificSchedule and use instead getting the
-            //whole arraylist
-            for(int i = 0; i < alarmSchedules.size(); i ++){
-                if(alarmSchedules.get(i).getUID() == Utils.getRunningScheduledAlarm(this)){
-                    new ScheduledRepeatingAlarm(this, alarmSchedules.get(i)).pause();
-                    mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
-                }
-            }
+            pauseSchedule();
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
         } else if (status == Constants.NON_SCHEDULE_PAUSED ){
-            new UnscheduledRepeatingAlarm(this).setRepeatingAlarm();
+            unPauseUnscheduled();
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
-            Utils.setImageStatus(this, Constants.NON_SCHEDULE_ALARM_RUNNING);
         } else if (status == Constants.SCHEDULE_PAUSED){
-            ArrayList<FixedAlarmSchedule> alarmSchedules =
-                    new ScheduleDatabaseAdapter(this).getFixedAlarmSchedules();
-            //ToDo: Finish off the database method getSpecificSchedule and use instead getting the
-            //whole arraylist
-            for(int i = 0; i < alarmSchedules.size(); i ++){
-                if(alarmSchedules.get(i).getUID() == Utils.getRunningScheduledAlarm(this)){
-                    new ScheduledRepeatingAlarm(this, alarmSchedules.get(i)).setRepeatingAlarm();
-                    mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
-                    Utils.setImageStatus(this, Constants.SCHEDULE_RUNNING);
-                }
-            }
+            unPauseScheduled();
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
         }
     }
 
@@ -409,7 +391,7 @@ public class MainActivity extends Activity {
         npPause.setMinValue(0);
         npPause.setMaxValue(valueSet.length - 1);
         npPause.setWrapSelectorWheel(false);
-        npPause.setValue(Utils.getDefaultPauseAmount(this));
+        npPause.setValue((Utils.getDefaultPauseAmount(this) / 5) - 1);
         RadioButton rbIndefinite = (RadioButton)dialogView.findViewById(R.id.pause_indefinite);
         RadioButton rbSetTime = (RadioButton)dialogView.findViewById(R.id.pause_set_time);
         if(Utils.getDefaultPauseType(this)){
@@ -437,31 +419,24 @@ public class MainActivity extends Activity {
                 setDefaultPauseType(false);
             }
         });
-        LinearLayout lPauseDescription = (LinearLayout)dialogView.findViewById(R.id.touch_for_pause);
-        lPauseDescription.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TextView txtPauseDescription = (TextView)view.findViewById(R.id.pause_description);
-                ImageView imgCollapseExpand = (ImageView)view.findViewById(R.id.pause_collapse_expand);
-                if(txtPauseDescription.getVisibility() == View.VISIBLE){
-                    txtPauseDescription.setVisibility(View.GONE);
-                    imgCollapseExpand.setImageDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_expand));
-                } else {
-                    txtPauseDescription.setVisibility(View.VISIBLE);
-                    imgCollapseExpand.setImageDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_collapse));
-                }
-            }
-        });
         builder.setMessage(getResources().getString(R.string.pause_settings));
         builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                setDefaultPauseAmount(npPause.getValue());
+                //getValue returns the index number, so need to do some math to correct correct
+                //actual value
+                setDefaultPauseAmount((npPause.getValue() *  5) + 5 );
+                int currentStatus = Utils.getImageStatus(MainActivity.this);
+                if(currentStatus == Constants.NON_SCHEDULE_PAUSED ){
+                    pauseUnscheduled();
+                    Log.i(TAG, "Pause unscheduled");
+                } else if (currentStatus == Constants.SCHEDULE_PAUSED){
+                    pauseSchedule();
+                }
                 dialogInterface.dismiss();
             }
         });
+        builder.setNegativeButton(getString(R.string.cancel), null);
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
@@ -501,17 +476,48 @@ public class MainActivity extends Activity {
     private void updatePausePlay(){
         if(mPausePlay != null){
             int currentImageStatus = Utils.getImageStatus(this);
-            if(currentImageStatus != Constants.NO_ALARM_RUNNING){
-                Log.i(TAG, "true");
+            if(currentImageStatus != Constants.NO_ALARM_RUNNING &&
+                    currentImageStatus != Constants.NON_SCHEDULE_PAUSED &&
+                    currentImageStatus != Constants.SCHEDULE_PAUSED){
                 mPausePlay.setVisible(true);
+                mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+            } else if (currentImageStatus == Constants.SCHEDULE_PAUSED ||
+                    currentImageStatus == Constants.NON_SCHEDULE_PAUSED) {
+                mPausePlay.setVisible(true);
+                mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
             } else {
-                Log.i(TAG, "false");
                 mPausePlay.setVisible(false);
             }
             invalidateOptionsMenu();
         } else {
             Log.i(TAG, "null");
         }
+    }
+
+    private void pauseUnscheduled(){
+        new UnscheduledRepeatingAlarm(this).pause();
+    }
+
+    private void pauseSchedule(){
+        int currentRunningAlarmUID = Utils.getRunningScheduledAlarm(this);
+        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
+        FixedAlarmSchedule currentAlarmSchedule =
+                new FixedAlarmSchedule(
+                        scheduleDatabaseAdapter.getSpecificAlarmSchedule(currentRunningAlarmUID));
+        new ScheduledRepeatingAlarm(this,currentAlarmSchedule).pause();
+    }
+
+    private void unPauseUnscheduled(){
+        new UnscheduledRepeatingAlarm(this).unpause();
+    }
+
+    private void unPauseScheduled(){
+        int currentRunningAlarmUID = Utils.getRunningScheduledAlarm(this);
+        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
+        FixedAlarmSchedule currentAlarmSchedule =
+                new FixedAlarmSchedule(
+                        scheduleDatabaseAdapter.getSpecificAlarmSchedule(currentRunningAlarmUID));
+        new ScheduledRepeatingAlarm(this,currentAlarmSchedule).unpause();
     }
 
     //For Calligraphy font library class

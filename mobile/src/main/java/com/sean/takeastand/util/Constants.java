@@ -58,7 +58,6 @@ public final class Constants {
     public static final String VIBRATE_SILENT = "VibrateOnSilent";
     public static final String END_ALARM_SERVICE = "EndAlarmService";
     public static final String STOOD_RESULTS = "STOOD_RESULTS";
-    public static final String USER_DELAYED = "UserDelayed";
     public static final String MAIN_ACTIVITY_VISIBILITY_STATUS = "MainVisibilityStatus";
     public static final String PRAISE_FOR_USER = "PraiseForUser";
     public static final String UPDATE_NEXT_ALARM_TIME = "UpdateNextAlarmTime";

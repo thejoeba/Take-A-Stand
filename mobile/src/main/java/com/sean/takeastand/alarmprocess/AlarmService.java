@@ -128,8 +128,6 @@ public class AlarmService extends Service  {
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
                 new IntentFilter(Constants.STOOD_RESULTS));
-        getApplicationContext().registerReceiver(delayAlarmReceiver,
-                new IntentFilter(Constants.USER_DELAYED));
         getApplicationContext().registerReceiver(lastStepReceiver,
                 new IntentFilter(Constants.LAST_STEP));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
@@ -142,7 +140,6 @@ public class AlarmService extends Service  {
 
     private void unregisterReceivers(){
         getApplicationContext().unregisterReceiver(stoodUpReceiver);
-        getApplicationContext().unregisterReceiver(delayAlarmReceiver);
         getApplicationContext().unregisterReceiver(lastStepReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainVisibilityReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(endAlarmService);
@@ -196,19 +193,6 @@ public class AlarmService extends Service  {
             } else {
                 Utils.setImageStatus(getApplicationContext(), Constants.SCHEDULE_STOOD_UP);
             }
-        }
-    };
-
-    private BroadcastReceiver delayAlarmReceiver = new BroadcastReceiver(){
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "delayAlarmReceiver");
-            cancelNotification();
-            delayAlarm(getApplicationContext());
-            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            //End service
-            AlarmService.this.stopSelf();
         }
     };
 
@@ -379,7 +363,6 @@ public class AlarmService extends Service  {
         PendingIntent[] pendingIntents = makeNotificationIntents();
         RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
-        rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
         NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
         alarmNotificationBuilder
                 .setContent(rvRibbon)
@@ -393,7 +376,6 @@ public class AlarmService extends Service  {
                 .extend(
                         new NotificationCompat.WearableExtender()
                                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
-                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
                                 .setContentAction(0)
                                 .setHintHideIcon(true)
 //                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
@@ -464,7 +446,6 @@ public class AlarmService extends Service  {
         PendingIntent[] pendingIntents = makeNotificationIntents();
         RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
-        rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
         rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
         rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));
@@ -481,7 +462,6 @@ public class AlarmService extends Service  {
                 .extend(
                         new NotificationCompat.WearableExtender()
                                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
-                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
                                 .setContentAction(0)
                                 .setHintHideIcon(true)
 //                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
@@ -551,11 +531,8 @@ public class AlarmService extends Service  {
         stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
-        Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);
-        PendingIntent delayAlarmPendingIntent = PendingIntent.getBroadcast(this, 0,
-                delayAlarmIntent, 0);
         PendingIntent [] pendingIntents =
-                {launchActivityPendingIntent, stoodUpPendingIntent, delayAlarmPendingIntent};
+                {launchActivityPendingIntent, stoodUpPendingIntent};
         return pendingIntents;
     }
 
