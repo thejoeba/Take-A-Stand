@@ -23,9 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
-import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -45,7 +43,7 @@ of the alarm, which is used at different points throughout the app. */
  */
 public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
 
-    private static final String TAG = "UnscheduledRepeatingAlarm";
+    //private static final String TAG = "UnscheduledRepeatingAlarm";
 
     private Context mContext;
     private static final int REPEATING_ALARM_ID = 987654321;
@@ -74,7 +72,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
 
     @Override
     public void delayAlarm() {
-        long delayTime = Utils.getDefaultAlertDelay(mContext);
+        long delayTime = Utils.getNotificationReminderFrequency(mContext);
         long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
@@ -84,8 +82,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     }
 
     @Override
-    public void postponeAlarm(long milliseconds) {
-        long delayTimeInMillis = milliseconds;
+    public void postponeAlarm(long delayTimeInMillis) {
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
@@ -102,8 +99,6 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
     }
 
-
-
     @Override
     public void pause() {
         //Cancel previous
@@ -118,6 +113,9 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
             long  triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
             PendingIntent pausePendingIntent = createPausePendingIntent(mContext);
             am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pausePendingIntent);
+            Calendar pausedUntilTime = Calendar.getInstance();
+            pausedUntilTime.add(Calendar.MINUTE, Utils.getDefaultPauseAmount(mContext));
+            Utils.setPausedTime(pausedUntilTime, mContext);
         }
         Utils.setImageStatus(mContext, Constants.NON_SCHEDULE_PAUSED);
     }

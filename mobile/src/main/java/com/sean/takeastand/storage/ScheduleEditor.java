@@ -148,10 +148,10 @@ public class ScheduleEditor {
                 Toast.makeText(mContext, "Schedule will begin later today",
                         Toast.LENGTH_SHORT).show();
             } else if (startTime.before(rightNow) && endTime.after(rightNow)){
+                Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                 ScheduledRepeatingAlarm scheduledRepeatingAlarm =
                         new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                 scheduledRepeatingAlarm.updateAlarm();
-                Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Schedule updated and running now",
                         Toast.LENGTH_SHORT).show();
             }
@@ -174,14 +174,13 @@ public class ScheduleEditor {
                             Toast.LENGTH_SHORT).show();
                 }
             } else if (endTime.after(rightNow) && startTime.before(rightNow)){
+                Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                 ScheduledRepeatingAlarm scheduledRepeatingAlarm =
                         new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                 scheduledRepeatingAlarm.updateAlarm();
-                Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
                 Toast.makeText(mContext, "Current schedule updated", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     public void editFrequency(AlarmSchedule alarmSchedule){

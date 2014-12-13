@@ -67,7 +67,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         int alarmPeriodMinutes = mCurrentAlarmSchedule.getFrequency();
         long alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  *
                 Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
+        long triggerTime = SystemClock.elapsedRealtime() + alarmTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
         Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
@@ -98,7 +98,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
 
     @Override
     public void delayAlarm() {
-        long delayTime = Utils.getDefaultAlertDelay(mContext);
+        long delayTime = Utils.getNotificationReminderFrequency(mContext);
         long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
@@ -108,8 +108,7 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
     }
 
     @Override
-    public void postponeAlarm(long milliseconds) {
-        long delayTimeInMillis = milliseconds;
+    public void postponeAlarm(long delayTimeInMillis) {
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
         nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
@@ -142,6 +141,9 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
             long  triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
             PendingIntent pausePendingIntent = createPausePendingIntent(mContext, mCurrentAlarmSchedule);
             am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pausePendingIntent);
+            Calendar pausedUntilTime = Calendar.getInstance();
+            pausedUntilTime.add(Calendar.MINUTE, Utils.getDefaultPauseAmount(mContext));
+            Utils.setPausedTime(pausedUntilTime, mContext);
         }
         Utils.setImageStatus(mContext, Constants.SCHEDULE_PAUSED);
     }

@@ -313,18 +313,6 @@ public class AlarmService extends Service  {
         repeatingAlarm.setRepeatingAlarm();
     }
 
-    private void delayAlarm(Context context){
-        RepeatingAlarm repeatingAlarm;
-        if(mCurrentAlarmSchedule == null){
-            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
-            Utils.setImageStatus(context, Constants.NON_SCHEDULE_ALARM_RUNNING);
-        } else {
-            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
-            Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
-        }
-        repeatingAlarm.delayAlarm();
-    }
-
     private void postponeAlarm(Context context, long milliseconds){
         RepeatingAlarm repeatingAlarm;
         if(mCurrentAlarmSchedule == null){
@@ -474,7 +462,7 @@ public class AlarmService extends Service  {
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
             if(Utils.getRepeatAlerts(this)){
-                if(alertType[1] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                if(alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
                     alarmNotificationBuilder.setVibrate(mVibrationPattern);
                     AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                     if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -483,7 +471,7 @@ public class AlarmService extends Service  {
                         v.vibrate(mVibrationPattern, -1);
                     }
                 }
-                if(alertType[2] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                if(alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
                     Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                     alarmNotificationBuilder.setSound(soundUri);
                 }
@@ -494,7 +482,7 @@ public class AlarmService extends Service  {
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
             if(Utils.getRepeatAlerts(this)){
-                if(alertType[1] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                if(alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
                     alarmNotificationBuilder.setVibrate(mVibrationPattern);
                     AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                     if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -503,7 +491,7 @@ public class AlarmService extends Service  {
                         v.vibrate(mVibrationPattern, -1);
                     }
                 }
-                if(alertType[2] && mNotifTimePassed % (Utils.getDefaultAlertDelay(this)) == 0){
+                if(alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
                     Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                     alarmNotificationBuilder.setSound(soundUri);
                 }
@@ -531,9 +519,7 @@ public class AlarmService extends Service  {
         stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
-        PendingIntent [] pendingIntents =
-                {launchActivityPendingIntent, stoodUpPendingIntent};
-        return pendingIntents;
+        return new PendingIntent[]{launchActivityPendingIntent, stoodUpPendingIntent};
     }
 
     private String setMinutes(int minutes){

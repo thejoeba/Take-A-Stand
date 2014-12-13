@@ -37,25 +37,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.heckbot.standdtector.MyBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
-import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
@@ -85,7 +78,6 @@ public class MainActivity extends Activity {
         mNavDrawerOptions = new ArrayList<String>();
         //Find out how to initialize an arraylist; then update the arraylist when vibrate status changes
         //or standdtector status changes
-        mNavDrawerOptions.add(getString(R.string.default_frequency));
         mNavDrawerOptions.add(getString(R.string.default_notification));
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 1);
@@ -96,7 +88,6 @@ public class MainActivity extends Activity {
             mNavDrawerOptions.add(getString(R.string.stand_detector_off));
         }
         mNavDrawerOptions.add(getString(R.string.calibrate_detector));
-        mNavDrawerOptions.add(getString(R.string.pause_settings));
         mNavDrawerOptions.add(getString(R.string.science_app));
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
@@ -106,14 +97,18 @@ public class MainActivity extends Activity {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                getActionBar().setTitle(getString(R.string.app_name));
+                if(getActionBar() != null){
+                    getActionBar().setTitle(getString(R.string.app_name));
+                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getActionBar().setTitle(getString(R.string.settings));
+                if(getActionBar() != null){
+                    getActionBar().setTitle(getString(R.string.settings));
+                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -126,7 +121,9 @@ public class MainActivity extends Activity {
         mDrawerList.setOnItemClickListener(drawerClickListener);
         //mDrawerList.setOnItemClickListener();
         //Navigation Drawer icon won't display without this
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getActionBar() != null){
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
     }
@@ -136,24 +133,17 @@ public class MainActivity extends Activity {
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
             switch (position){
                 case 0:
-                    showNumberPickerDialog(Utils.getDefaultFrequency(MainActivity.this), 2 , 100,
-                            getString(R.string.select_frequency_default), true);
-                    break;
-                case 1:
                     Intent intentNotification =
-                            new Intent(MainActivity.this, NotificationsActivity.class);
+                            new Intent(MainActivity.this, RemindersActivity.class);
                     startActivity(intentNotification);
                     break;
-                case 2:
+                case 1:
                     toggleStandDetector();
                     break;
-                case 3:
+                case 2:
                     calibrateStandDetector();
                     break;
-                case 4:
-                    setPauseSettings();
-                    break;
-                case 5:
+                case 3:
                     Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
                     startActivity(intentScience);
                     break;
@@ -211,7 +201,7 @@ public class MainActivity extends Activity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         mPausePlay = menu.findItem(R.id.pauseplay);
-        updatePausePlay();
+        updatePausePlayIcon();
         return true;
     }
 
@@ -225,7 +215,7 @@ public class MainActivity extends Activity {
             mPausePlay.setVisible(false);
         } else {
             menu.findItem(R.id.schedules).setVisible(true);
-            updatePausePlay();
+            updatePausePlayIcon();
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -272,61 +262,6 @@ public class MainActivity extends Activity {
         }
     };
 
-    private void togglePausePlay(){
-        int status = Utils.getImageStatus(this);
-        if(status == Constants.NON_SCHEDULE_ALARM_RUNNING || status == Constants.NON_SCHEDULE_STOOD_UP ||
-                status == Constants.NON_SCHEDULE_TIME_TO_STAND){
-            pauseUnscheduled();
-            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
-        } else if (status == Constants.SCHEDULE_RUNNING || status == Constants.SCHEDULE_STOOD_UP ||
-                status == Constants.SCHEDULE_TIME_TO_STAND){
-            pauseSchedule();
-            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
-        } else if (status == Constants.NON_SCHEDULE_PAUSED ){
-            unPauseUnscheduled();
-            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
-        } else if (status == Constants.SCHEDULE_PAUSED){
-            unPauseScheduled();
-            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
-        }
-    }
-
-
-    private void showNumberPickerDialog(int startingValue, int min, int max, String title,
-                                        final boolean frequency)
-    {
-        LayoutInflater inflater = getLayoutInflater();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
-        builder.setView(dialogView);
-        final NumberPicker numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
-        numberPicker.setMaxValue(max);
-        numberPicker.setMinValue(min);
-        numberPicker.setValue(startingValue);
-        numberPicker.setWrapSelectorWheel(false);
-        builder.setMessage(title);
-        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(frequency){
-                    setDefaultFrequency(numberPicker.getValue());
-                } else {
-                    setDefaultAlertDelay(numberPicker.getValue());
-                }
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, "Cancel");
-                dialogInterface.dismiss();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
     private void toggleStandDetector() {
         // shared preferences declared on create
         // skip declaring boolean and just drop it into the editor
@@ -343,7 +278,7 @@ public class MainActivity extends Activity {
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
-        int standDetectorPosition = 2;
+        int standDetectorPosition = 1;
         if(bStandDetector){
             mNavDrawerOptions.remove(standDetectorPosition);
             mNavDrawerOptions.add(standDetectorPosition, "StandDtector™: ON");
@@ -374,10 +309,35 @@ public class MainActivity extends Activity {
                 .show();
     }
 
-    private void setPauseSettings(){
+    private void togglePausePlay(){
+        int status = Utils.getImageStatus(this);
+        if(status == Constants.NON_SCHEDULE_ALARM_RUNNING || status == Constants.NON_SCHEDULE_STOOD_UP ||
+                status == Constants.NON_SCHEDULE_TIME_TO_STAND){
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
+            showPauseSettingsDialog();
+        } else if (status == Constants.SCHEDULE_RUNNING || status == Constants.SCHEDULE_STOOD_UP ||
+                status == Constants.SCHEDULE_TIME_TO_STAND){
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
+            showPauseSettingsDialog();
+        } else if (status == Constants.NON_SCHEDULE_PAUSED ){
+            unPauseUnscheduled();
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+        } else if (status == Constants.SCHEDULE_PAUSED){
+            unPauseScheduled();
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+        }
+    }
+
+    private void showPauseSettingsDialog(){
         LayoutInflater inflater = getLayoutInflater();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = inflater.inflate(R.layout.dialog_pause, null);
+        TextView title = new TextView(this);
+        title.setPadding(50, 50, 50, 50);
+        title.setTextSize(22);
+        title.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
+        title.setText(getResources().getString(R.string.select_pause_type));
+        builder.setCustomTitle(title);
         int minValue = 5;
         int maxValue = 180;
         int step = 5;
@@ -393,7 +353,7 @@ public class MainActivity extends Activity {
         npPause.setWrapSelectorWheel(false);
         npPause.setValue((Utils.getDefaultPauseAmount(this) / 5) - 1);
         RadioButton rbIndefinite = (RadioButton)dialogView.findViewById(R.id.pause_indefinite);
-        RadioButton rbSetTime = (RadioButton)dialogView.findViewById(R.id.pause_set_time);
+        final RadioButton rbSetTime = (RadioButton)dialogView.findViewById(R.id.pause_set_time);
         if(Utils.getDefaultPauseType(this)){
             rbIndefinite.setChecked(true);
             npPause.setEnabled(false);
@@ -408,7 +368,6 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 npPause.setEnabled(false);
                 npPause.setAlpha((float) 0.5);
-                setDefaultPauseType(true);
             }
         });
         rbSetTime.setOnClickListener(new View.OnClickListener() {
@@ -416,64 +375,42 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 npPause.setEnabled(true);
                 npPause.setAlpha((float) 1);
-                setDefaultPauseType(false);
             }
         });
-        builder.setMessage(getResources().getString(R.string.pause_settings));
+        //builder.setMessage(getResources().getString(R.string.select_pause_type));
         builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //getValue returns the index number, so need to do some math to correct correct
                 //actual value
                 setDefaultPauseAmount((npPause.getValue() *  5) + 5 );
+                if(rbSetTime.isChecked()){
+                    setDefaultPauseType(false);
+                } else {
+                    setDefaultPauseType(true);
+                }
                 int currentStatus = Utils.getImageStatus(MainActivity.this);
-                if(currentStatus == Constants.NON_SCHEDULE_PAUSED ){
+                if(currentStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
+                        currentStatus == Constants.NON_SCHEDULE_STOOD_UP ||
+                        currentStatus == Constants.NON_SCHEDULE_TIME_TO_STAND){
                     pauseUnscheduled();
-                    Log.i(TAG, "Pause unscheduled");
-                } else if (currentStatus == Constants.SCHEDULE_PAUSED){
+                } else{
                     pauseSchedule();
                 }
                 dialogInterface.dismiss();
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+            }
+        });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
-    private void setDefaultFrequency(int frequency){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(Constants.USER_FREQUENCY, frequency);
-        editor.commit();
-    }
-
-    private void setDefaultAlertDelay(int delay){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(Constants.USER_DELAY, delay);
-        editor.commit();
-    }
-
-    private void setDefaultPauseAmount(int pauseAmount){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(Constants.PAUSE_TIME, pauseAmount);
-        editor.commit();
-    }
-
-    private void setDefaultPauseType(boolean pauseIndefinite){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Constants.PAUSE_TYPE, pauseIndefinite);
-        editor.commit();
-    }
-
-    private void updatePausePlay(){
+    private void updatePausePlayIcon(){
         if(mPausePlay != null){
             int currentImageStatus = Utils.getImageStatus(this);
             if(currentImageStatus != Constants.NO_ALARM_RUNNING &&
@@ -518,6 +455,22 @@ public class MainActivity extends Activity {
                 new FixedAlarmSchedule(
                         scheduleDatabaseAdapter.getSpecificAlarmSchedule(currentRunningAlarmUID));
         new ScheduledRepeatingAlarm(this,currentAlarmSchedule).unpause();
+    }
+
+    private void setDefaultPauseAmount(int pauseAmount){
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(Constants.PAUSE_TIME, pauseAmount);
+        editor.commit();
+    }
+
+    private void setDefaultPauseType(boolean pauseIndefinite){
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constants.PAUSE_TYPE, pauseIndefinite);
+        editor.commit();
     }
 
     //For Calligraphy font library class
