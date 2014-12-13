@@ -46,6 +46,8 @@ import com.sean.takeastand.widget.TimePickerFragment;
 
 import java.util.ArrayList;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 /**
  * Created by Sean on 2014-09-21.
  */
@@ -100,6 +102,7 @@ public class ScheduleListActivity extends ListActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //Closes Activity when user presses title
         finish();
         return super.onOptionsItemSelected(item);
     }
@@ -173,6 +176,8 @@ public class ScheduleListActivity extends ListActivity {
                         args.putBoolean("StartOrEndButton", false);
                         args.putBoolean("NewAlarm", true);
                         mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
+                        //Once figure out how to restrict timepickerdialog
+                        //args.putString("StartTime", mNewAlarmStartTime);
                         final TimePickerFragment timePickerFragment = new TimePickerFragment();
                         timePickerFragment.setArguments(args);
                         timePickerFragment.show(getFragmentManager(), "timePicker");
@@ -238,5 +243,12 @@ public class ScheduleListActivity extends ListActivity {
             mJustReceivedTimePicker = true;
         }
     };
+
+    //For Calligraphy font library class
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(new CalligraphyContextWrapper(newBase));
+    }
+
 
 }

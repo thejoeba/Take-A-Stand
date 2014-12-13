@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.StoodLogsAdapter;
 import com.sean.takeastand.ui.MainActivity;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -86,7 +87,7 @@ public class AlarmService extends Service  {
             mHandler = new Handler();
             int tenSecondMillis = 10000;
 
-            Runnable lastStepReceiverTimeout = new MyRunnable(intent);
+            Runnable lastStepReceiverTimeout = new StepCounterRunnable(intent);
             mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
         }
         else {
@@ -127,8 +128,6 @@ public class AlarmService extends Service  {
     private void registerReceivers(){
         getApplicationContext().registerReceiver(stoodUpReceiver,
                 new IntentFilter(Constants.STOOD_RESULTS));
-        getApplicationContext().registerReceiver(delayAlarmReceiver,
-                new IntentFilter(Constants.USER_DELAYED));
         getApplicationContext().registerReceiver(lastStepReceiver,
                 new IntentFilter(Constants.LAST_STEP));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
@@ -141,7 +140,6 @@ public class AlarmService extends Service  {
 
     private void unregisterReceivers(){
         getApplicationContext().unregisterReceiver(stoodUpReceiver);
-        getApplicationContext().unregisterReceiver(delayAlarmReceiver);
         getApplicationContext().unregisterReceiver(lastStepReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainVisibilityReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(endAlarmService);
@@ -164,19 +162,24 @@ public class AlarmService extends Service  {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
-            String action = intent.getAction();
-            Bundle extras = intent.getExtras();
-            if (action.equals("STOOD_RESULTS") && extras != null) {
-                String result = extras.getString("RESULT");
-                if (result.equals("STAND_DETECTED")) {
+            if (intent.hasExtra(Constants.STAND_DETECTOR_RESULT)) {
+                String result = intent.getStringExtra(Constants.STAND_DETECTOR_RESULT);
+                if (result.equals(Constants.STAND_DETECTED)) {
                     Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
                     long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
                     v.vibrate(pattern, -1);
+                    recordStand(Constants.STOOD_AFTER);
                 }
-                // else expired or not in pocket
+                // Expired or not in pocket
                 else {
                     return;
                 }
+            }
+            //0 signifies stand recorded incorrectly, for whatever reason
+            if(intent.hasExtra(Constants.STOOD_METHOD)){
+                recordStand(intent.getIntExtra(Constants.STOOD_METHOD, 0));
+            } else {
+                recordStand(0);
             }
             cancelNotification();
             showPraise();
@@ -190,19 +193,6 @@ public class AlarmService extends Service  {
             } else {
                 Utils.setImageStatus(getApplicationContext(), Constants.SCHEDULE_STOOD_UP);
             }
-        }
-    };
-
-    private BroadcastReceiver delayAlarmReceiver = new BroadcastReceiver(){
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "delayAlarmReceiver");
-            cancelNotification();
-            delayAlarm(getApplicationContext());
-            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
-            //End service
-            AlarmService.this.stopSelf();
         }
     };
 
@@ -235,6 +225,7 @@ public class AlarmService extends Service  {
                         bPostponed = true;
                         Log.d(TAG, "Last step less than default frequency");
                         postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
+                        recordStand(Constants.STOOD_BEFORE);
                         AlarmService.this.stopSelf();
                     }
                 }
@@ -273,10 +264,10 @@ public class AlarmService extends Service  {
         }
     };
 
-    private class MyRunnable implements Runnable {
+    private class StepCounterRunnable implements Runnable {
         private final Intent intent;
 
-        MyRunnable(final Intent intent) {
+        StepCounterRunnable(final Intent intent) {
             this.intent = intent;
         }
 
@@ -295,6 +286,8 @@ public class AlarmService extends Service  {
         @Override
         public void run() {
             setStoodUpAlarm(getApplicationContext());
+            StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(AlarmService.this);
+            stoodLogsAdapter.getLastRow();
             AlarmService.this.stopSelf();
         }
     };
@@ -318,18 +311,6 @@ public class AlarmService extends Service  {
             repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
         }
         repeatingAlarm.setRepeatingAlarm();
-    }
-
-    private void delayAlarm(Context context){
-        RepeatingAlarm repeatingAlarm;
-        if(mCurrentAlarmSchedule == null){
-            repeatingAlarm = new UnscheduledRepeatingAlarm(context);
-            Utils.setImageStatus(context, Constants.NON_SCHEDULE_ALARM_RUNNING);
-        } else {
-            repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
-            Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
-        }
-        repeatingAlarm.delayAlarm();
     }
 
     private void postponeAlarm(Context context, long milliseconds){
@@ -370,7 +351,6 @@ public class AlarmService extends Service  {
         PendingIntent[] pendingIntents = makeNotificationIntents();
         RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
-        rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
         NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
         alarmNotificationBuilder
                 .setContent(rvRibbon)
@@ -384,7 +364,6 @@ public class AlarmService extends Service  {
                 .extend(
                         new NotificationCompat.WearableExtender()
                                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
-                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
                                 .setContentAction(0)
                                 .setHintHideIcon(true)
 //                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
@@ -396,11 +375,11 @@ public class AlarmService extends Service  {
         //If scheduled, check settings for that schedule
         //If unscheduled, check user defaults
         if(mCurrentAlarmSchedule!=null){
-            int[] alertType = mCurrentAlarmSchedule.getAlertType();
-            if((alertType[0]) == 1){
+            boolean[] alertType = mCurrentAlarmSchedule.getAlertType();
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1){
+            if(alertType[1]){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
                 AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                 if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -409,16 +388,16 @@ public class AlarmService extends Service  {
                     v.vibrate(mVibrationPattern, -1);
                 }
             }
-            if(alertType[2] == 1){
+            if(alertType[2]){
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 alarmNotificationBuilder.setSound(soundUri);
             }
         } else {
-            int[] alertType = Utils.getDefaultAlertType(this);
-            if((alertType[0]) == 1){
+            boolean[] alertType = Utils.getDefaultAlertType(this);
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1){
+            if(alertType[1]){
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
                 AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
                 if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
@@ -427,7 +406,7 @@ public class AlarmService extends Service  {
                     v.vibrate(mVibrationPattern, -1);
                 }
             }
-            if(alertType[2] == 1){
+            if(alertType[2]){
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 alarmNotificationBuilder.setSound(soundUri);
             }
@@ -455,7 +434,6 @@ public class AlarmService extends Service  {
         PendingIntent[] pendingIntents = makeNotificationIntents();
         RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
-        rvRibbon.setOnClickPendingIntent(R.id.btnDelay, pendingIntents[2]);
         rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
         rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));
@@ -472,7 +450,6 @@ public class AlarmService extends Service  {
                 .extend(
                         new NotificationCompat.WearableExtender()
                                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
-                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_time, "Delay", pendingIntents[2]).build())
                                 .setContentAction(0)
                                 .setHintHideIcon(true)
 //                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
@@ -480,40 +457,44 @@ public class AlarmService extends Service  {
                 )
         ;
         if(mCurrentAlarmSchedule != null){
-            int[] alertType = mCurrentAlarmSchedule.getAlertType();
-            if((alertType[0]) == 1){
+            boolean[] alertType = mCurrentAlarmSchedule.getAlertType();
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
-                        Utils.getVibrateOverride(this)) {
-                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    v.vibrate(mVibrationPattern, -1);
+            if(Utils.getRepeatAlerts(this)){
+                if(alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
+                    alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                    if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                            Utils.getVibrateOverride(this)) {
+                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        v.vibrate(mVibrationPattern, -1);
+                    }
                 }
-            }
-            if(alertType[2] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                alarmNotificationBuilder.setSound(soundUri);
+                if(alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
+                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    alarmNotificationBuilder.setSound(soundUri);
+                }
             }
         } else {
-            int[] alertType = Utils.getDefaultAlertType(this);
-            if((alertType[0]) == 1){
+            boolean[] alertType = Utils.getDefaultAlertType(this);
+            if((alertType[0])){
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
-                        Utils.getVibrateOverride(this)) {
-                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    v.vibrate(mVibrationPattern, -1);
+            if(Utils.getRepeatAlerts(this)){
+                if(alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
+                    alarmNotificationBuilder.setVibrate(mVibrationPattern);
+                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                    if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                            Utils.getVibrateOverride(this)) {
+                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        v.vibrate(mVibrationPattern, -1);
+                    }
                 }
-            }
-            if(alertType[2] == 1 && mNotifTimePassed % (Utils.getDefaultDelay(this)) == 0){
-                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                alarmNotificationBuilder.setSound(soundUri);
+                if(alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
+                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    alarmNotificationBuilder.setSound(soundUri);
+                }
             }
         }
         Notification alarmNotification = alarmNotificationBuilder.build();
@@ -535,14 +516,10 @@ public class AlarmService extends Service  {
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(this, 0,
                 launchActivityIntent, 0);
         Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
+        stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
-        Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);
-        PendingIntent delayAlarmPendingIntent = PendingIntent.getBroadcast(this, 0,
-                delayAlarmIntent, 0);
-        PendingIntent [] pendingIntents =
-                {launchActivityPendingIntent, stoodUpPendingIntent, delayAlarmPendingIntent};
-        return pendingIntents;
+        return new PendingIntent[]{launchActivityPendingIntent, stoodUpPendingIntent};
     }
 
     private String setMinutes(int minutes){
@@ -560,5 +537,9 @@ public class AlarmService extends Service  {
         notificationManager.cancel(R.integer.AlarmNotificationID);
     }
 
+    private void recordStand(int stoodMethod){
+        StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(this);
+        stoodLogsAdapter.newStoodLog(stoodMethod);
+    }
 
 }

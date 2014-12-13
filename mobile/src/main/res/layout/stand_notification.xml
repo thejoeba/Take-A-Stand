@@ -46,15 +46,8 @@
                     android:src="@drawable/ic_action_done"
                     android:layout_width="75dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
+                    android:layout_marginLeft="26dp"
                     android:id="@+id/btnStood" />
-                <ImageView
-                    android:src="@drawable/ic_action_time"
-                    android:layout_width="75dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="2dp"
-                    android:padding="1dp"
-                    android:id="@+id/btnDelay" />
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>

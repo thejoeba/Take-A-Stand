@@ -27,19 +27,17 @@ import com.sean.takeastand.util.Utils;
  * Small view that pops up depending on current alarm status
  * Created by Sean on 2014-11-08.
  */
+
 public class AlarmFragment extends Fragment{
 
     private static final String TAG = "AlarmFragment";
     private LinearLayout nextAlertLayout;
-    private LinearLayout stoodDelayLayout;
+    private LinearLayout stoodLayout;
+    private LinearLayout pausedLayout;
     private TextView nextAlert;
-    private TextView stoodText;
-    private TextView delayText;
+    private TextView pausedTime;
     private boolean mJustReceivedUpdate;
     private Handler mHandler;
-    private int currentAlarmStatus;
-    private int mPreviousAlarmStatus;
-    private boolean mStoodOrDelay;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,15 +45,14 @@ public class AlarmFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_alarm, container, false);
         nextAlertLayout = (LinearLayout)view.findViewById(R.id.next_alert_time_layout);
         nextAlertLayout.setVisibility(View.GONE);
-        stoodDelayLayout = (LinearLayout)view.findViewById(R.id.stood_or_delay_layout);
-        stoodDelayLayout.setVisibility(View.GONE);
+        stoodLayout = (LinearLayout)view.findViewById(R.id.stood_layout);
+        stoodLayout.setVisibility(View.GONE);
+        stoodLayout.setOnClickListener(stoodListener);
+        stoodLayout.setOnTouchListener(textTouchListener);
+        pausedLayout = (LinearLayout)view.findViewById(R.id.paused_layout);
+        pausedLayout.setVisibility(View.GONE);
         nextAlert = (TextView)view.findViewById(R.id.next_alert_time);
-        stoodText = (TextView)view.findViewById(R.id.stood);
-        stoodText.setOnClickListener(stoodListener);
-        stoodText.setOnTouchListener(textTouchListener);
-        delayText = (TextView)view.findViewById(R.id.delay);
-        delayText.setOnClickListener(delayListener);
-        delayText.setOnTouchListener(textTouchListener);
+        pausedTime = (TextView)view.findViewById(R.id.paused_until_time);
         registerReceivers();
         mHandler = new Handler();
         return view;
@@ -116,75 +113,79 @@ public class AlarmFragment extends Fragment{
         int imageStatus = Utils.getImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
-                currentAlarmStatus = Constants.NO_ALARM_RUNNING;
                 if(nextAlertLayout.getVisibility() == View.VISIBLE) {
                     mHandler.post(hideNextAlertAnimation);
                 }
-                stoodDelayLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.NO_ALARM_RUNNING;
+                if(stoodLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hideStoodAnimation);
+                }
                 break;
             case Constants.NON_SCHEDULE_ALARM_RUNNING:
-                currentAlarmStatus = Constants.NON_SCHEDULE_ALARM_RUNNING;
-                if(mPreviousAlarmStatus == Constants.NON_SCHEDULE_TIME_TO_STAND && !mStoodOrDelay){
-                    hideStoodDelay();
-                } else if(!(currentAlarmStatus == mPreviousAlarmStatus)){
-                    stoodDelayLayout.setVisibility(View.GONE);
+                nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
+                if(stoodLayout.getVisibility()==View.VISIBLE){
+                    mHandler.post(hideStoodAnimation);
+                } else if(pausedLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hidePausedTimeAnimation);
+                } else if(nextAlertLayout.getVisibility() != View.VISIBLE){
                     mHandler.post(showNextAlertAnimation);
                 }
-                mPreviousAlarmStatus = Constants.NON_SCHEDULE_ALARM_RUNNING;
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
-                currentAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
-                if(currentAlarmStatus == mPreviousAlarmStatus){
-                    stoodDelayLayout.setVisibility(View.VISIBLE);
-                    stoodText.clearAnimation();
-                    delayText.clearAnimation();
-                    stoodText.setVisibility(View.VISIBLE);
-                    delayText.setVisibility(View.VISIBLE);
-                } else {
+                if(nextAlertLayout.getVisibility() == View.VISIBLE){
                     mHandler.post(hideNextAlertAnimation);
+                } else if (stoodLayout.getVisibility() != View.VISIBLE){
+                    mHandler.post(showStoodAnimation);
                 }
-                mPreviousAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
                 break;
             case Constants.NON_SCHEDULE_STOOD_UP:
-                currentAlarmStatus = Constants.NON_SCHEDULE_STOOD_UP;
-                hideStoodDelay();
-                mPreviousAlarmStatus = Constants.NON_SCHEDULE_STOOD_UP;
+                mHandler.post(hideStoodAnimation);
+                break;
+            case Constants.NON_SCHEDULE_PAUSED:
+                if(nextAlertLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hideNextAlertAnimation);
+                } else if(stoodLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hideStoodAnimation);
+                } else {
+                    if(!Utils.getDefaultPauseType(getActivity())){
+                        mHandler.post(showPausedAnimation);
+                    }
+                }
                 break;
             case Constants.SCHEDULE_RUNNING:
-                currentAlarmStatus = Constants.SCHEDULE_RUNNING;
                 nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
-                if(mPreviousAlarmStatus == Constants.SCHEDULE_TIME_TO_STAND && !mStoodOrDelay){
-                    hideStoodDelay();
-                } else if(!(currentAlarmStatus == mPreviousAlarmStatus)){
-                    stoodDelayLayout.setVisibility(View.GONE);
+                if(stoodLayout.getVisibility()==View.VISIBLE){
+                    mHandler.post(hideStoodAnimation);
+                } else if(pausedLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hidePausedTimeAnimation);
+                } else if(nextAlertLayout.getVisibility() != View.VISIBLE){
                     mHandler.post(showNextAlertAnimation);
                 }
-                mPreviousAlarmStatus = Constants.SCHEDULE_RUNNING;
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
-                currentAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
-                if(currentAlarmStatus == mPreviousAlarmStatus){
-                    stoodDelayLayout.setVisibility(View.VISIBLE);
-                    stoodText.clearAnimation();
-                    delayText.clearAnimation();
-                    stoodText.setVisibility(View.VISIBLE);
-                    delayText.setVisibility(View.VISIBLE);
-                } else {
+                if(nextAlertLayout.getVisibility() == View.VISIBLE){
                     mHandler.post(hideNextAlertAnimation);
+                } else if (stoodLayout.getVisibility() != View.VISIBLE){
+                    mHandler.post(showStoodAnimation);
                 }
-                mPreviousAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
                 break;
             case Constants.SCHEDULE_STOOD_UP:
-                currentAlarmStatus = Constants.SCHEDULE_STOOD_UP;
-                hideStoodDelay();
-                mPreviousAlarmStatus = Constants.SCHEDULE_STOOD_UP;
+                mHandler.post(hideStoodAnimation);
+                break;
+            case Constants.SCHEDULE_PAUSED:
+                if(nextAlertLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hideNextAlertAnimation);
+                } else if(stoodLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hideStoodAnimation);
+                } else {
+                    if(!Utils.getDefaultPauseType(getActivity())){
+                        mHandler.post(showPausedAnimation);
+                    }
+                }
                 break;
             default:
-                currentAlarmStatus = Constants.NO_ALARM_RUNNING;
                 nextAlertLayout.setVisibility(View.GONE);
-                stoodDelayLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.NO_ALARM_RUNNING;
+                stoodLayout.setVisibility(View.GONE);
+                pausedLayout.setVisibility(View.GONE);
                 break;
         }
     }
@@ -193,62 +194,61 @@ public class AlarmFragment extends Fragment{
         int imageStatus = Utils.getImageStatus(getActivity());
         switch (imageStatus){
             case Constants.NO_ALARM_RUNNING:
-                currentAlarmStatus = Constants.NO_ALARM_RUNNING;
                 nextAlertLayout.setVisibility(View.GONE);
-                stoodDelayLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.NO_ALARM_RUNNING;
+                stoodLayout.setVisibility(View.GONE);
+                pausedLayout.setVisibility(View.GONE);
                 break;
             case Constants.NON_SCHEDULE_ALARM_RUNNING:
-                currentAlarmStatus = Constants.NON_SCHEDULE_ALARM_RUNNING;
                 nextAlertLayout.setVisibility(View.VISIBLE);
                 nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
-                stoodDelayLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.NON_SCHEDULE_ALARM_RUNNING;
+                stoodLayout.setVisibility(View.GONE);
+                pausedLayout.setVisibility(View.GONE);
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
-                currentAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
-                stoodDelayLayout.setVisibility(View.VISIBLE);
-                stoodText.clearAnimation();
-                delayText.clearAnimation();
-                stoodText.setVisibility(View.VISIBLE);
-                delayText.setVisibility(View.VISIBLE);
+                stoodLayout.setVisibility(View.VISIBLE);
                 nextAlertLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.NON_SCHEDULE_TIME_TO_STAND;
+                pausedLayout.setVisibility(View.GONE);
                 break;
             case Constants.NON_SCHEDULE_STOOD_UP:
-                currentAlarmStatus = Constants.NON_SCHEDULE_STOOD_UP;
-                stoodDelayLayout.setVisibility(View.GONE);
+                stoodLayout.setVisibility(View.GONE);
                 nextAlertLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.NON_SCHEDULE_STOOD_UP;
+                pausedLayout.setVisibility(View.GONE);
+                break;
+            case Constants.NON_SCHEDULE_PAUSED:
+                stoodLayout.setVisibility(View.GONE);
+                nextAlertLayout.setVisibility(View.GONE);
+                if(!Utils.getDefaultPauseType(getActivity())){
+                    pausedLayout.setVisibility(View.VISIBLE);
+                }
+                pausedLayout.setVisibility(View.GONE);
                 break;
             case Constants.SCHEDULE_RUNNING:
-                currentAlarmStatus = Constants.SCHEDULE_RUNNING;
                 nextAlertLayout.setVisibility(View.VISIBLE);
                 nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
-                stoodDelayLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.SCHEDULE_RUNNING;
+                stoodLayout.setVisibility(View.GONE);
+                pausedLayout.setVisibility(View.GONE);
                 break;
             case Constants.SCHEDULE_TIME_TO_STAND:
-                currentAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
-                stoodDelayLayout.setVisibility(View.VISIBLE);
-                stoodText.clearAnimation();
-                delayText.clearAnimation();
-                stoodText.setVisibility(View.VISIBLE);
-                delayText.setVisibility(View.VISIBLE);
+                stoodLayout.setVisibility(View.VISIBLE);
                 nextAlertLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.SCHEDULE_TIME_TO_STAND;
+                pausedLayout.setVisibility(View.GONE);
                 break;
             case Constants.SCHEDULE_STOOD_UP:
-                currentAlarmStatus = Constants.SCHEDULE_STOOD_UP;
-                stoodDelayLayout.setVisibility(View.GONE);
+                stoodLayout.setVisibility(View.GONE);
                 nextAlertLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.SCHEDULE_STOOD_UP;
+                pausedLayout.setVisibility(View.GONE);
+                break;
+            case Constants.SCHEDULE_PAUSED:
+                stoodLayout.setVisibility(View.GONE);
+                nextAlertLayout.setVisibility(View.GONE);
+                if(!Utils.getDefaultPauseType(getActivity())){
+                    pausedLayout.setVisibility(View.VISIBLE);
+                }
                 break;
             default:
-                currentAlarmStatus = Constants.NO_ALARM_RUNNING;
                 nextAlertLayout.setVisibility(View.GONE);
-                stoodDelayLayout.setVisibility(View.GONE);
-                mPreviousAlarmStatus = Constants.NO_ALARM_RUNNING;
+                stoodLayout.setVisibility(View.GONE);
+                pausedLayout.setVisibility(View.GONE);
                 break;
         }
     }
@@ -257,29 +257,20 @@ public class AlarmFragment extends Fragment{
         @Override
         public void onClick(View view) {
             Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
+            stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_ACTIVITY);
             getActivity().sendBroadcast(stoodUpIntent);
-            mStoodOrDelay = true;
-        }
-    };
-
-    private View.OnClickListener delayListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent delayAlarmIntent = new Intent(Constants.USER_DELAYED);
-            getActivity().sendBroadcast(delayAlarmIntent);
-            mStoodOrDelay = false;
         }
     };
 
     private View.OnTouchListener textTouchListener = new View.OnTouchListener(){
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            TextView touchedText = (TextView)view;
+            LinearLayout touchedText = (LinearLayout)view;
             if(motionEvent.getAction()== MotionEvent.ACTION_DOWN){
-                touchedText.setTextColor(getResources().getColor(android.R.color.secondary_text_light));
+                touchedText.setAlpha((float)0.7);
             }
             if(motionEvent.getAction() == MotionEvent.ACTION_UP){
-                touchedText.setTextColor(getResources().getColor(android.R.color.primary_text_light));
+                touchedText.setAlpha((float)1);
             }
             return false;
         }
@@ -298,52 +289,41 @@ public class AlarmFragment extends Fragment{
     Runnable hideNextAlertAnimation = new Runnable() {
         @Override
         public void run() {
+            nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
+            Animation slideOut = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_down);
+            slideOut.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
 
-                nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
-                Animation slideOut = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_down);
-                slideOut.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {}
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        nextAlertLayout.setVisibility(View.GONE);
-                        nextAlertLayout.clearAnimation();
-                        if(currentAlarmStatus == Constants.NON_SCHEDULE_TIME_TO_STAND ||
-                                currentAlarmStatus == Constants.SCHEDULE_TIME_TO_STAND){
-                            mHandler.postDelayed(showStoodDelayAnimation, 100);
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    nextAlertLayout.setVisibility(View.GONE);
+                    nextAlertLayout.clearAnimation();
+                    if(Utils.getImageStatus(getActivity()) == Constants.NON_SCHEDULE_TIME_TO_STAND ||
+                            Utils.getImageStatus(getActivity()) == Constants.SCHEDULE_TIME_TO_STAND){
+                        mHandler.postDelayed(showStoodAnimation, 100);
+                    } else if (Utils.getImageStatus(getActivity()) == Constants.NON_SCHEDULE_PAUSED ||
+                            Utils.getImageStatus(getActivity()) == Constants.SCHEDULE_PAUSED){
+                        if(!Utils.getDefaultPauseType(getActivity())){
+                            mHandler.post(showPausedAnimation);
                         }
                     }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {}
-                });
-                nextAlertLayout.startAnimation(slideOut);
-
+                }
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+            nextAlertLayout.startAnimation(slideOut);
         }
     };
 
-    Runnable showStoodDelayAnimation = new Runnable() {
+    Runnable showStoodAnimation = new Runnable() {
         @Override
         public void run() {
-            stoodDelayLayout.setVisibility(View.VISIBLE);
-            stoodText.setVisibility(View.VISIBLE);
-            delayText.setVisibility(View.VISIBLE);
+            stoodLayout.setVisibility(View.VISIBLE);
             Animation scaleIn = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_in);
-            stoodText.startAnimation(scaleIn);
-            delayText.startAnimation(scaleIn);
+            stoodLayout.startAnimation(scaleIn);
         }
     };
-
-    private void hideStoodDelay(){
-        if(mStoodOrDelay){
-            mHandler.post(hideStoodAnimation);
-            mHandler.postDelayed(hideDelayAnimation, 200);
-        } else {
-            mHandler.post(hideDelayAnimation);
-            mHandler.postDelayed(hideStoodAnimation, 200);
-        }
-    }
 
     Runnable hideStoodAnimation = new Runnable() {
         @Override
@@ -355,40 +335,49 @@ public class AlarmFragment extends Fragment{
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    stoodText.setVisibility(View.INVISIBLE);
-                    if(mStoodOrDelay){
-                        stoodDelayLayout.setVisibility(View.GONE);
+                    stoodLayout.setVisibility(View.GONE);
+                    if (Utils.getImageStatus(getActivity()) == Constants.NON_SCHEDULE_PAUSED ||
+                            Utils.getImageStatus(getActivity()) == Constants.SCHEDULE_PAUSED){
+                        if(!Utils.getDefaultPauseType(getActivity())){
+                            mHandler.post(showPausedAnimation);
+                        }
                     }
                 }
 
                 @Override
                 public void onAnimationRepeat(Animation animation) {}
             });
-            stoodText.startAnimation(scaleOut);
+            stoodLayout.startAnimation(scaleOut);
         }
     };
 
-    Runnable hideDelayAnimation = new Runnable() {
+    Runnable showPausedAnimation = new Runnable() {
         @Override
         public void run() {
-            Animation scaleOut = AnimationUtils.loadAnimation(getActivity(), R.anim.scale_out);
-            scaleOut.setAnimationListener(new Animation.AnimationListener() {
+            pausedLayout.setVisibility(View.VISIBLE);
+            pausedTime.setText(Utils.getPausedTime(getActivity()));
+            Animation slideIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_up);
+            pausedLayout.startAnimation(slideIn);
+        }
+    };
+
+    Runnable hidePausedTimeAnimation = new Runnable() {
+        @Override
+        public void run() {
+            Animation slideOut = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_down);
+            slideOut.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {}
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    delayText.setVisibility(View.INVISIBLE);
-                    if(!mStoodOrDelay){
-                        stoodDelayLayout.setVisibility(View.GONE);
-                        mHandler.post(showNextAlertAnimation);
-                    }
+                    pausedLayout.setVisibility(View.GONE);
+                    mHandler.post(showNextAlertAnimation);
                 }
-
                 @Override
                 public void onAnimationRepeat(Animation animation) {}
             });
-            delayText.startAnimation(scaleOut);
+            pausedLayout.startAnimation(slideOut);
         }
     };
 }

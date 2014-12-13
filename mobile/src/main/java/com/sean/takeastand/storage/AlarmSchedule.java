@@ -34,7 +34,9 @@ public class AlarmSchedule implements Parcelable {
 
     private int UID;
     private boolean activated;
-    private int[] alertType = {1, 1, 0};
+    private boolean led;
+    private boolean vibrate;
+    private boolean sound;
     private Calendar startTime;
     private Calendar endTime;
     private int frequency;
@@ -47,12 +49,15 @@ public class AlarmSchedule implements Parcelable {
     private boolean friday;
     private boolean saturday;
 
-    public AlarmSchedule(int UID, boolean activated, int[] alertType, Calendar startTime, Calendar endTime,
-                         int frequency, String title, boolean sunday, boolean monday, boolean tuesday,
+    public AlarmSchedule(int UID, boolean activated, boolean led, boolean vibrate, boolean sound,
+                         Calendar startTime, Calendar endTime, int frequency, String title,
+                         boolean sunday, boolean monday, boolean tuesday,
                          boolean wednesday, boolean thursday, boolean friday, boolean saturday){
         this.UID = UID;
         this.activated = activated;
-        this.alertType = alertType;
+        this.led = led;
+        this.vibrate = vibrate;
+        this.sound = sound;
         this.startTime = startTime;
         this.endTime = endTime;
         this.frequency = frequency;
@@ -68,7 +73,7 @@ public class AlarmSchedule implements Parcelable {
 
     //This constructor is only called when an object of this class is being remade from a Parcel
     private AlarmSchedule(Parcel inParcel){
-        boolean[] arrayBooleans = new boolean[8];
+        boolean[] arrayBooleans = new boolean[11];
         inParcel.readBooleanArray(arrayBooleans);
         activated = arrayBooleans[0];
         sunday = arrayBooleans[1];
@@ -79,9 +84,9 @@ public class AlarmSchedule implements Parcelable {
         friday = arrayBooleans[6];
         saturday = arrayBooleans[7];
         UID = inParcel.readInt();
-        alertType[0] = inParcel.readInt();
-        alertType[1] = inParcel.readInt();
-        alertType[2] = inParcel.readInt();
+        led = arrayBooleans[8];
+        vibrate = arrayBooleans[9];
+        sound = arrayBooleans[10];
         title = inParcel.readString();
         startTime = Calendar.getInstance();
         startTime.setTimeInMillis(Long.decode(inParcel.readString()));
@@ -99,12 +104,9 @@ public class AlarmSchedule implements Parcelable {
     @Override
     public void writeToParcel(Parcel outParcel, int flags) {
         boolean[] arrayBooleans = {activated, sunday, monday, tuesday, wednesday,
-                                    thursday, friday, saturday};
+                                    thursday, friday, saturday, led, vibrate, sound};
         outParcel.writeBooleanArray(arrayBooleans);
         outParcel.writeInt(UID);
-        outParcel.writeInt(alertType[0]);
-        outParcel.writeInt(alertType[1]);
-        outParcel.writeInt(alertType[2]);
         outParcel.writeString(title);
         outParcel.writeString(Long.toString(startTime.getTimeInMillis()));
         outParcel.writeString(Long.toString(endTime.getTimeInMillis()));
@@ -132,9 +134,7 @@ public class AlarmSchedule implements Parcelable {
         return activated;
     }
 
-    public int[] getAlertType(){
-        return alertType;
-    }
+    public boolean[] getAlertType(){  return new boolean [] {led, vibrate, sound} ; }
 
     public Calendar getStartTime(){
         return startTime;
@@ -180,7 +180,11 @@ public class AlarmSchedule implements Parcelable {
 
     public void setActivated(boolean activated) {this.activated = activated; }
 
-    public void setAlertType(int[] alertType) {this.alertType = alertType; }
+    public void setAlertType(boolean[] alertType) {
+        led = alertType[0];
+        vibrate = alertType[1];
+        sound = alertType[2];
+    }
 
     public void setStartTime(Calendar startTime) {this.startTime = startTime; }
 

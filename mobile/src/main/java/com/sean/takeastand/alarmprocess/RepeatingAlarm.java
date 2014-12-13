@@ -30,7 +30,9 @@ public interface RepeatingAlarm
 
     public void cancelAlarm();
 
-    public void takeBreak();
+    public void pause();
+
+    public void unpause();
 
     public void postponeAlarm(long milliseconds);
 

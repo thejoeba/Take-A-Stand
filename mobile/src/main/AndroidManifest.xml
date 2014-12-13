@@ -1,39 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sean.takeastand"
-    android:versionCode="14"
-    android:versionName="A14">
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    android:versionCode="17"
+    android:versionName="A17" >
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppThemeWithoutActionBarIcon">
-
+        android:theme="@style/AppThemeWithoutActionBarIcon"
+        android:name="com.Application">
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ScheduleListActivity"/>
+        <activity android:name=".ui.ScheduleListActivity" />
         <activity android:name=".ui.ScienceActivity" />
-        <receiver android:name=".alarmprocess.AlarmReceiver" ></receiver>
-        <receiver android:name=".alarmprocess.StartScheduleReceiver" ></receiver>
-        <receiver android:name=".alarmprocess.BootReceiver">
+        <activity
+            android:name=".ui.RemindersActivity"
+            android:label="@string/title_activity_notifications" >
+        </activity>
+        <receiver android:name=".alarmprocess.AlarmReceiver" />
+        <receiver android:name=".alarmprocess.StartScheduleReceiver" />
+        <receiver android:name=".alarmprocess.BootReceiver" >
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <service android:name=".alarmprocess.AlarmService"></service>
+        <receiver android:name=".alarmprocess.EndPauseReceiver" />
+        <service android:name=".alarmprocess.AlarmService" />
         <service android:name="com.heckbot.standdtector.StandDtectorTM" />
+
         <receiver android:name="com.heckbot.standdtector.MyBroadcastReceiver" />
+
+
     </application>
 
 </manifest>

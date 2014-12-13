@@ -2,12 +2,15 @@ package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.sean.takeastand.R;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 /**  Displays links to science that supports the reason behind our app
@@ -72,7 +75,15 @@ public class ScienceActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //Closes Activity when user presses title
         finish();
         return super.onOptionsItemSelected(item);
     }
+
+    //For Calligraphy font library class
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(new CalligraphyContextWrapper(newBase));
+    }
+
 }

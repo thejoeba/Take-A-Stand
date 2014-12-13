@@ -39,17 +39,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.RadioButton;
+import android.widget.TextView;
 
 import com.heckbot.standdtector.MyBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
+import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
+import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class MainActivity extends Activity {
@@ -60,6 +67,7 @@ public class MainActivity extends Activity {
     private ActionBarDrawerToggle mDrawerToggle;
     private ArrayList<String> mNavDrawerOptions;
     private ArrayAdapter mListAdapter;
+    private MenuItem mPausePlay;
 
     @Override
     protected void onCreate(Bundle paramBundle)
@@ -70,17 +78,9 @@ public class MainActivity extends Activity {
         mNavDrawerOptions = new ArrayList<String>();
         //Find out how to initialize an arraylist; then update the arraylist when vibrate status changes
         //or standdtector status changes
-        mNavDrawerOptions.add(getString(R.string.default_frequency));
         mNavDrawerOptions.add(getString(R.string.default_notification));
-        mNavDrawerOptions.add(getString(R.string.default_delay));
-        boolean vibrate = Utils.getVibrateOverride(this);
-        if(vibrate){
-            mNavDrawerOptions.add(getString(R.string.vibrate_silent_on));
-        } else {
-            mNavDrawerOptions.add(getString(R.string.vibrate_silent_off));
-        }
         SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 1);
         boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
         if(bStandDetector){
             mNavDrawerOptions.add(getString(R.string.stand_detector_on));
@@ -89,7 +89,6 @@ public class MainActivity extends Activity {
         }
         mNavDrawerOptions.add(getString(R.string.calibrate_detector));
         mNavDrawerOptions.add(getString(R.string.science_app));
-
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -98,14 +97,18 @@ public class MainActivity extends Activity {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                getActionBar().setTitle(getString(R.string.app_name));
+                if(getActionBar() != null){
+                    getActionBar().setTitle(getString(R.string.app_name));
+                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getActionBar().setTitle(getString(R.string.settings));
+                if(getActionBar() != null){
+                    getActionBar().setTitle(getString(R.string.settings));
+                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -117,9 +120,10 @@ public class MainActivity extends Activity {
         mDrawerList.setAdapter(mListAdapter);
         mDrawerList.setOnItemClickListener(drawerClickListener);
         //mDrawerList.setOnItemClickListener();
-
         //Navigation Drawer icon won't display without this
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getActionBar() != null){
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
     }
@@ -129,27 +133,17 @@ public class MainActivity extends Activity {
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
             switch (position){
                 case 0:
-                    showNumberPickerDialog(Utils.getDefaultFrequency(MainActivity.this), 2 , 100,
-                            getString(R.string.select_frequency_default), true);
+                    Intent intentNotification =
+                            new Intent(MainActivity.this, RemindersActivity.class);
+                    startActivity(intentNotification);
                     break;
                 case 1:
-                    showAlertTypePicker();
-                    break;
-                case 2:
-                    showNumberPickerDialog(Utils.getDefaultDelay(MainActivity.this), 1,
-                            60,
-                            getString(R.string.select_delay_default), false);
-                    break;
-                case 3:
-                    vibrateOnSilent();
-                    break;
-                case 4:
                     toggleStandDetector();
                     break;
-                case 5:
+                case 2:
                     calibrateStandDetector();
                     break;
-                case 6:
+                case 3:
                     Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
                     startActivity(intentScience);
                     break;
@@ -170,9 +164,103 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(this, ScheduleListActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.pauseplay:
+                togglePausePlay();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onStop() {
+        Intent intent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
+        intent.putExtra("Visible", false);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceivers();
+    }
+
+    @Override
+    protected void onResume() {
+        registerReceivers();
+        Intent intent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
+        intent.putExtra("Visible", true);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        invalidateOptionsMenu();
+        super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        mPausePlay = menu.findItem(R.id.pauseplay);
+        updatePausePlayIcon();
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        mPausePlay = menu.findItem(R.id.pauseplay);
+        if(drawerOpen){
+            menu.findItem(R.id.schedules).setVisible(false);
+            mPausePlay.setVisible(false);
+        } else {
+            menu.findItem(R.id.schedules).setVisible(true);
+            updatePausePlayIcon();
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    private void registerReceivers(){
+        LocalBroadcastManager.getInstance(this).registerReceiver(visibilityReceiver,
+                new IntentFilter("Visible"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateActionBarReceiver,
+                new IntentFilter(Constants.UPDATE_ACTION_BAR));
+    }
+
+    private void unregisterReceivers(){
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(visibilityReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateActionBarReceiver);
+    }
+
+    private BroadcastReceiver visibilityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent newIntent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
+            newIntent.putExtra("Visible", true);
+            LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(newIntent);
+        }
+    };
+
+    private BroadcastReceiver updateActionBarReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Received intent");
+            invalidateOptionsMenu();
+        }
+    };
 
     private void toggleStandDetector() {
         // shared preferences declared on create
@@ -190,7 +278,7 @@ public class MainActivity extends Activity {
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
-        int standDetectorPosition = 4;
+        int standDetectorPosition = 1;
         if(bStandDetector){
             mNavDrawerOptions.remove(standDetectorPosition);
             mNavDrawerOptions.add(standDetectorPosition, "StandDtector™: ON");
@@ -221,99 +309,93 @@ public class MainActivity extends Activity {
                 .show();
     }
 
-    @Override
-    protected void onStop() {
-        Intent intent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
-        intent.putExtra("Visible", false);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        super.onStop();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceivers();
-    }
-
-    @Override
-    protected void onResume() {
-        registerReceivers();
-        Intent intent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
-        intent.putExtra("Visible", true);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        super.onResume();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        menu.findItem(R.id.schedules).setVisible(!drawerOpen);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
-    }
-
-    private void registerReceivers(){
-        LocalBroadcastManager.getInstance(this).registerReceiver(visibilityReceiver,
-                new IntentFilter("Visible"));
-    }
-
-    private void unregisterReceivers(){
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(visibilityReceiver);
-    }
-
-    private BroadcastReceiver visibilityReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Intent newIntent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
-            newIntent.putExtra("Visible", true);
-            LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(newIntent);
+    private void togglePausePlay(){
+        int status = Utils.getImageStatus(this);
+        if(status == Constants.NON_SCHEDULE_ALARM_RUNNING || status == Constants.NON_SCHEDULE_STOOD_UP ||
+                status == Constants.NON_SCHEDULE_TIME_TO_STAND){
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
+            showPauseSettingsDialog();
+        } else if (status == Constants.SCHEDULE_RUNNING || status == Constants.SCHEDULE_STOOD_UP ||
+                status == Constants.SCHEDULE_TIME_TO_STAND){
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
+            showPauseSettingsDialog();
+        } else if (status == Constants.NON_SCHEDULE_PAUSED ){
+            unPauseUnscheduled();
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+        } else if (status == Constants.SCHEDULE_PAUSED){
+            unPauseScheduled();
+            mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
         }
-    };
+    }
 
-    //Must be class-level to access within onClick
-    NumberPicker numberPicker;
-
-    private void showNumberPickerDialog(int startingValue, int min, int max, String title,
-                                        final boolean frequency)
-    {
+    private void showPauseSettingsDialog(){
         LayoutInflater inflater = getLayoutInflater();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
+        View dialogView = inflater.inflate(R.layout.dialog_pause, null);
+        TextView title = new TextView(this);
+        title.setPadding(50, 50, 50, 50);
+        title.setTextSize(22);
+        title.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
+        title.setText(getResources().getString(R.string.select_pause_type));
+        builder.setCustomTitle(title);
+        int minValue = 5;
+        int maxValue = 180;
+        int step = 5;
+        String[] valueSet = new String[maxValue/step];
+        for (int i = minValue; i <= maxValue; i += step) {
+            valueSet[ (i/step) -1 ] = String.valueOf(i);
+        }
         builder.setView(dialogView);
-        numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
-        numberPicker.setMaxValue(max);
-        numberPicker.setMinValue(min);
-        numberPicker.setValue(startingValue);
-        numberPicker.setWrapSelectorWheel(false);
-        builder.setMessage(title);
+        final NumberPicker npPause = (NumberPicker)dialogView.findViewById(R.id.pauseNumberPicker);
+        npPause.setDisplayedValues(valueSet);
+        npPause.setMinValue(0);
+        npPause.setMaxValue(valueSet.length - 1);
+        npPause.setWrapSelectorWheel(false);
+        npPause.setValue((Utils.getDefaultPauseAmount(this) / 5) - 1);
+        RadioButton rbIndefinite = (RadioButton)dialogView.findViewById(R.id.pause_indefinite);
+        final RadioButton rbSetTime = (RadioButton)dialogView.findViewById(R.id.pause_set_time);
+        if(Utils.getDefaultPauseType(this)){
+            rbIndefinite.setChecked(true);
+            npPause.setEnabled(false);
+            npPause.setAlpha((float) 0.5);
+        } else {
+            rbSetTime.setChecked(true);
+            npPause.setEnabled(true);
+            npPause.setAlpha((float) 1);
+        }
+        rbIndefinite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                npPause.setEnabled(false);
+                npPause.setAlpha((float) 0.5);
+            }
+        });
+        rbSetTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                npPause.setEnabled(true);
+                npPause.setAlpha((float) 1);
+            }
+        });
+        //builder.setMessage(getResources().getString(R.string.select_pause_type));
         builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(frequency){
-                    setDefaultFrequency(MainActivity.this, numberPicker.getValue());
+                //getValue returns the index number, so need to do some math to correct correct
+                //actual value
+                setDefaultPauseAmount((npPause.getValue() *  5) + 5 );
+                if(rbSetTime.isChecked()){
+                    setDefaultPauseType(false);
                 } else {
-                    setDefaultDelay(MainActivity.this, numberPicker.getValue());
+                    setDefaultPauseType(true);
+                }
+                int currentStatus = Utils.getImageStatus(MainActivity.this);
+                if(currentStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
+                        currentStatus == Constants.NON_SCHEDULE_STOOD_UP ||
+                        currentStatus == Constants.NON_SCHEDULE_TIME_TO_STAND){
+                    pauseUnscheduled();
+                } else{
+                    pauseSchedule();
                 }
                 dialogInterface.dismiss();
             }
@@ -321,109 +403,81 @@ public class MainActivity extends Activity {
         builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, "Cancel");
-                dialogInterface.dismiss();
+                mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
             }
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
-    View dialogView;
-    private void showAlertTypePicker(){
-        LayoutInflater inflater = getLayoutInflater();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        dialogView = inflater.inflate(R.layout.dialog_alert_type, null);
-        int[] currentNotification = Utils.getDefaultAlertType(this);
-        CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
-        LED.setChecked(Utils.convertIntToBoolean(currentNotification[0]));
-        CheckBox vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
-        vibrate.setChecked(Utils.convertIntToBoolean(currentNotification[1]));
-        CheckBox sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
-        sound.setChecked(Utils.convertIntToBoolean(currentNotification[2]));
-        builder.setView(dialogView);
-        builder.setMessage(getString(R.string.select_alert_types));
-        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                int[] notificationTypes = new int[3];
-                CheckBox LED = (CheckBox)dialogView.findViewById(R.id.chbxLED);
-                CheckBox Vibrate = (CheckBox)dialogView.findViewById(R.id.chbxVibrate);
-                CheckBox Sound = (CheckBox)dialogView.findViewById(R.id.chbxSound);
-                if(LED.isChecked()){
-                    notificationTypes[0] = 1;
-                } else {
-                    notificationTypes[0] = 0;
-                }
-                if(Vibrate.isChecked()){
-                    notificationTypes[1] = 1;
-                } else {
-                    notificationTypes[1] = 0;
-                }
-                if(Sound.isChecked()){
-                    notificationTypes[2] = 1;
-                } else {
-                    notificationTypes[2] = 0;
-                }
-                setDefaultAlertType(MainActivity.this, notificationTypes);
-                dialogInterface.dismiss();
+    private void updatePausePlayIcon(){
+        if(mPausePlay != null){
+            int currentImageStatus = Utils.getImageStatus(this);
+            if(currentImageStatus != Constants.NO_ALARM_RUNNING &&
+                    currentImageStatus != Constants.NON_SCHEDULE_PAUSED &&
+                    currentImageStatus != Constants.SCHEDULE_PAUSED){
+                mPausePlay.setVisible(true);
+                mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+            } else if (currentImageStatus == Constants.SCHEDULE_PAUSED ||
+                    currentImageStatus == Constants.NON_SCHEDULE_PAUSED) {
+                mPausePlay.setVisible(true);
+                mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
+            } else {
+                mPausePlay.setVisible(false);
             }
-        });
-        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, "Cancel");
-                dialogInterface.dismiss();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+            invalidateOptionsMenu();
+        } else {
+            Log.i(TAG, "null");
+        }
     }
 
-    private void vibrateOnSilent(){
+    private void pauseUnscheduled(){
+        new UnscheduledRepeatingAlarm(this).pause();
+    }
+
+    private void pauseSchedule(){
+        int currentRunningAlarmUID = Utils.getRunningScheduledAlarm(this);
+        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
+        FixedAlarmSchedule currentAlarmSchedule =
+                new FixedAlarmSchedule(
+                        scheduleDatabaseAdapter.getSpecificAlarmSchedule(currentRunningAlarmUID));
+        new ScheduledRepeatingAlarm(this,currentAlarmSchedule).pause();
+    }
+
+    private void unPauseUnscheduled(){
+        new UnscheduledRepeatingAlarm(this).unpause();
+    }
+
+    private void unPauseScheduled(){
+        int currentRunningAlarmUID = Utils.getRunningScheduledAlarm(this);
+        ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
+        FixedAlarmSchedule currentAlarmSchedule =
+                new FixedAlarmSchedule(
+                        scheduleDatabaseAdapter.getSpecificAlarmSchedule(currentRunningAlarmUID));
+        new ScheduledRepeatingAlarm(this,currentAlarmSchedule).unpause();
+    }
+
+    private void setDefaultPauseAmount(int pauseAmount){
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        boolean vibrate = !(sharedPreferences.getBoolean(Constants.VIBRATE_SILENT, true));
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Constants.VIBRATE_SILENT, vibrate);
+        editor.putInt(Constants.PAUSE_TIME, pauseAmount);
         editor.commit();
-        setVibrateText();
     }
 
-    private void setVibrateText(){
-        boolean vibrate = Utils.getVibrateOverride(this);
-        int vibratePosition = 3;
-        if(vibrate){
-            mNavDrawerOptions.remove(vibratePosition);
-            mNavDrawerOptions.add(vibratePosition, getString(R.string.vibrate_silent_on));
-        } else {
-            mNavDrawerOptions.remove(vibratePosition);
-            mNavDrawerOptions.add(vibratePosition, getString(R.string.vibrate_silent_off));
-        }
-        mListAdapter.notifyDataSetChanged();
-    }
-
-    public static void setDefaultAlertType(Context context, int[] alertType){
+    private void setDefaultPauseType(boolean pauseIndefinite){
         SharedPreferences sharedPreferences =
-                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.USER_ALERT_TYPE, Utils.convertIntArrayToString(alertType));
+        editor.putBoolean(Constants.PAUSE_TYPE, pauseIndefinite);
         editor.commit();
     }
 
-    public static void setDefaultFrequency(Context context, int frequency){
-        SharedPreferences sharedPreferences =
-                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(Constants.USER_FREQUENCY, frequency);
-        editor.commit();
+    //For Calligraphy font library class
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(new CalligraphyContextWrapper(newBase));
     }
 
-    public static void setDefaultDelay(Context context, int delay){
-        SharedPreferences sharedPreferences =
-                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(Constants.USER_DELAY, delay);
-        editor.commit();
-    }
+
 }

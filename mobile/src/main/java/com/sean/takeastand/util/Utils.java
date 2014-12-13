@@ -115,7 +115,7 @@ public final class Utils {
         } else {
             Log.e(TAG, "alarmTime string is " + Integer.toString(alarmTime.length()) +
                     " characters long, not 4 or 5.");
-            return 00;
+            return 0;
         }
     }
 
@@ -176,8 +176,7 @@ public final class Utils {
     //Used by ScheduleListAdapter and within Utils.”
     public static String getFormattedCalendarTime(Calendar calendar, Context context){
         String calendarTime = calendarToTimeString(calendar);
-        String formattedForAmPm = getFormattedTimeString(calendarTime, context);
-        return formattedForAmPm;
+        return getFormattedTimeString(calendarTime, context);
     }
 
     //Used by ScheduleEditor
@@ -270,48 +269,21 @@ public final class Utils {
         return minute;
     }
 
-    //Used to convert alertType into String for SQL database storage
-    //Method used by ScheduleDatabaseAdapter, MainActivity, and within Utils class
-    public static String convertIntArrayToString(int[] array){
-        if(array.length == 3){
-            String intArrayString = "";
-            for (int i = 0; i < array.length; i++){
-                intArrayString += array[i] + "-";
-            }
-            Log.i(TAG, intArrayString);
-            return intArrayString;
-        } else {
-            return "";
-        }
-
-    }
-
-    //Used by ScheduleDatabaseAdapter and locally within Utils
-    public static int[] convertStringToIntArray(String string){
-        Log.d(TAG,"array size: " + string.length());
-        if(string.length()==6){
-            int[] intArray = new int[3];
-            int arrayIndex = 0;
-            for (int i = 0; i < string.length(); i++) {
-                if(Character.isDigit(string.charAt(i))){
-                    intArray[arrayIndex] = string.charAt(i) - '0';
-                    arrayIndex++ ;
-                }
-            }
-            Log.i(TAG, Arrays.toString(intArray));
-            return intArray;
-        } else {
-            return null;
-        }
-    }
-
     //Used by the AlarmService, ScheduleListAdapter, MainActivity, ScheduleListActivity
-    public static int[] getDefaultAlertType(Context context){
+    public static boolean[] getDefaultAlertType(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        String alertType = sharedPreferences.getString(Constants.USER_ALERT_TYPE, "1-1-0-");
-        Log.i(TAG, alertType);
-        return convertStringToIntArray(alertType);
+        boolean led = sharedPreferences.getBoolean(Constants.USER_ALERT_LED, true);
+        boolean vibrate = sharedPreferences.getBoolean(Constants.USER_ALERT_VIBRATE, true);
+        boolean sound = sharedPreferences.getBoolean(Constants.USER_ALERT_SOUND, false);
+        return new boolean[]{led, vibrate, sound};
+    }
+
+    //Used by MainActivity and AlarmService
+    public static boolean getRepeatAlerts(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getBoolean(Constants.USER_ALERT_FREQUENCY, true);
     }
 
     //Used by UnscheduledRepeatingAlarm, ScheduleListAdapter, MainActivity, ScheduleListActivity
@@ -323,8 +295,8 @@ public final class Utils {
         return frequency;
     }
 
-    //Used by MainActivity, ScheduledRepeatingAlarm, UnscheduledRepeatingAlarm
-    public static int getDefaultDelay(Context context){
+    //Used by NotificationsActivity, ScheduledRepeatingAlarm, UnscheduledRepeatingAlarm
+    public static int getNotificationReminderFrequency(Context context){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         int delay = sharedPreferences.getInt(Constants.USER_DELAY, 5);
@@ -355,6 +327,23 @@ public final class Utils {
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         return sharedPreferences.getString(Constants.NEXT_ALARM_TIME_STRING, "");
+    }
+
+    //Used by the ScheduledRepeatingAlarm and UnscheduledRepeatingAlarm
+    public static void setPausedTime(Calendar calendar, Context context){
+        String pausedUntilTime = getFormattedCalendarTime(calendar, context);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.PAUSED_UNTIL_TIME, pausedUntilTime);
+        editor.commit();
+    }
+
+    //Used by the AlarmFragment and ScheduledRepeatingAlarm
+    public static String getPausedTime(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getString(Constants.PAUSED_UNTIL_TIME, "");
     }
 
     /*
@@ -417,7 +406,7 @@ public final class Utils {
                 break;
         }
         //Return a dummy alarmSchedule with a UID of -100 which signals alarm was not found
-        return new FixedAlarmSchedule(-100, false, null, null, null, 0, "", false,
+        return new FixedAlarmSchedule(-100, false, false, false, false, null, null, 0, "", false,
                 false, false, false, false, false, false);
 
     }
@@ -444,6 +433,20 @@ public final class Utils {
         editor.commit();
     }
 
+    //Used by MainActivity, ScheduledRepeatingAlarm, and UnscheduledRepeatingAlarm
+    public static int getDefaultPauseAmount(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getInt(Constants.PAUSE_TIME, 30);
+    }
+
+    //Used by MainActivity, ScheduledRepeatingAlarm, and UnscheduledRepeatingAlarm
+    public static boolean getDefaultPauseType(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        //Returns true if indefinite
+        return sharedPreferences.getBoolean(Constants.PAUSE_TYPE, true);
+    }
 
     private static Calendar setCalendarTime(Calendar calendar, int hour, int minute){
         calendar.set(Calendar.HOUR_OF_DAY, hour);
