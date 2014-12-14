@@ -5,39 +5,10 @@
     android:layout_height="match_parent"
     android:layout_margin="4dp"
     android:paddingTop="10dp">
-    <RadioGroup
-        android:id="@+id/pauseButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="4dp"
-        >
-        <RadioButton android:id="@+id/pause_indefinite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pause_indefinitely"
-            android:layout_margin="2dp"/>
-        <RadioButton android:id="@+id/pause_set_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pause_set_time"
-            android:layout_margin="2dp"/>
-    </RadioGroup>
-    <View
-        android:id="@+id/numberPickerLine"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/LightGrey"
-        android:layout_below="@+id/pauseButtons"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp"/>
     <NumberPicker
         android:id="@+id/pauseNumberPicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/numberPickerLine"
         android:layout_centerHorizontal="true"
         android:layout_margin="4dp"/>
 </RelativeLayout>

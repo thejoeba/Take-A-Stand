@@ -146,9 +146,7 @@ public class AlarmFragment extends Fragment{
                 } else if(stoodLayout.getVisibility() == View.VISIBLE){
                     mHandler.post(hideStoodAnimation);
                 } else {
-                    if(!Utils.getDefaultPauseType(getActivity())){
-                        mHandler.post(showPausedAnimation);
-                    }
+                    mHandler.post(showPausedAnimation);
                 }
                 break;
             case Constants.SCHEDULE_RUNNING:
@@ -177,9 +175,7 @@ public class AlarmFragment extends Fragment{
                 } else if(stoodLayout.getVisibility() == View.VISIBLE){
                     mHandler.post(hideStoodAnimation);
                 } else {
-                    if(!Utils.getDefaultPauseType(getActivity())){
-                        mHandler.post(showPausedAnimation);
-                    }
+                    mHandler.post(showPausedAnimation);
                 }
                 break;
             default:
@@ -217,10 +213,7 @@ public class AlarmFragment extends Fragment{
             case Constants.NON_SCHEDULE_PAUSED:
                 stoodLayout.setVisibility(View.GONE);
                 nextAlertLayout.setVisibility(View.GONE);
-                if(!Utils.getDefaultPauseType(getActivity())){
-                    pausedLayout.setVisibility(View.VISIBLE);
-                }
-                pausedLayout.setVisibility(View.GONE);
+                pausedLayout.setVisibility(View.VISIBLE);
                 break;
             case Constants.SCHEDULE_RUNNING:
                 nextAlertLayout.setVisibility(View.VISIBLE);
@@ -241,9 +234,7 @@ public class AlarmFragment extends Fragment{
             case Constants.SCHEDULE_PAUSED:
                 stoodLayout.setVisibility(View.GONE);
                 nextAlertLayout.setVisibility(View.GONE);
-                if(!Utils.getDefaultPauseType(getActivity())){
-                    pausedLayout.setVisibility(View.VISIBLE);
-                }
+                pausedLayout.setVisibility(View.VISIBLE);
                 break;
             default:
                 nextAlertLayout.setVisibility(View.GONE);
@@ -304,9 +295,7 @@ public class AlarmFragment extends Fragment{
                         mHandler.postDelayed(showStoodAnimation, 100);
                     } else if (Utils.getImageStatus(getActivity()) == Constants.NON_SCHEDULE_PAUSED ||
                             Utils.getImageStatus(getActivity()) == Constants.SCHEDULE_PAUSED){
-                        if(!Utils.getDefaultPauseType(getActivity())){
-                            mHandler.post(showPausedAnimation);
-                        }
+                        mHandler.post(showPausedAnimation);
                     }
                 }
                 @Override
@@ -338,9 +327,7 @@ public class AlarmFragment extends Fragment{
                     stoodLayout.setVisibility(View.GONE);
                     if (Utils.getImageStatus(getActivity()) == Constants.NON_SCHEDULE_PAUSED ||
                             Utils.getImageStatus(getActivity()) == Constants.SCHEDULE_PAUSED){
-                        if(!Utils.getDefaultPauseType(getActivity())){
-                            mHandler.post(showPausedAnimation);
-                        }
+                       mHandler.post(showPausedAnimation);
                     }
                 }
 

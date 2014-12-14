@@ -27,13 +27,12 @@ public class StoodLogsAdapter {
         mContext = context;
     }
 
-    public long newStoodLog(int stoodMethod){
+    public long newStoodLog(int stoodMethod, Calendar timeStamp){
         Log.i(TAG, "newStoodLog");
         StoodSQLHelper scheduleSQLHelper = new StoodSQLHelper(mContext);
         SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.STOOD_METHOD, stoodMethod);
-        Calendar timeStamp = Calendar.getInstance();
         databaseInfo.put(StoodSQLHelper.TIME_STAMP, Long.toString(timeStamp.getTimeInMillis()));
         long l = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_MAIN, null, databaseInfo);
         localSQLiteDatabase.close();

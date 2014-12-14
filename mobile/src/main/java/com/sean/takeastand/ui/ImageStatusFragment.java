@@ -148,10 +148,10 @@ public class ImageStatusFragment
                 }
                 break;
             case Constants.NON_SCHEDULE_PAUSED:
-                ivStickFigure.setImageResource(R.drawable.alarm_temporary_paused);
+                ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                txtTap.setText("Paused");
+                txtTap.setText(mContext.getString(R.string.paused));
                 break;
             case Constants.SCHEDULE_RUNNING:
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_running);
@@ -187,10 +187,10 @@ public class ImageStatusFragment
                 }
                 break;
             case Constants.SCHEDULE_PAUSED:
-                ivStickFigure.setImageResource(R.drawable.alarm_temporary_paused);
+                ivStickFigure.setImageResource(R.drawable.alarm_schedule_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                txtTap.setText("Paused");
+                txtTap.setText(mContext.getString(R.string.paused));
                 break;
             default:
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
@@ -241,10 +241,10 @@ public class ImageStatusFragment
                 }
                 break;
             case Constants.NON_SCHEDULE_PAUSED:
-                ivStickFigure.setImageResource(R.drawable.alarm_temporary_paused);
+                ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                txtTap.setCurrentText("Paused");
+                txtTap.setCurrentText(mContext.getString(R.string.paused));
                 break;
             case Constants.SCHEDULE_RUNNING:
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_running);
@@ -278,10 +278,10 @@ public class ImageStatusFragment
                 }
                 break;
             case Constants.SCHEDULE_PAUSED:
-                ivStickFigure.setImageResource(R.drawable.alarm_temporary_paused);
+                ivStickFigure.setImageResource(R.drawable.alarm_schedule_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                txtTap.setCurrentText("Paused");
+                txtTap.setCurrentText(mContext.getString(R.string.paused));
                 break;
             default:
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
