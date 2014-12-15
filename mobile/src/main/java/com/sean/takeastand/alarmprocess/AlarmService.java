@@ -46,6 +46,7 @@ import com.sean.takeastand.ui.MainActivity;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
+import java.util.Calendar;
 import java.util.Random;
 
 /*This class is started by the AlarmReceiver once it receives an intent that it is time for the
@@ -168,7 +169,7 @@ public class AlarmService extends Service  {
                     Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
                     long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
                     v.vibrate(pattern, -1);
-                    recordStand(Constants.STOOD_AFTER);
+                    recordStand(Constants.STOOD_AFTER,Calendar.getInstance());
                 }
                 // Expired or not in pocket
                 else {
@@ -177,9 +178,10 @@ public class AlarmService extends Service  {
             }
             //0 signifies stand recorded incorrectly, for whatever reason
             if(intent.hasExtra(Constants.STOOD_METHOD)){
-                recordStand(intent.getIntExtra(Constants.STOOD_METHOD, 0));
+                recordStand(intent.getIntExtra(Constants.STOOD_METHOD, 0), Calendar.getInstance());
+
             } else {
-                recordStand(0);
+                recordStand(0, Calendar.getInstance());
             }
             cancelNotification();
             showPraise();
@@ -225,7 +227,9 @@ public class AlarmService extends Service  {
                         bPostponed = true;
                         Log.d(TAG, "Last step less than default frequency");
                         postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
-                        recordStand(Constants.STOOD_BEFORE);
+                        Calendar lastStepTime = Calendar.getInstance();
+                        lastStepTime.add(Calendar.MILLISECOND, (int)-(lLastStep));
+                        recordStand(Constants.STOOD_BEFORE, lastStepTime);
                         AlarmService.this.stopSelf();
                     }
                 }
@@ -537,9 +541,9 @@ public class AlarmService extends Service  {
         notificationManager.cancel(R.integer.AlarmNotificationID);
     }
 
-    private void recordStand(int stoodMethod){
+    private void recordStand(int stoodMethod, Calendar timeStamp){
         StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(this);
-        stoodLogsAdapter.newStoodLog(stoodMethod);
+        stoodLogsAdapter.newStoodLog(stoodMethod, timeStamp);
     }
 
 }

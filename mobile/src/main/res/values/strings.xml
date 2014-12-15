@@ -82,7 +82,6 @@
     <string name="notification_settings">Notification Settings</string>\
     <string name="pause_description">If pausing for a set time, the next reminder will happen your default frequency minutes after the paused time has passed (20 minute frequency and 30 minute pause = next stand reminder in 50 minutes)</string>
     <string name="paused_until">Paused until:</string>
-    <string name="select_pause_type">Select Pause Type</string>
-    <string name="pause_indefinitely">Pause indefinitely</string>
-    <string name="pause_set_time">Pause for a set time</string>
+    <string name="select_pause_type">Pause Time (Minutes)</string>
+    <string name="paused">Paused</string>
 </resources>

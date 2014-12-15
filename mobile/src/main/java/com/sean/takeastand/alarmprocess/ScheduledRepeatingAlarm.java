@@ -134,17 +134,14 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         endAlarmService();
-        //Set pause alarm if relevant
-        if(!Utils.getDefaultPauseType(mContext)){
-            int totalPauseTime = Utils.getDefaultPauseAmount(mContext);
-            long delayTimeInMillis = totalPauseTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
-            long  triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
-            PendingIntent pausePendingIntent = createPausePendingIntent(mContext, mCurrentAlarmSchedule);
-            am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pausePendingIntent);
-            Calendar pausedUntilTime = Calendar.getInstance();
-            pausedUntilTime.add(Calendar.MINUTE, Utils.getDefaultPauseAmount(mContext));
-            Utils.setPausedTime(pausedUntilTime, mContext);
-        }
+        int totalPauseTime = Utils.getDefaultPauseAmount(mContext);
+        long delayTimeInMillis = totalPauseTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
+        long  triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
+        PendingIntent pausePendingIntent = createPausePendingIntent(mContext, mCurrentAlarmSchedule);
+        am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pausePendingIntent);
+        Calendar pausedUntilTime = Calendar.getInstance();
+        pausedUntilTime.add(Calendar.MINUTE, Utils.getDefaultPauseAmount(mContext));
+        Utils.setPausedTime(pausedUntilTime, mContext);
         Utils.setImageStatus(mContext, Constants.SCHEDULE_PAUSED);
     }
 

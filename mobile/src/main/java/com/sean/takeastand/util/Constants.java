@@ -72,6 +72,5 @@ public final class Constants {
     public static final String STAND_DETECTED = "StandDetected";
     public static final String UPDATE_ACTION_BAR = "UpdateActionBar";
     public static final String PAUSE_TIME = "PauseTimeAmount";
-    public static final String PAUSE_TYPE = "PauseType";
     public static final String PAUSED_UNTIL_TIME = "PausedUntilTime";
 }

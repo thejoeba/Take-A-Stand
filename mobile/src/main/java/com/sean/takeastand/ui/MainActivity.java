@@ -44,6 +44,8 @@ import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.Application;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.heckbot.standdtector.MyBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
@@ -68,6 +70,8 @@ public class MainActivity extends Activity {
     private ArrayList<String> mNavDrawerOptions;
     private ArrayAdapter mListAdapter;
     private MenuItem mPausePlay;
+    private int[] pauseTimes= new int[] {5, 10, 15, 20, 25, 30, 45, 60, 75, 90, 105, 120, 135, 150,
+                        165, 180};
 
     @Override
     protected void onCreate(Bundle paramBundle)
@@ -126,6 +130,14 @@ public class MainActivity extends Activity {
         }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        ((Application) getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
 
     private AdapterView.OnItemClickListener drawerClickListener = new AdapterView.OnItemClickListener() {
@@ -176,6 +188,7 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS);
         intent.putExtra("Visible", false);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
         super.onStop();
     }
 
@@ -341,9 +354,9 @@ public class MainActivity extends Activity {
         int minValue = 5;
         int maxValue = 180;
         int step = 5;
-        String[] valueSet = new String[maxValue/step];
-        for (int i = minValue; i <= maxValue; i += step) {
-            valueSet[ (i/step) -1 ] = String.valueOf(i);
+        String[] valueSet = new String[pauseTimes.length];
+        for(int i = 0; i < pauseTimes.length; i++){
+            valueSet[i] = Integer.toString(pauseTimes[i]);
         }
         builder.setView(dialogView);
         final NumberPicker npPause = (NumberPicker)dialogView.findViewById(R.id.pauseNumberPicker);
@@ -351,44 +364,19 @@ public class MainActivity extends Activity {
         npPause.setMinValue(0);
         npPause.setMaxValue(valueSet.length - 1);
         npPause.setWrapSelectorWheel(false);
-        npPause.setValue((Utils.getDefaultPauseAmount(this) / 5) - 1);
-        RadioButton rbIndefinite = (RadioButton)dialogView.findViewById(R.id.pause_indefinite);
-        final RadioButton rbSetTime = (RadioButton)dialogView.findViewById(R.id.pause_set_time);
-        if(Utils.getDefaultPauseType(this)){
-            rbIndefinite.setChecked(true);
-            npPause.setEnabled(false);
-            npPause.setAlpha((float) 0.5);
-        } else {
-            rbSetTime.setChecked(true);
-            npPause.setEnabled(true);
-            npPause.setAlpha((float) 1);
+        int initialValue = Utils.getDefaultPauseAmount(this);
+        for(int i = 0; i < pauseTimes.length; i++){
+            if (initialValue == pauseTimes[i]){
+                initialValue = i;
+            }
         }
-        rbIndefinite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                npPause.setEnabled(false);
-                npPause.setAlpha((float) 0.5);
-            }
-        });
-        rbSetTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                npPause.setEnabled(true);
-                npPause.setAlpha((float) 1);
-            }
-        });
-        //builder.setMessage(getResources().getString(R.string.select_pause_type));
+        npPause.setValue(initialValue);
         builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //getValue returns the index number, so need to do some math to correct correct
                 //actual value
-                setDefaultPauseAmount((npPause.getValue() *  5) + 5 );
-                if(rbSetTime.isChecked()){
-                    setDefaultPauseType(false);
-                } else {
-                    setDefaultPauseType(true);
-                }
+                setDefaultPauseAmount(pauseTimes[npPause.getValue()]);
                 int currentStatus = Utils.getImageStatus(MainActivity.this);
                 if(currentStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
                         currentStatus == Constants.NON_SCHEDULE_STOOD_UP ||
@@ -462,14 +450,6 @@ public class MainActivity extends Activity {
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Constants.PAUSE_TIME, pauseAmount);
-        editor.commit();
-    }
-
-    private void setDefaultPauseType(boolean pauseIndefinite){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Constants.PAUSE_TYPE, pauseIndefinite);
         editor.commit();
     }
 
