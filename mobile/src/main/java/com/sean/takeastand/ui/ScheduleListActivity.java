@@ -18,6 +18,9 @@
 package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -44,6 +48,7 @@ import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.widget.TimePickerFragment;
 
+import java.sql.Time;
 import java.util.ArrayList;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -51,18 +56,18 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 /**
  * Created by Sean on 2014-09-21.
  */
-public class ScheduleListActivity extends ListActivity {
+public class ScheduleListActivity extends FragmentActivity {
 
     private static final String TAG = "SchedulesListActivity";
     private ImageView imgAddAlarm;
     private ScheduleListAdapter scheduleListAdapter;
     private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> mAlarmSchedules;
+    private ListView mSchedulesList;
     private String mNewAlarmStartTime;
     private boolean mJustReceivedTimePicker;
     private boolean mJustReceivedResponse;
     private Handler mHandler;
-    private TimePickerFragment timePickerFragment;
     private TextView txtNoAlarms;
     private RelativeLayout rlScheduleList;
 
@@ -70,30 +75,14 @@ public class ScheduleListActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_list);
-
-        //Deleting the database each time only during testing
-        //deleteDatabase("alarms_database");
-
+        setUpLayout();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setUpLayout();
-        mAlarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
-        if(mAlarmSchedules.isEmpty()){
-            txtNoAlarms = (TextView)findViewById(R.id.no_alarms);
-            txtNoAlarms.setVisibility(View.VISIBLE);
-            rlScheduleList = (RelativeLayout)findViewById(R.id.rl_schedule_list);
-            rlScheduleList.setOnClickListener(addAlarmOnClickListener);
-            findViewById(R.id.fl_schedule_list).setVisibility(View.GONE);
-            imgAddAlarm.setVisibility(View.GONE);
-        }
-        scheduleListAdapter =
-                new ScheduleListAdapter(this, android.R.id.list, mAlarmSchedules, getLayoutInflater());
-        Log.i(TAG, "Number of Rows: " + Integer.toString(scheduleListAdapter.getCount()));
-        expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
-        setListAdapter(expandableAdapter);
+
+
         registerReceivers();
         mJustReceivedTimePicker = true;
         mJustReceivedResponse = true;
@@ -121,8 +110,22 @@ public class ScheduleListActivity extends ListActivity {
         }
         imgAddAlarm = (ImageView)this.findViewById(R.id.btn_add_alarm);
         imgAddAlarm.setOnClickListener(addAlarmOnClickListener);
-        ListView listView = getListView();
-        registerForContextMenu(listView);
+        mSchedulesList = (ListView)findViewById(R.id.schedules_list);
+        //registerForContextMenu(mSchedulesList);
+        mAlarmSchedules = new ScheduleDatabaseAdapter(this).getAlarmSchedules();
+        if(mAlarmSchedules.isEmpty()){
+            txtNoAlarms = (TextView)findViewById(R.id.no_alarms);
+            txtNoAlarms.setVisibility(View.VISIBLE);
+            rlScheduleList = (RelativeLayout)findViewById(R.id.rl_schedule_list);
+            rlScheduleList.setOnClickListener(addAlarmOnClickListener);
+            findViewById(R.id.fl_schedule_list).setVisibility(View.GONE);
+            imgAddAlarm.setVisibility(View.GONE);
+        }
+        scheduleListAdapter =
+                new ScheduleListAdapter(this, android.R.id.list, mAlarmSchedules, getLayoutInflater());
+        Log.i(TAG, "Number of Rows: " + Integer.toString(scheduleListAdapter.getCount()));
+        expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
+        mSchedulesList.setAdapter(expandableAdapter);
     }
 
     private View.OnClickListener addAlarmOnClickListener = new View.OnClickListener() {
@@ -150,10 +153,19 @@ public class ScheduleListActivity extends ListActivity {
     {
         Bundle args = new Bundle();
         args.putBoolean("StartOrEndButton", startOrEndTime);
-        args.putBoolean("NewAlarm", newAlarm);
-        final TimePickerFragment timePickerFragment = new TimePickerFragment();
+        args.putBoolean("NewAlarm", newAlarm); FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment tpf = getFragmentManager().findFragmentByTag("timePicker");
+        if (tpf != null) {
+            ft.remove(tpf);
+        }
+        ft.addToBackStack(null);
+        DialogFragment timePickerFragment = new TimePickerFragment();
         timePickerFragment.setArguments(args);
-        timePickerFragment.show(getFragmentManager(), "timePicker");
+        try{
+            timePickerFragment.show(getFragmentManager(), "timePicker");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private BroadcastReceiver titleChangeReceiver = new BroadcastReceiver() {
@@ -178,9 +190,13 @@ public class ScheduleListActivity extends ListActivity {
                         mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
                         //Once figure out how to restrict timepickerdialog
                         //args.putString("StartTime", mNewAlarmStartTime);
-                        final TimePickerFragment timePickerFragment = new TimePickerFragment();
+                        DialogFragment timePickerFragment = new TimePickerFragment();
                         timePickerFragment.setArguments(args);
-                        timePickerFragment.show(getFragmentManager(), "timePicker");
+                        try{
+                            timePickerFragment.show(getFragmentManager(), "timePicker");
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
                     } else {
                         Log.i(TAG, "end time");
                         scheduleListAdapter.newSchedule(mNewAlarmStartTime, intent.getStringExtra("TimeSelected"));
@@ -220,9 +236,13 @@ public class ScheduleListActivity extends ListActivity {
                 if(intent.hasExtra(Constants.END_TIME_ARG)){
                     args.putString(Constants.END_TIME_ARG, (intent.getStringExtra(Constants.END_TIME_ARG)));
                 }
-                timePickerFragment = new TimePickerFragment();
+                DialogFragment timePickerFragment = new TimePickerFragment();
                 timePickerFragment.setArguments(args);
-                timePickerFragment.show(getFragmentManager(), "timePicker");
+                try{
+                    timePickerFragment.show(getFragmentManager(), "timePicker");
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 mJustReceivedTimePicker = false;
                 mHandler.postDelayed(updateStatusPicker, 290);
             }
@@ -234,6 +254,7 @@ public class ScheduleListActivity extends ListActivity {
         @Override
         public void run() {
             mJustReceivedResponse = true;
+
         }
     };
 

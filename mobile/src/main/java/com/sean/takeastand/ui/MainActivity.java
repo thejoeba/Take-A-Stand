@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
         }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        ((Application) getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+
 
     }
 
