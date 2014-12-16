@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="10dp">
+
+        <RelativeLayout
+            android:id="@+id/rlStepCounter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvStepCounter"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginLeft="15dp"
+                android:text="@string/step_counter"
+                android:textColor="@android:color/primary_text_light"
+                android:gravity="center"
+                android:textSize="@dimen/alert_text_size"/>
+            <Switch
+                android:id="@+id/toggleStepCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvStepCounter"
+                android:layout_centerHorizontal="true"
+                android:checked="false" />
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/lineStepCounter"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/LightGrey"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="6dp"
+            android:layout_below="@+id/rlStepCounter" />
+
+        <RelativeLayout
+            android:id="@+id/rlWearStepCounter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_below="@+id/lineStepCounter">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvWearStepCounter"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginLeft="15dp"
+                android:text="@string/wear_step_counter"
+                android:textColor="@android:color/primary_text_light"
+                android:gravity="center"
+                android:textSize="@dimen/alert_text_size" />
+
+            <Switch
+                android:id="@+id/toggleWearStepCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvWearStepCounter"
+                android:layout_centerHorizontal="true"
+                android:checked="false" />
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/lineWearStepCounter"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/LightGrey"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="6dp"
+            android:layout_below="@+id/rlWearStepCounter" />
+
+        <RelativeLayout
+            android:id="@+id/rlStandDTectorTM"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_below="@+id/lineWearStepCounter" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvStandDtector"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginLeft="15dp"
+                android:text="@string/standdtectortm"
+                android:textColor="@android:color/primary_text_light"
+                android:gravity="center"
+                android:textSize="@dimen/alert_text_size" />
+
+            <Switch
+                android:id="@+id/toggleStandDtectorTM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvStandDtector"
+                android:layout_centerHorizontal="true"
+                android:checked="false" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/standdtectortm_calbirate"
+                android:id="@+id/btnCalibrate"
+                android:layout_below="@+id/toggleStandDtectorTM"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+</ScrollView>

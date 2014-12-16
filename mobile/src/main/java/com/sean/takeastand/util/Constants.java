@@ -61,16 +61,22 @@ public final class Constants {
     public static final String MAIN_ACTIVITY_VISIBILITY_STATUS = "MainVisibilityStatus";
     public static final String PRAISE_FOR_USER = "PraiseForUser";
     public static final String UPDATE_NEXT_ALARM_TIME = "UpdateNextAlarmTime";
-    public static final String STAND_DETECTOR = "StandDetector";
     public static final String LAST_STEP = "LastStep";
-    public static final int STOOD_BEFORE = 1;
-    public static final int TAPPED_NOTIFICATION = 2;
-    public static final int TAPPED_ACTIVITY = 3;
+    public static final int STEP_DETECTED_BEFORE_DEVICE = 1;
+    public static final int TAPPED_NOTIFICATION_DEVICE = 2;
+    public static final int TAPPED_ACTIVITY_DEVICE = 3;
     public static final int STOOD_AFTER = 4;
+    public static final int STEP_DETECTED_BEFORE_WEAR = 5;
+    public static final int TAPPED_NOTIFICATION_WEAR = 6;
+    public static final int STEP_DETECTED_AFTER_WEAR = 7;
+    public static final int STEP_DETECTED_AFTER_DEVICE = 8;
     public static final String STOOD_METHOD = "HowUserStood";
     public static final String STAND_DETECTOR_RESULT = "StandDetectorResult";
     public static final String STAND_DETECTED = "StandDetected";
     public static final String UPDATE_ACTION_BAR = "UpdateActionBar";
     public static final String PAUSE_TIME = "PauseTimeAmount";
     public static final String PAUSED_UNTIL_TIME = "PausedUntilTime";
+    public static final String STEP_DETECTOR_ENABLED = "StepDetector";
+    public static final String WEAR_STEP_DETECTOR_ENABLED = "StepDetectorEnabled";
+    public static final String STANDDTECTORTM_ENABLED = "StandDtectorTMEnabled";
 }

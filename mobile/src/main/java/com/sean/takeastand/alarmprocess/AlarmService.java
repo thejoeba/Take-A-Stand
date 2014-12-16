@@ -70,6 +70,8 @@ public class AlarmService extends Service  {
     long[] mVibrationPattern = {(long)200, (long)300, (long)200, (long)300, (long)200, (long)300};
     private boolean mainActivityVisible;
     private boolean bStepCounterHandled = false;
+    private boolean bWearStepCounterHandled = false;
+    long lDeviceLastStep = -1;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -77,7 +79,7 @@ public class AlarmService extends Service  {
         mainActivityVisible = false;
         registerReceivers();
 
-        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STAND_DETECTOR, false)) {
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STEP_DETECTOR_ENABLED, false)) {
             Intent stepDetectorIntent = new Intent(this, com.heckbot.standdtector.StandDtectorTM.class);
             stepDetectorIntent.setAction(Constants.LAST_STEP);
             Intent returnIntent = new Intent(Constants.LAST_STEP);
@@ -91,10 +93,28 @@ public class AlarmService extends Service  {
             Runnable lastStepReceiverTimeout = new StepCounterRunnable(intent);
             mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
         }
+        else if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
+            GetWearLastStep(intent);
+        }
         else {
             beginStandNotifications(intent);
         }
         return START_REDELIVER_INTENT;
+    }
+
+    private void GetWearLastStep(Intent intent) {
+        Intent wearStepDetectorIntent = new Intent(this, StandDtectorTM.class);
+        wearStepDetectorIntent.setAction("WearLastStep");
+        Intent returnIntent = new Intent("WearLastStep");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
+        wearStepDetectorIntent.putExtra("pendingIntent", pendingIntent);
+        startService(wearStepDetectorIntent);
+        //error handling if no step detector results are returned.
+        mHandler = new Handler();
+        int tenSecondMillis = 10000;
+
+        Runnable lastWearStepReceiverTimeout = new WearStepCounterRunnable(intent);
+        mHandler.postDelayed(lastWearStepReceiverTimeout, tenSecondMillis);
     }
 
     private void beginStandNotifications(Intent intent) {
@@ -131,6 +151,8 @@ public class AlarmService extends Service  {
                 new IntentFilter(Constants.STOOD_RESULTS));
         getApplicationContext().registerReceiver(lastStepReceiver,
                 new IntentFilter(Constants.LAST_STEP));
+        getApplicationContext().registerReceiver(wearLastStepReceiver,
+                new IntentFilter("WearLastStep"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
@@ -219,22 +241,72 @@ public class AlarmService extends Service  {
                 bStepCounterHandled = true;
                 Bundle extras = intent.getExtras();
                 boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
-                boolean bPostponed = false;
+                long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
                 if (bHasStepHardware) {
-                    long lLastStep = extras.getLong("Last_Step");
-                    long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
-                    if (lLastStep < (lDefaultFrequencyMilliseconds * .9)) {
-                        bPostponed = true;
+                    lDeviceLastStep = extras.getLong("Last_Step");
+                    if (lDeviceLastStep < (lDefaultFrequencyMilliseconds * .9)) {
                         Log.d(TAG, "Last step less than default frequency");
-                        postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lLastStep);
-                        Calendar lastStepTime = Calendar.getInstance();
-                        lastStepTime.add(Calendar.MILLISECOND, (int)-(lLastStep));
-                        recordStand(Constants.STOOD_BEFORE, lastStepTime);
-                        AlarmService.this.stopSelf();
+                    }
+                    else {
+                        lDeviceLastStep = -1;
                     }
                 }
-                if (!bPostponed) {
+                if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
+                    GetWearLastStep(intent);
+                }
+                else if (lDeviceLastStep < 0) {
                     beginStandNotifications(intent);
+                }
+                else {
+                    //if wear step detector not enabled, and valid steps returned, postpone and finish
+                    postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lDeviceLastStep);
+                    Calendar lastStepTime = Calendar.getInstance();
+                    lastStepTime.add(Calendar.MILLISECOND, (int)-(lDeviceLastStep));
+                    recordStand(Constants.STEP_DETECTED_BEFORE_DEVICE, lastStepTime);
+                    stopSelf();
+                }
+            }
+        }
+    };
+
+    private BroadcastReceiver wearLastStepReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Wear Step Data Received");
+            if (!bWearStepCounterHandled) {
+                bWearStepCounterHandled = true;
+                Bundle extras = intent.getExtras();
+                boolean bHasWearStepHardware = extras.getBoolean("Wear_Step_Hardware");
+                long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
+                long lWearLastStep = -1;
+                if (bHasWearStepHardware) {
+                    lWearLastStep = extras.getLong("Wear_Last_Step");
+                    if (lWearLastStep < (lDefaultFrequencyMilliseconds * .9)) {
+                        Log.d(TAG, "Last wear step less than default frequency");
+                    }
+                    else {
+                        lWearLastStep = -1;
+                    }
+                }
+                long lLastStep = -1;
+                int stepType;
+                if (lDeviceLastStep >= lWearLastStep){
+                    lLastStep = lDeviceLastStep;
+                    stepType = Constants.STEP_DETECTED_BEFORE_DEVICE;
+                }
+                else {
+                    lLastStep = lWearLastStep;
+                    stepType = Constants.STEP_DETECTED_BEFORE_WEAR;
+                }
+                if (lLastStep < 0) {
+                    beginStandNotifications(intent);
+                }
+                else {
+                    postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lWearLastStep);
+                    Calendar lastStepTime = Calendar.getInstance();
+                    lastStepTime.add(Calendar.MILLISECOND, (int)-(lLastStep));
+                    recordStand(stepType, lastStepTime);
+                    stopSelf();
                 }
             }
         }
@@ -281,6 +353,30 @@ public class AlarmService extends Service  {
                 Intent stopStepDetectorIntent = new Intent("STOP");
                 startService(stopStepDetectorIntent);
                 Log.i(TAG, "Step Data Timeout");
+
+                if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
+                    GetWearLastStep(intent);
+                }
+                else {
+                    beginStandNotifications(intent);
+                }
+            }
+        }
+    }
+
+    private class WearStepCounterRunnable implements Runnable {
+        private final Intent intent;
+
+        WearStepCounterRunnable(final Intent intent) {
+            this.intent = intent;
+        }
+
+        public void run() {
+            if (!bWearStepCounterHandled) {
+                bWearStepCounterHandled = true;
+                Intent stopWearStepDetectorIntent = new Intent("STOP");
+                startService(stopWearStepDetectorIntent);
+                Log.i(TAG, "Wear Step Data Timeout");
                 beginStandNotifications(intent);
             }
         }
@@ -367,7 +463,7 @@ public class AlarmService extends Service  {
                 .setContentText("Mark Stood")
                 .extend(
                         new NotificationCompat.WearableExtender()
-                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
+                                .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[2]).build())
                                 .setContentAction(0)
                                 .setHintHideIcon(true)
 //                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
@@ -418,7 +514,7 @@ public class AlarmService extends Service  {
         Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
 
-        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STAND_DETECTOR, false))
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STANDDTECTORTM_ENABLED, false))
         {
             Intent standSensorIntent = new Intent(this, StandDtectorTM.class);
             standSensorIntent.setAction("START");
@@ -520,10 +616,14 @@ public class AlarmService extends Service  {
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(this, 0,
                 launchActivityIntent, 0);
         Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
-        stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION);
+        stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION_DEVICE);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
-        return new PendingIntent[]{launchActivityPendingIntent, stoodUpPendingIntent};
+        Intent stoodUpWearIntent = new Intent(Constants.STOOD_RESULTS);
+        stoodUpWearIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION_WEAR);
+        PendingIntent stoodUpWearPendingIntent = PendingIntent.getBroadcast(this, 0,
+                stoodUpIntent, 0);
+        return new PendingIntent[]{launchActivityPendingIntent, stoodUpPendingIntent, stoodUpWearPendingIntent};
     }
 
     private String setMinutes(int minutes){

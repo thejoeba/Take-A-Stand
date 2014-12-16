@@ -60,7 +60,7 @@ public class RemindersActivity extends Activity {
         chbxSound = (CheckBox) findViewById(R.id.chbxSound);
         chbxSound.setChecked(currentNotification[2]);
         chbxSound.setOnClickListener(checkBoxListener);
-        txtSilentMode = (TextView) findViewById(R.id.txtSilentMode);
+        txtSilentMode = (TextView) findViewById(R.id.tvStepCounter);
         txtRepeat = (TextView) findViewById(R.id.txtRepeat);
         //txtNotificationFrequencyTitle = (TextView) findViewById(R.id.txtNotificationFrequencyTitle);
         txtNotificationFrequency = (TextView) findViewById(R.id.txtNotificationFrequencyTitle);

@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
 
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.WearableListenerService;
+
 /**
  * Created by Joey on 11/23/2014.
  */
-public class MyBroadcastReceiver extends android.content.BroadcastReceiver {
+public class StandDtectorBroadcastReceiver extends android.content.BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("MyBroadcastReceiver", "Intent Received");
