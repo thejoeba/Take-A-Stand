@@ -46,6 +46,8 @@ import android.widget.TextView;
 
 import com.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.heckbot.standdtector.MyBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
@@ -93,6 +95,7 @@ public class MainActivity extends Activity {
         }
         mNavDrawerOptions.add(getString(R.string.calibrate_detector));
         mNavDrawerOptions.add(getString(R.string.science_app));
+        mNavDrawerOptions.add(getString(R.string.stand_count));
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -130,7 +133,9 @@ public class MainActivity extends Activity {
         }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
+        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Main Activity");
+        t.send(new HitBuilders.AppViewBuilder().build());
 
     }
 
@@ -158,6 +163,10 @@ public class MainActivity extends Activity {
                 case 3:
                     Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
                     startActivity(intentScience);
+                    break;
+                case 4:
+                    Intent intentStandCount = new Intent(MainActivity.this, StandCountActivity.class);
+                    startActivity(intentStandCount);
                     break;
             }
         }

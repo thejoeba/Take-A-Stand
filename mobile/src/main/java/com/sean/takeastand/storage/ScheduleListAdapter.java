@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -59,6 +60,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
     private boolean mStartEndButtonSelected;
     private final String TAG = "ScheduleListAdapter";
     private LayoutInflater mLayoutInflater;
+    private boolean mUpdatingStartEndTime = false;
+    private Handler mHandler;
 
     public ScheduleListAdapter(Context context, int resource, ArrayList<AlarmSchedule> alarmSchedules,
                                LayoutInflater layoutInflater) {
@@ -66,6 +69,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         mAlarmSchedules = alarmSchedules;
         mContext = context;
         mLayoutInflater = layoutInflater;
+        mHandler = new Handler();
     }
 
     @Override
@@ -454,23 +458,28 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
 
     //This method is called by SchedulesListActivity after showTimePickerDialog is called here
     public void updateStartEndTime(String newStartTime, int position) {
-        ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
-        AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
-        if (mStartEndButtonSelected)
-        {
-            Calendar startTime = Utils.convertToCalendarTime(newStartTime, mContext);
-            newAlarmSchedule.setStartTime(startTime);
-            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
-            scheduleEditor.editStartTime(todayActivated, newAlarmSchedule);
-            mAlarmSchedules.remove(position);
-            mAlarmSchedules.add(position, newAlarmSchedule);
-        } else {
-            Calendar endTime = Utils.convertToCalendarTime(newStartTime, mContext);
-            newAlarmSchedule.setEndTime(endTime);
-            boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
-            scheduleEditor.editEndTime(todayActivated, newAlarmSchedule);
-            mAlarmSchedules.remove(position);
-            mAlarmSchedules.add(position, newAlarmSchedule);
+        if(!mUpdatingStartEndTime) {
+            mUpdatingStartEndTime = true;
+            mHandler.postDelayed(updatingStartEnd, 1000);
+            ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
+            AlarmSchedule newAlarmSchedule = mAlarmSchedules.get(position);
+            if (mStartEndButtonSelected) {
+                Calendar startTime = Utils.convertToCalendarTime(newStartTime, mContext);
+                newAlarmSchedule.setStartTime(startTime);
+                boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
+                scheduleEditor.editStartTime(todayActivated, newAlarmSchedule);
+                mAlarmSchedules.remove(position);
+                mAlarmSchedules.add(position, newAlarmSchedule);
+            } else {
+                Calendar endTime = Utils.convertToCalendarTime(newStartTime, mContext);
+                newAlarmSchedule.setEndTime(endTime);
+                boolean todayActivated = Utils.isTodayActivated(newAlarmSchedule);
+                scheduleEditor.editEndTime(todayActivated, newAlarmSchedule);
+                mAlarmSchedules.remove(position);
+                mAlarmSchedules.add(position, newAlarmSchedule);
+            }
+            notifyDataSetChanged();
+
         }
     }
 
@@ -601,5 +610,13 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 new ScheduleDatabaseAdapter(mContext).getAlarmSchedules().get(mAlarmSchedules.size())));
         notifyDataSetChanged();
     }
+
+    Runnable updatingStartEnd = new Runnable() {
+        @Override
+        public void run() {
+            mUpdatingStartEndTime = false;
+            }
+
+    };
 
 }

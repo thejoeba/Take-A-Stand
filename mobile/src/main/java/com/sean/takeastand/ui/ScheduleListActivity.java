@@ -40,6 +40,9 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.ExpandableAdapter;
@@ -64,6 +67,7 @@ public class ScheduleListActivity extends FragmentActivity {
     private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> mAlarmSchedules;
     private ListView mSchedulesList;
+    private TimePickerFragment timePickerFragment;
     private String mNewAlarmStartTime;
     private boolean mJustReceivedTimePicker;
     private boolean mJustReceivedResponse;
@@ -76,17 +80,23 @@ public class ScheduleListActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_list);
         setUpLayout();
+        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Schedules List Activity");
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
-
-
-        registerReceivers();
+        super.onResume(); registerReceivers();
         mJustReceivedTimePicker = true;
         mJustReceivedResponse = true;
         mHandler = new Handler();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceivers();
     }
 
     @Override
@@ -145,6 +155,12 @@ public class ScheduleListActivity extends FragmentActivity {
                 new IntentFilter("ShowTimePicker"));
     }
 
+    private void unregisterReceivers(){
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(titleChangeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(timePickerResponseReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(showTimePickerReceiver);
+    };
+
     private void createNewAlarm(){
         showTimePickerDialog(true, true);
     }
@@ -153,12 +169,7 @@ public class ScheduleListActivity extends FragmentActivity {
     {
         Bundle args = new Bundle();
         args.putBoolean("StartOrEndButton", startOrEndTime);
-        args.putBoolean("NewAlarm", newAlarm); FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment tpf = getFragmentManager().findFragmentByTag("timePicker");
-        if (tpf != null) {
-            ft.remove(tpf);
-        }
-        ft.addToBackStack(null);
+        args.putBoolean("NewAlarm", newAlarm);
         DialogFragment timePickerFragment = new TimePickerFragment();
         timePickerFragment.setArguments(args);
         try{
@@ -190,7 +201,7 @@ public class ScheduleListActivity extends FragmentActivity {
                         mNewAlarmStartTime = intent.getStringExtra("TimeSelected");
                         //Once figure out how to restrict timepickerdialog
                         //args.putString("StartTime", mNewAlarmStartTime);
-                        DialogFragment timePickerFragment = new TimePickerFragment();
+                        timePickerFragment = new TimePickerFragment();
                         timePickerFragment.setArguments(args);
                         try{
                             timePickerFragment.show(getFragmentManager(), "timePicker");
@@ -236,7 +247,7 @@ public class ScheduleListActivity extends FragmentActivity {
                 if(intent.hasExtra(Constants.END_TIME_ARG)){
                     args.putString(Constants.END_TIME_ARG, (intent.getStringExtra(Constants.END_TIME_ARG)));
                 }
-                DialogFragment timePickerFragment = new TimePickerFragment();
+                timePickerFragment = new TimePickerFragment();
                 timePickerFragment.setArguments(args);
                 try{
                     timePickerFragment.show(getFragmentManager(), "timePicker");

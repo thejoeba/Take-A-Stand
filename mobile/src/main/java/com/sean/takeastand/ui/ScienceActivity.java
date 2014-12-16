@@ -8,6 +8,9 @@ import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -44,10 +47,12 @@ public class ScienceActivity extends Activity {
         //Is possible actionBar will be null
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("Science Behind The App");
+            actionBar.setTitle(getString(R.string.science_behind_app));
         }
         setUpTextViews();
-
+        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Science Activity");
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     private void setUpTextViews(){
