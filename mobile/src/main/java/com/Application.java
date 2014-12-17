@@ -43,8 +43,6 @@ public class Application extends android.app.Application {
                     : analytics.newTracker(R.xml.ecommerce_tracker);
             mTrackers.put(trackerId, t);
             Log.i(TAG, "Worked " + Boolean.toString(trackerId == TrackerName.APP_TRACKER));
-        } else {
-            Log.i(TAG, "Analytics Error" );
         }
         return mTrackers.get(trackerId);
     }

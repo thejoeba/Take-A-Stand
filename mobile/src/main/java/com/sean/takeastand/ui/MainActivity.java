@@ -283,9 +283,11 @@ public class MainActivity extends Activity {
         } else if (status == Constants.NON_SCHEDULE_PAUSED ){
             unPauseUnscheduled();
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+            sendAnalyticsEvent("Unpaused");
         } else if (status == Constants.SCHEDULE_PAUSED){
             unPauseScheduled();
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+            sendAnalyticsEvent("Unpaused");
         }
     }
 
@@ -332,6 +334,7 @@ public class MainActivity extends Activity {
                     pauseUnscheduled();
                 } else{
                     pauseSchedule();
+                    sendAnalyticsEvent("Paused");
                 }
                 dialogInterface.dismiss();
             }
@@ -407,5 +410,14 @@ public class MainActivity extends Activity {
         super.attachBaseContext(new CalligraphyContextWrapper(newBase));
     }
 
-
+    private void sendAnalyticsEvent(String action){
+        Tracker t = ((Application)this.getApplication()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.UI_EVENT)
+                .setAction(action)
+                .build());
+    }
 }

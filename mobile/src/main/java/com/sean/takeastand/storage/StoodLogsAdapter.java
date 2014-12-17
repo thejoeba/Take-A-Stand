@@ -7,6 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 import java.text.SimpleDateFormat;
@@ -37,6 +41,7 @@ public class StoodLogsAdapter {
         long l = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_MAIN, null, databaseInfo);
         localSQLiteDatabase.close();
         scheduleSQLHelper.close();
+        sendAnalyticsEvent(mContext, "Stood: " + stoodMethod);
         return l;
     }
 
@@ -63,6 +68,17 @@ public class StoodLogsAdapter {
         }
         stoodSQLHelper.close();
         cursor.close();
+    }
+
+    private void sendAnalyticsEvent(Context context, String action){
+        Tracker t = ((Application)context.getApplicationContext()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.ALARM_PROCESS_EVENT)
+                .setAction(action)
+                .build());
     }
 
 

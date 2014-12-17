@@ -21,6 +21,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -115,7 +118,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         AlarmSchedule alarmSchedule = alarmSchedules.get(position);
         txtTitle.setText(alarmSchedule.getTitle());
         if((alarmSchedule.getTitle()).equals("")){
-            int schedulePosition = position + 1;
+            int schedulePosition = 1 + position;
             txtTitle.setText(mContext.getString(R.string.schedule) + schedulePosition);
         }
         btnActivated.setChecked(alarmSchedule.getActivated());
@@ -195,6 +198,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             scheduleEditor.editActivated(newAlarmSchedule);
             mAlarmSchedules.remove(position);
             mAlarmSchedules.add(position, newAlarmSchedule);
+            sendAnalyticsEvent("Schedule " + (1 + position) + " Activated: " + Boolean.toString(isActivated));
             Log.i(TAG, position + ".) Activated: " + Boolean.toString(isActivated));
         }
     };
@@ -210,9 +214,11 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 Log.i(TAG, "Deleting the last alarmSchedule");
                 mAlarmSchedules.clear();
                 notifyDataSetChanged();
+                sendAnalyticsEvent("Last Alarm Schedule deleted");
             } else {
                 mAlarmSchedules.remove(position);
                 notifyDataSetChanged();
+                sendAnalyticsEvent("An alarm schedule was deleted");
             }
         }
     };
@@ -232,18 +238,24 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                     newAlarmSchedule.setAlertType(alertType);
                     scheduleEditor.editAlertType(newAlarmSchedule);
                     Log.i(TAG, position + ".) LED is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " LED is checked: "
+                            + Boolean.toString(isChecked));
                     break;
                 case R.id.chbxVibrate:
                     alertType[1] = isChecked;
                     newAlarmSchedule.setAlertType(alertType);
                     scheduleEditor.editAlertType(newAlarmSchedule);
                     Log.i(TAG, position + ".) Vibrate is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Vibrate is checked: "
+                            + Boolean.toString(isChecked));
                     break;
                 case R.id.chbxSound:
                     alertType[2] = isChecked;
                     newAlarmSchedule.setAlertType(alertType);
                     scheduleEditor.editAlertType(newAlarmSchedule);
                     Log.i(TAG, position + ".) Sound is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Sound is checked: "
+                            + Boolean.toString(isChecked));
                     break;
             }
         }
@@ -286,37 +298,51 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             switch (view.getId()){
                 case R.id.chbxSun:
                     Log.i(TAG, position + ".) Sunday is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Sunday is checked: "
+                            + Boolean.toString(isChecked));
                     newAlarmSchedule.setSunday(isChecked);
                     scheduleEditor.editDays(Calendar.SUNDAY, isChecked, newAlarmSchedule);
                     //Change the other views so they can now check or not check this day
                     break;
                 case R.id.chbxMon:
                     Log.i(TAG, position + ".) Monday is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Monday is checked: "
+                            + Boolean.toString(isChecked));
                     newAlarmSchedule.setMonday(isChecked);
                     scheduleEditor.editDays(Calendar.MONDAY, isChecked, newAlarmSchedule);
                     break;
                 case R.id.chbxTue:
                     Log.i(TAG, position + ".) Tuesday is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Tuesday is checked: "
+                            + Boolean.toString(isChecked));
                     newAlarmSchedule.setTuesday(isChecked);
                     scheduleEditor.editDays(Calendar.TUESDAY, isChecked, newAlarmSchedule);
                     break;
                 case R.id.chbxWed:
                     Log.i(TAG, position + ".) Wednesday is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Wednesday is checked: "
+                            + Boolean.toString(isChecked));
                     newAlarmSchedule.setWednesday(isChecked);
                     scheduleEditor.editDays(Calendar.WEDNESDAY, isChecked, newAlarmSchedule);
                     break;
                 case R.id.chbxThu:
                     Log.i(TAG, position + ".) Thursday is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Thursday is checked: "
+                            + Boolean.toString(isChecked));
                     newAlarmSchedule.setThursday(isChecked);
                     scheduleEditor.editDays(Calendar.THURSDAY, isChecked, newAlarmSchedule);
                     break;
                 case R.id.chbxFri:
                     Log.i(TAG, position + ".) Friday is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Friday is checked: "
+                            + Boolean.toString(isChecked));
                     newAlarmSchedule.setFriday(isChecked);
                     scheduleEditor.editDays(Calendar.FRIDAY, isChecked, newAlarmSchedule);
                     break;
                 case R.id.chbxSat:
                     Log.i(TAG, position + ".) Saturday is checked: " + Boolean.toString(isChecked));
+                    sendAnalyticsEvent("Schedule " + (1 + position) + " Saturday is checked: "
+                            + Boolean.toString(isChecked));
                     newAlarmSchedule.setSaturday(isChecked);
                     scheduleEditor.editDays(Calendar.SATURDAY, isChecked, newAlarmSchedule);
                     break;
@@ -353,6 +379,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 Intent intent = new Intent("TitleChange");
                 intent.putExtra("NewTitle", editText.getText().toString());
                 intent.putExtra("Position", (Integer) selectedTitle.getTag());
+                sendAnalyticsEvent("New Schedule Title: " + intent.getStringExtra("NewTitle"));
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                 dialogInterface.dismiss();
             }
@@ -428,6 +455,8 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 newAlarmSchedule.setFrequency(numberPicker.getValue());
                 ScheduleEditor scheduleEditor = new ScheduleEditor(mContext);
                 scheduleEditor.editFrequency(newAlarmSchedule);
+                sendAnalyticsEvent("Schedule " + (1 + position) + " new frequency: "
+                        + numberPicker.getValue());
                 dialogInterface.dismiss();
             }
         });
@@ -470,6 +499,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 scheduleEditor.editStartTime(todayActivated, newAlarmSchedule);
                 mAlarmSchedules.remove(position);
                 mAlarmSchedules.add(position, newAlarmSchedule);
+                sendAnalyticsEvent("Schedule " + (1 + position) + " New Start Time: " + newStartTime);
             } else {
                 Calendar endTime = Utils.convertToCalendarTime(newStartTime, mContext);
                 newAlarmSchedule.setEndTime(endTime);
@@ -477,6 +507,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
                 scheduleEditor.editEndTime(todayActivated, newAlarmSchedule);
                 mAlarmSchedules.remove(position);
                 mAlarmSchedules.add(position, newAlarmSchedule);
+                sendAnalyticsEvent("Schedule " + (1 + position) + " New End Time: " + newStartTime);
             }
             notifyDataSetChanged();
 
@@ -609,6 +640,7 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
         mAlarmSchedules.add((
                 new ScheduleDatabaseAdapter(mContext).getAlarmSchedules().get(mAlarmSchedules.size())));
         notifyDataSetChanged();
+        sendAnalyticsEvent("New Schedule Created");
     }
 
     Runnable updatingStartEnd = new Runnable() {
@@ -618,5 +650,16 @@ public class ScheduleListAdapter extends ArrayAdapter<AlarmSchedule> {
             }
 
     };
+
+    private void sendAnalyticsEvent(String action){
+        Tracker t = ((Application)mContext.getApplicationContext()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.SCHEUDULE_LIST_EVENT)
+                .setAction(action)
+                .build());
+    }
 
 }

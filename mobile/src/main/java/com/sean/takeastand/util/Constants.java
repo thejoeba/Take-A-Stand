@@ -76,6 +76,9 @@ public final class Constants {
     public static final String UPDATE_ACTION_BAR = "UpdateActionBar";
     public static final String PAUSE_TIME = "PauseTimeAmount";
     public static final String PAUSED_UNTIL_TIME = "PausedUntilTime";
+    public static final String UI_EVENT = "UI Event";
+    public static final String ALARM_PROCESS_EVENT = "Alarm Process Event";
+    public static final String SCHEUDULE_LIST_EVENT = "Schedule List Event";
     public static final String STEP_DETECTOR_ENABLED = "StepDetector";
     public static final String WEAR_STEP_DETECTOR_ENABLED = "StepDetectorEnabled";
     public static final String STANDDTECTORTM_ENABLED = "StandDtectorTMEnabled";

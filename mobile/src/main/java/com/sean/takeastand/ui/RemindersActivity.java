@@ -38,6 +38,7 @@ public class RemindersActivity extends Activity {
     private RelativeLayout rlNotificationFrequency;
     private Switch swSilent;
     private Switch swRepeat;
+    private boolean mNotificationAlertChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class RemindersActivity extends Activity {
         Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Reminder Settings");
         t.send(new HitBuilders.AppViewBuilder().build());
+        mNotificationAlertChanged = false;
     }
 
     private void setUpLayout() {
@@ -93,8 +95,10 @@ public class RemindersActivity extends Activity {
         public void onClick(View view) {
             if(((Switch)view).isChecked()){
                 setRepeatAlerts(RemindersActivity.this, true);
+                sendAnalyticsEvent("Notification Reminders Repeat: On");
             } else {
                 setRepeatAlerts(RemindersActivity.this, false);
+                sendAnalyticsEvent("Notification Reminders Repeat: Off");
             }
             setGrayedAreas();
         }
@@ -103,7 +107,13 @@ public class RemindersActivity extends Activity {
     View.OnClickListener silentModeListener = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
-            silentMode(((Switch)view).isChecked());
+            boolean silentModeOn = ((Switch)view).isChecked();
+            silentMode(silentModeOn);
+            if(silentModeOn){
+                sendAnalyticsEvent("Override silent: On");
+            } else {
+                sendAnalyticsEvent("Override silent: Off");
+            }
         }
     };
 
@@ -132,6 +142,7 @@ public class RemindersActivity extends Activity {
                     setDefaultFrequency(frequency);
                     txtReminderFrequency.setText(Integer.toString(frequency) +
                             getString(R.string.minutes));
+                    sendAnalyticsEvent("Stand reminder frequency " + Integer.toString(frequency));
                     dialogInterface.dismiss();
                 }
             });
@@ -150,6 +161,7 @@ public class RemindersActivity extends Activity {
     View.OnClickListener checkBoxListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            mNotificationAlertChanged = true;
             setGrayedAreas();
             setDefaultAlertType(RemindersActivity.this, new boolean[]{chbxLED.isChecked(),
                     chbxVibrate.isChecked(), chbxSound.isChecked()});
@@ -181,6 +193,7 @@ public class RemindersActivity extends Activity {
                     int frequency = numberPicker.getValue();
                     setNotificationReminderFrequency(RemindersActivity.this, frequency);
                     txtNotificationFrequency.setText(getString(R.string.every) + " " + setMinutes(frequency));
+                    sendAnalyticsEvent("Notification Reminder Frequency " + Integer.toString(frequency));
                     dialogInterface.dismiss();
                 }
             });
@@ -276,6 +289,18 @@ public class RemindersActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mNotificationAlertChanged){
+            boolean[] alertTypes = Utils.getDefaultAlertType(this);
+            String newAlert = "Alert Type: ";
+            newAlert += Boolean.toString(alertTypes[0]) + "-" + Boolean.toString(alertTypes[1]) + "-"
+                    + Boolean.toString(alertTypes[2]);
+            sendAnalyticsEvent(newAlert);
+        }
+    }
+
     private String setMinutes(int minutes){
         if(minutes > 1 ){
             return Integer.toString(minutes) + getString(R.string.minutes);
@@ -290,4 +315,14 @@ public class RemindersActivity extends Activity {
         super.attachBaseContext(new CalligraphyContextWrapper(newBase));
     }
 
+    private void sendAnalyticsEvent(String action){
+        Tracker t = ((Application)this.getApplication()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.UI_EVENT)
+                .setAction(action)
+                .build());
+    }
 }

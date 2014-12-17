@@ -22,6 +22,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
@@ -52,6 +55,7 @@ public class StartScheduleReceiver extends BroadcastReceiver
             if(!(todayAlarm.getUID()== -100)){
                 if(todayAlarm.getActivated()){
                     new ScheduledRepeatingAlarm(context, todayAlarm).setRepeatingAlarm();
+                    sendAnalyticsEvent(context, "StartScheduleReceiver: Beginning Schedule");
                     Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
                 } else {
                     Log.i(TAG, "Today's alarm is not activated.");
@@ -63,5 +67,16 @@ public class StartScheduleReceiver extends BroadcastReceiver
             Log.i(TAG, "There are no alarms in the database." +
                     " There should not be an alarm set in AlarmManager");
         }
+    }
+
+    private void sendAnalyticsEvent(Context context, String action){
+        Tracker t = ((Application)context.getApplicationContext()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.ALARM_PROCESS_EVENT)
+                .setAction(action)
+                .build());
     }
 }

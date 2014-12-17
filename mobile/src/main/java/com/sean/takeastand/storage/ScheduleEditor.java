@@ -208,17 +208,16 @@ public class ScheduleEditor {
                             new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                     scheduledRepeatingAlarm.updateAlarm();
                     Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
-                    Toast.makeText(mContext, "Today's schedule now running",
+                    Toast.makeText(mContext, "Schedule now running",
                             Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Calendar rightNow = Calendar.getInstance();
-                if(alarmSchedule.getStartTime().before(rightNow) &&
-                        alarmSchedule.getEndTime().after(rightNow)){
+                if(alarmSchedule.getUID() == Utils.getRunningScheduledAlarm(mContext)){
                     ScheduledRepeatingAlarm scheduledRepeatingAlarm =
                             new ScheduledRepeatingAlarm(mContext, fixedAlarmSchedule);
                     scheduledRepeatingAlarm.cancelAlarm();
-                    Toast.makeText(mContext, "Today's schedule cancelled",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Today's schedule ended",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         }
