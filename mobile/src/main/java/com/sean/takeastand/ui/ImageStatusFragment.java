@@ -44,6 +44,9 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
@@ -346,9 +349,11 @@ public class ImageStatusFragment
         if(imageStatus == Constants.NO_ALARM_RUNNING){
             Utils.setImageStatus(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
             unscheduledRepeatingAlarm.setRepeatingAlarm();
+            sendAnalyticsEvent("User began unscheduled alarm");
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
             Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
+            sendAnalyticsEvent("User ended unscheduled alarm");
         }
     }
 
@@ -397,4 +402,14 @@ public class ImageStatusFragment
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
     }
 
+    private void sendAnalyticsEvent(String action){
+        Tracker t = ((Application)getActivity().getApplication()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.UI_EVENT)
+                .setAction(action)
+                .build());
+    }
 }
