@@ -121,22 +121,5 @@ public class TimePickerFragment
         intent.putExtra("StartTime", mStartTime);
         intent.putExtra("NewAlarm", mNewAlarm);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
-
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        try {
-            Field childFragmentManager = Fragment.class.getDeclaredField("mFragmentManager");
-            childFragmentManager.setAccessible(true);
-            childFragmentManager.set(this, null);
-
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

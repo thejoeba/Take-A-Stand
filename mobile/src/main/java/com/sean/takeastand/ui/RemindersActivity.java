@@ -16,6 +16,9 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
@@ -41,6 +44,9 @@ public class RemindersActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
         setUpLayout();
+        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Reminder Settings");
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     private void setUpLayout() {

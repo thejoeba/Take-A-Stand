@@ -44,6 +44,8 @@ import android.widget.TextView;
 
 import com.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
@@ -81,6 +83,7 @@ public class MainActivity extends Activity {
         mNavDrawerOptions.add(getString(R.string.default_notification));
         mNavDrawerOptions.add(getString(R.string.standdtectortm_settings));
         mNavDrawerOptions.add(getString(R.string.science_app));
+        mNavDrawerOptions.add(getString(R.string.stand_count));
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -118,7 +121,9 @@ public class MainActivity extends Activity {
         }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        ((Application) getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Main Activity");
+        t.send(new HitBuilders.AppViewBuilder().build());
 
     }
 
@@ -141,9 +146,13 @@ public class MainActivity extends Activity {
                     Intent intentStandDetectorTMSettings = new Intent(MainActivity.this, StandDetectorTMSettings.class);
                     startActivity(intentStandDetectorTMSettings);
                     break;
-                case 3:
+                case 2:
                     Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
                     startActivity(intentScience);
+                    break;
+                case 3:
+                    Intent intentStandCount = new Intent(MainActivity.this, StandCountActivity.class);
+                    startActivity(intentStandCount);
                     break;
             }
         }

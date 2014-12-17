@@ -40,6 +40,13 @@ public class StoodLogsAdapter {
         return l;
     }
 
+    public int getCount(){
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        String[] columns = {StoodSQLHelper.UID };
+        Cursor cursor = stoodSQLHelper.getWritableDatabase().query(StoodSQLHelper.TABLE_MAIN,
+                columns, null, null, null, null, null);
+        return cursor.getCount();
+    }
 
 
     public void getLastRow(){

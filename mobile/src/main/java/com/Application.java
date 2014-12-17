@@ -1,5 +1,7 @@
 package com;
 
+import android.util.Log;
+
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
@@ -12,6 +14,8 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  * Created by Sean on 2014-12-09.
  */
 public class Application extends android.app.Application {
+
+    private static final String TAG = "Application";
 
     @Override
     public void onCreate() {
@@ -38,7 +42,9 @@ public class Application extends android.app.Application {
                     : (trackerId == TrackerName.GLOBAL_TRACKER) ? analytics.newTracker(R.xml.global_tracker)
                     : analytics.newTracker(R.xml.ecommerce_tracker);
             mTrackers.put(trackerId, t);
-
+            Log.i(TAG, "Worked " + Boolean.toString(trackerId == TrackerName.APP_TRACKER));
+        } else {
+            Log.i(TAG, "Analytics Error" );
         }
         return mTrackers.get(trackerId);
     }
