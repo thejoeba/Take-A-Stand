@@ -22,9 +22,13 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
+import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 import java.util.ArrayList;
@@ -54,6 +58,7 @@ public class BootReceiver extends BroadcastReceiver
                 Calendar endTime = todayAlarm.getEndTime();
                 if(rightNow.after(startTime) && rightNow.before(endTime)){
                     new ScheduledRepeatingAlarm(context, todayAlarm).setRepeatingAlarm();
+                    sendAnalyticsEvent(context, "BootReceiver: Beginning Schedule");
                     Toast.makeText(context, context.getString(R.string.boot_schedule_running),
                             Toast.LENGTH_SHORT).show();
                 } else {
@@ -67,6 +72,17 @@ public class BootReceiver extends BroadcastReceiver
                     " There should not be an alarm set in AlarmManager");
         }
 
+    }
+
+    private void sendAnalyticsEvent(Context context, String action){
+        Tracker t = ((Application)context.getApplicationContext()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.ALARM_PROCESS_EVENT)
+                .setAction(action)
+                .build());
     }
 }
 
