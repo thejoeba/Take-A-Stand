@@ -253,12 +253,15 @@ public class AlarmService extends Service  {
                     }
                 }
                 if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
+                    Log.d("lastStepReceiver","Step Processed, getting Wear Step");
                     GetWearLastStep(intent);
                 }
                 else if (lDeviceLastStep < 0) {
+                    Log.d("lastStepReceiver","Last Step < 0");
                     beginStandNotifications(intent);
                 }
                 else {
+                    Log.d("lastStepReceiver","Step Processed, postponing reminder");
                     //if wear step detector not enabled, and valid steps returned, postpone and finish
                     postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lDeviceLastStep);
                     Calendar lastStepTime = Calendar.getInstance();
@@ -378,6 +381,7 @@ public class AlarmService extends Service  {
                 Intent stopWearStepDetectorIntent = new Intent("STOP");
                 startService(stopWearStepDetectorIntent);
                 Log.i(TAG, "Wear Step Data Timeout");
+                //todo: if stepdata captured from device, use it!
                 beginStandNotifications(intent);
             }
         }

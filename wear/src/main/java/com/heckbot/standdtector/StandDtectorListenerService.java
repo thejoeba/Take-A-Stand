@@ -35,6 +35,7 @@ public class StandDtectorListenerService extends WearableListenerService {
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         if(messageEvent.getPath().equals(PATH_GET_STEP)) {
+            Log.d("onMessageReceived", "Step Request Received");
             nodeId = messageEvent.getSourceNodeId();
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Wearable.API)

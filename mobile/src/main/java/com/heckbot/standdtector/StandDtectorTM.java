@@ -124,6 +124,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 }
             }
             else if (action.equals("WearLastStep")) {
+                Log.d("WearLastStep","Attempting to contact wear");
                 mGoogleApiClient = new GoogleApiClient.Builder(this)
                         .addApi(Wearable.API)
                         .addConnectionCallbacks(this)
