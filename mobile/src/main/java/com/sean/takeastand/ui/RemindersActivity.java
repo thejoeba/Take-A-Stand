@@ -122,7 +122,7 @@ public class RemindersActivity extends Activity {
             builder.setCustomTitle(title);
             final NumberPicker numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
             numberPicker.setMaxValue(120);
-            numberPicker.setMinValue(2);
+            numberPicker.setMinValue(1);
             numberPicker.setValue(Utils.getDefaultFrequency(RemindersActivity.this));
             numberPicker.setWrapSelectorWheel(false);
             builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {

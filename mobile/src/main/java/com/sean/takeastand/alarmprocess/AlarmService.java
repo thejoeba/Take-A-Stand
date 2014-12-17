@@ -80,6 +80,7 @@ public class AlarmService extends Service  {
         registerReceivers();
 
         if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STEP_DETECTOR_ENABLED, false)) {
+            Log.d("onStartCommand", "Step Detector Enabled");
             Intent stepDetectorIntent = new Intent(this, com.heckbot.standdtector.StandDtectorTM.class);
             stepDetectorIntent.setAction(Constants.LAST_STEP);
             Intent returnIntent = new Intent(Constants.LAST_STEP);

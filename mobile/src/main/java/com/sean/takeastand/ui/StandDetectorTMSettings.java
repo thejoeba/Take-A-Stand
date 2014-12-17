@@ -49,7 +49,7 @@ public class StandDetectorTMSettings extends Activity {
         toggleStepCounter = (Switch) findViewById(R.id.toggleStepCounter);
         toggleStepCounter.setOnClickListener(StepCounterListener);
         toggleStepCounter.setChecked(sharedPreferences.getBoolean(Constants.STEP_DETECTOR_ENABLED, false));
-        toggleWearStepCounter = (Switch) findViewById(R.id.toggleStepCounter);
+        toggleWearStepCounter = (Switch) findViewById(R.id.toggleWearStepCounter);
         toggleWearStepCounter.setOnClickListener(WearStepCounterListener);
         toggleWearStepCounter.setChecked(sharedPreferences.getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false));
         toggleStandDtectorTM = (Switch) findViewById(R.id.toggleStandDtectorTM);
@@ -90,6 +90,7 @@ public class StandDetectorTMSettings extends Activity {
     View.OnClickListener CalibrateListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            setRequestedOrientation(getResources().getConfiguration().orientation);
                 new AlertDialog.Builder(StandDetectorTMSettings.this)
                         .setTitle(getString(R.string.calibration))
                         .setMessage(getString(R.string.calibration_instructions))
