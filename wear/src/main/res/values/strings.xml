@@ -1,3 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Take A Stand</string>
+    <string name="description_text">This is the companion to Take A Stand. It sends step data to the main device.</string>
+
 </resources>

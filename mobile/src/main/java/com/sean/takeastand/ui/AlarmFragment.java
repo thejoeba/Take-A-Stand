@@ -248,7 +248,7 @@ public class AlarmFragment extends Fragment{
         @Override
         public void onClick(View view) {
             Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
-            stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_ACTIVITY);
+            stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_ACTIVITY_DEVICE);
             getActivity().sendBroadcast(stoodUpIntent);
         }
     };

@@ -68,7 +68,6 @@
     <string name="default_notification">Reminder Settings</string>
     <string name="stand_detector_on">StandDtector™: ON</string>
     <string name="stand_detector_off">StandDtector™: OFF</string>
-    <string name="calibrate_detector">Calibrate StandDtector™</string>
     <string name="science_app">Science Behind The App</string>
     <string name="calibration">Calibration</string>
     <string name="calibration_instructions">To calibrate, the phone must be in your pocket and you must be sitting. The phone will Vibrate once, indicating you should stand. Once calibration is complete, the phone will vibrate again. Once you press OK, you will have 5 seconds to put the phone in your pocket and be sitting before you feel the first vibration.</string>
@@ -84,6 +83,12 @@
     <string name="paused_until">Paused until:</string>
     <string name="select_pause_type">Pause Time (Minutes)</string>
     <string name="paused">Paused</string>
+    <string name="standdtectortm_settings">StandDtector™ Settings</string>\
+    <string name="step_counter">Step Counter</string>
+    <string name="wear_step_counter">Wear Step Counter (StandDtector JR™)</string>
+    <string name="standdtectortm">StandDtector™</string>
+    <string name="standdtectortm_calbirate">Calibrate</string>
+    <string name="title_activity_standdetectortmsettings">StandDtectorTMActivity</string>
     <string name="stands">Stands</string>
     <string name="stand_count">Stand Counter</string>
     <string name="science_behind_app">Science Behind The App</string>

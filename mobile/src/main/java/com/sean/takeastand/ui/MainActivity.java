@@ -18,7 +18,6 @@ package com.sean.takeastand.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,15 +40,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.NumberPicker;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.heckbot.standdtector.MyBroadcastReceiver;
-import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
@@ -85,15 +81,7 @@ public class MainActivity extends Activity {
         //Find out how to initialize an arraylist; then update the arraylist when vibrate status changes
         //or standdtector status changes
         mNavDrawerOptions.add(getString(R.string.default_notification));
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 1);
-        boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
-        if(bStandDetector){
-            mNavDrawerOptions.add(getString(R.string.stand_detector_on));
-        } else {
-            mNavDrawerOptions.add(getString(R.string.stand_detector_off));
-        }
-        mNavDrawerOptions.add(getString(R.string.calibrate_detector));
+        mNavDrawerOptions.add(getString(R.string.standdtectortm_settings));
         mNavDrawerOptions.add(getString(R.string.science_app));
         mNavDrawerOptions.add(getString(R.string.stand_count));
         setContentView(R.layout.activity_main);
@@ -155,16 +143,14 @@ public class MainActivity extends Activity {
                     startActivity(intentNotification);
                     break;
                 case 1:
-                    toggleStandDetector();
+                    Intent intentStandDetectorTMSettings = new Intent(MainActivity.this, StandDetectorTMSettings.class);
+                    startActivity(intentStandDetectorTMSettings);
                     break;
                 case 2:
-                    calibrateStandDetector();
-                    break;
-                case 3:
                     Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
                     startActivity(intentScience);
                     break;
-                case 4:
+                case 3:
                     Intent intentStandCount = new Intent(MainActivity.this, StandCountActivity.class);
                     startActivity(intentStandCount);
                     break;
@@ -283,53 +269,6 @@ public class MainActivity extends Activity {
             invalidateOptionsMenu();
         }
     };
-
-    private void toggleStandDetector() {
-        // shared preferences declared on create
-        // skip declaring boolean and just drop it into the editor
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        boolean bStandDetector = !(sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Constants.STAND_DETECTOR, bStandDetector);
-        editor.commit();
-        setStandDetectorMenuText();
-    }
-
-    private void setStandDetectorMenuText(){
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-        boolean bStandDetector = (sharedPreferences.getBoolean(Constants.STAND_DETECTOR, false));
-        int standDetectorPosition = 1;
-        if(bStandDetector){
-            mNavDrawerOptions.remove(standDetectorPosition);
-            mNavDrawerOptions.add(standDetectorPosition, "StandDtector™: ON");
-        } else {
-            mNavDrawerOptions.remove(standDetectorPosition);
-            mNavDrawerOptions.add(standDetectorPosition, "StandDtector™: OFF");
-        }
-        mListAdapter.notifyDataSetChanged();
-    }
-
-    private void calibrateStandDetector() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.calibration))
-                .setMessage(getString(R.string.calibration_instructions))
-                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent calibrationIntent = new Intent(MainActivity.this, StandDtectorTM.class);
-                        calibrationIntent.setAction("CALIBRATE");
-                        Intent intent = new Intent(MainActivity.this, MyBroadcastReceiver.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this,
-                                0, intent, PendingIntent.FLAG_ONE_SHOT);
-                        calibrationIntent.putExtra("pendingIntent", pendingIntent);
-                        startService(calibrationIntent);
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel), null)
-                .show();
-    }
 
     private void togglePausePlay(){
         int status = Utils.getImageStatus(this);

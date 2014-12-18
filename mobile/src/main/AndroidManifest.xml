@@ -17,6 +17,8 @@
         android:label="@string/app_name"
         android:theme="@style/AppThemeWithoutActionBarIcon"
         android:name="com.Application">
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
@@ -33,6 +35,10 @@
             android:name=".ui.RemindersActivity"
             android:label="@string/title_activity_reminders" >
         </activity>
+        <activity
+            android:name=".ui.StandDetectorTMSettings"
+            android:label="@string/title_activity_standdetectortmsettings" >
+        </activity>
         <activity android:name=".ui.StandCountActivity"/>
         <receiver android:name=".alarmprocess.AlarmReceiver" />
         <receiver android:name=".alarmprocess.StartScheduleReceiver" />
@@ -45,9 +51,11 @@
         <service android:name=".alarmprocess.AlarmService" />
         <service android:name="com.heckbot.standdtector.StandDtectorTM" />
 
-        <receiver android:name="com.heckbot.standdtector.MyBroadcastReceiver" />
-
-
+        <receiver android:name="com.heckbot.standdtector.StandDtectorBroadcastReceiver" />
+        <service android:name="com.heckbot.standdtector.WearResultsListenerService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
     </application>
-
 </manifest>

@@ -10,18 +10,25 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.sean.takeastand.R;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
+import com.sean.takeastand.alarmprocess.AlarmService;
 import com.sean.takeastand.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StandDtectorTM extends IntentService implements SensorEventListener {
+public class StandDtectorTM extends IntentService implements SensorEventListener, GoogleApiClient.ConnectionCallbacks {
     private SensorManager mSensorManager;
     private Sensor mRotationSensor;
     private Sensor mLightSensor;
@@ -76,6 +83,10 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     PendingIntent pendingIntent;
     Intent returnIntent;
 
+    public static final String PATH_GET_STEP = "/getsteptime";
+    GoogleApiClient mGoogleApiClient;
+    boolean bWaitingWearResults = false;
+
     public StandDtectorTM() {
         super("StandDtectorTM");
     }
@@ -87,8 +98,15 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
             sharedPref = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
             String action = intent.getAction();
             Log.d("Intent", action);
-            pendingIntent = intent.getParcelableExtra("pendingIntent");
-            returnIntent = new Intent();
+            if (!intent.getBooleanExtra("WearResults", false)) {
+                Log.d("onHandleIntent", "Getting pendingintent");
+                pendingIntent = intent.getParcelableExtra("pendingIntent");
+                returnIntent = new Intent();
+            }
+            else if (!bWaitingWearResults) {
+                // Wear results returned, but service was not expecting them
+                stopSelf();
+            }
             mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
             if (action.equals("LastStep")) {
@@ -105,7 +123,54 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                     } catch (PendingIntent.CanceledException e) {
                         e.printStackTrace();
                     }
+                    stopSelf();
                 }
+            }
+            else if (action.equals("WearLastStep")) {
+                Log.d("WearLastStep","Attempting to contact wear");
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addApi(Wearable.API)
+                        .addConnectionCallbacks(this)
+                        .build();
+                mGoogleApiClient.connect();
+
+                Handler mHandler = new Handler();
+                mHandler.postDelayed(wearResultsTimout, 9000);
+            }
+            else if (action.equals("WearLastStepResults")) {
+                bWaitingWearResults = false;
+                long timestamp = extras.getLong("timestamp", -1);
+                Log.d("WearLastStepResults", "Event Mills: " + timestamp);
+                Time tNow = new Time();
+                tNow.set(System.currentTimeMillis());
+                //determine time(ms) since last step
+                if (timestamp > 86400000) {
+                    timestamp = (tNow.toMillis(false) - timestamp);
+                }
+
+                if (timestamp <= 0 ) {
+                    Log.d("WearLastStepResults","No Timestamp Available");
+                    returnIntent.putExtra("Wear_Step_Hardware", false);
+                    try {
+                        pendingIntent.send(this, 0 , returnIntent);
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+                    stopSelf();
+                }
+                Log.d("WearLastStepResults", "Last Step: " + (timestamp / 1000) + " seconds ago");
+                //ToDo: Fix this
+                returnIntent = new Intent(this, com.sean.takeastand.alarmprocess.AlarmService.class);
+                returnIntent.setAction("WearLastStep");
+                returnIntent.putExtra("Wear_Step_Hardware", true);
+                returnIntent.putExtra("Wear_Last_Step", timestamp);
+//                try {
+//                    pendingIntent.send(this, 0 , returnIntent);
+//                } catch (PendingIntent.CanceledException e) {
+//                    e.printStackTrace();
+//                }
+                LocalBroadcastManager.getInstance(this).sendBroadcast(returnIntent);
+                stopSelf();
             }
             else {
                 InitializeStandSensors();
@@ -115,7 +180,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                     StartSensor(extras.getLong("MILLISECONDS", 0));
                 } else if (action.equals("STOP")) {
                     StopSensor();
-                    return;
+                    stopSelf();
                 }
             }
         }
@@ -157,7 +222,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
                 }
-                return;
+                stopSelf();
             }
             Log.d("SensorEvent", "Event Mills: " + timestamp);
             //determine time(ms) since last step
@@ -173,7 +238,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
                 }
-                return;
+                stopSelf();
             }
             Log.d("SensorEvent", "Last Step: " + (timestamp / 1000) + " seconds ago");
             returnIntent.setAction("LastStep");
@@ -196,6 +261,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
                 }
+                stopSelf();
             }
         }
         else if (event.sensor == mLightSensor) {
@@ -271,7 +337,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                             } catch (PendingIntent.CanceledException e) {
                                 e.printStackTrace();
                             }
-                            return;
+                            stopSelf();
                         }
                     }
                 }
@@ -334,7 +400,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                         } catch (PendingIntent.CanceledException e) {
                             e.printStackTrace();
                         }
-                        return;
+                        stopSelf();
                     }
                 }
             }
@@ -347,6 +413,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
                 }
+                stopSelf();
             }
         }
     }
@@ -413,4 +480,49 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
         bCalibrate = true;
         StartSensor(15000);
     }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d("onConnected", "Connected");
+        bWaitingWearResults = true;
+        sendMessage(PATH_GET_STEP, "" );
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    private void sendMessage( final String path, final String text ) {
+        new Thread( new Runnable() {
+            @Override
+            public void run() {
+                NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes( mGoogleApiClient ).await();
+                for(Node node : nodes.getNodes()) {
+                    MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
+                            mGoogleApiClient, node.getId(), path, text.getBytes() ).await();
+                    Log.d("SendMessage", "Sent path: " + path);
+                }
+            }
+        }).start();
+    }
+
+    private Runnable wearResultsTimout = new Runnable() {
+
+        public void run() {
+            //wear results timeout
+            if (bWaitingWearResults) {
+                bWaitingWearResults = false;
+                Log.d("WearLastStepResults","Wear Timeout");
+                returnIntent.putExtra("Wear_Step_Hardware", false);
+                try {
+                    pendingIntent.send(StandDtectorTM.this, 0 , returnIntent);
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                }
+                stopSelf();
+            }
+        }
+    };
+
 }
