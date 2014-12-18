@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.heckbot.standdtector.StandDtectorBroadcastReceiver;
 import com.heckbot.standdtector.StandDtectorTM;
@@ -26,6 +27,7 @@ public class StandDetectorTMSettings extends Activity {
     private Switch toggleWearStepCounter;
     private Switch toggleStandDtectorTM;
     private Button btnCalibrate;
+    private TextView txtCalibratedValue;
 
     SharedPreferences sharedPreferences;
 
@@ -57,7 +59,8 @@ public class StandDetectorTMSettings extends Activity {
         toggleStandDtectorTM.setChecked(sharedPreferences.getBoolean(Constants.STANDDTECTORTM_ENABLED, false));
         btnCalibrate = (Button) findViewById(R.id.btnCalibrate);
         btnCalibrate.setOnClickListener(CalibrateListener);
-        //ToDo: add calibration value
+        txtCalibratedValue = (TextView) findViewById(R.id.txtCalibratedValue);
+        txtCalibratedValue.setText("Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
     }
 
     View.OnClickListener StepCounterListener = new View.OnClickListener() {

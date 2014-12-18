@@ -91,7 +91,7 @@ public class AlarmService extends Service  {
             mHandler = new Handler();
             int tenSecondMillis = 10000;
 
-            Runnable lastStepReceiverTimeout = new StepCounterRunnable(intent);
+            Runnable lastStepReceiverTimeout = new StepCounterTimeoutRunnable(intent);
             mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
         }
         else if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
@@ -114,7 +114,7 @@ public class AlarmService extends Service  {
         mHandler = new Handler();
         int tenSecondMillis = 10000;
 
-        Runnable lastWearStepReceiverTimeout = new WearStepCounterRunnable(intent);
+        Runnable lastWearStepReceiverTimeout = new WearStepCounterTimeoutRunnable(intent);
         mHandler.postDelayed(lastWearStepReceiverTimeout, tenSecondMillis);
     }
 
@@ -153,6 +153,8 @@ public class AlarmService extends Service  {
         getApplicationContext().registerReceiver(lastStepReceiver,
                 new IntentFilter(Constants.LAST_STEP));
         getApplicationContext().registerReceiver(wearLastStepReceiver,
+                new IntentFilter("WearLastStep"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(wearLastStepReceiver,
                 new IntentFilter("WearLastStep"));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
@@ -253,7 +255,7 @@ public class AlarmService extends Service  {
                     }
                 }
                 if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
-                    Log.d("lastStepReceiver","Step Processed, getting Wear Step");
+                    Log.d("lastStepReceiver","Device Step Processed, getting Wear Step");
                     GetWearLastStep(intent);
                 }
                 else if (lDeviceLastStep < 0) {
@@ -261,8 +263,8 @@ public class AlarmService extends Service  {
                     beginStandNotifications(intent);
                 }
                 else {
-                    Log.d("lastStepReceiver","Step Processed, postponing reminder");
-                    //if wear step detector not enabled, and valid steps returned, postpone and finish
+                    Log.d("lastStepReceiver","Device Step Processed, postponing reminder");
+                    //if wear step detector not enabled, and valid device steps returned, postpone and finish
                     postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lDeviceLastStep);
                     Calendar lastStepTime = Calendar.getInstance();
                     lastStepTime.add(Calendar.MILLISECOND, (int)-(lDeviceLastStep));
@@ -344,10 +346,10 @@ public class AlarmService extends Service  {
         }
     };
 
-    private class StepCounterRunnable implements Runnable {
+    private class StepCounterTimeoutRunnable implements Runnable {
         private final Intent intent;
 
-        StepCounterRunnable(final Intent intent) {
+        StepCounterTimeoutRunnable(final Intent intent) {
             this.intent = intent;
         }
 
@@ -368,10 +370,10 @@ public class AlarmService extends Service  {
         }
     }
 
-    private class WearStepCounterRunnable implements Runnable {
+    private class WearStepCounterTimeoutRunnable implements Runnable {
         private final Intent intent;
 
-        WearStepCounterRunnable(final Intent intent) {
+        WearStepCounterTimeoutRunnable(final Intent intent) {
             this.intent = intent;
         }
 
@@ -381,8 +383,21 @@ public class AlarmService extends Service  {
                 Intent stopWearStepDetectorIntent = new Intent("STOP");
                 startService(stopWearStepDetectorIntent);
                 Log.i(TAG, "Wear Step Data Timeout");
-                //todo: if stepdata captured from device, use it!
-                beginStandNotifications(intent);
+
+                if (lDeviceLastStep < 0) {
+                    Log.d("WearStepCounterTimeoutRunnable","Wear Timeout, no device step");
+                    beginStandNotifications(intent);
+                }
+                else {
+                    Log.d("WearStepCounterTimeoutRunnable","Wear Timeout, Device Step Processed, postponing reminder");
+                    long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
+                    //if wear step detector timed out, and valid device steps returned, postpone and finish
+                    postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lDeviceLastStep);
+                    Calendar lastStepTime = Calendar.getInstance();
+                    lastStepTime.add(Calendar.MILLISECOND, (int)-(lDeviceLastStep));
+                    recordStand(Constants.STEP_DETECTED_BEFORE_DEVICE, lastStepTime);
+                    stopSelf();
+                }
             }
         }
     }

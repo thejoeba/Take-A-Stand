@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -21,6 +22,7 @@ import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+import com.sean.takeastand.alarmprocess.AlarmService;
 import com.sean.takeastand.util.Constants;
 
 import java.util.ArrayList;
@@ -97,6 +99,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
             String action = intent.getAction();
             Log.d("Intent", action);
             if (!intent.getBooleanExtra("WearResults", false)) {
+                Log.d("onHandleIntent", "Getting pendingintent");
                 pendingIntent = intent.getParcelableExtra("pendingIntent");
                 returnIntent = new Intent();
             }
@@ -156,14 +159,17 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                     stopSelf();
                 }
                 Log.d("WearLastStepResults", "Last Step: " + (timestamp / 1000) + " seconds ago");
+                //ToDo: Fix this
+                returnIntent = new Intent(this, com.sean.takeastand.alarmprocess.AlarmService.class);
                 returnIntent.setAction("WearLastStep");
                 returnIntent.putExtra("Wear_Step_Hardware", true);
                 returnIntent.putExtra("Wear_Last_Step", timestamp);
-                try {
-                    pendingIntent.send(this, 0 , returnIntent);
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    pendingIntent.send(this, 0 , returnIntent);
+//                } catch (PendingIntent.CanceledException e) {
+//                    e.printStackTrace();
+//                }
+                LocalBroadcastManager.getInstance(this).sendBroadcast(returnIntent);
                 stopSelf();
             }
             else {

@@ -22,7 +22,7 @@ public class WearResultsListenerService extends WearableListenerService {
     public void onMessageReceived(MessageEvent messageEvent) {
         Log.d("onMessageReceived", "Message Received");
         Intent stepDetectorIntent = new Intent(this, com.heckbot.standdtector.StandDtectorTM.class);
-        stepDetectorIntent.setAction("WearResults");
+        stepDetectorIntent.setAction("WearLastStepResults");
         stepDetectorIntent.putExtra("WearResults", true);
 
         if (messageEvent.getPath().equals(PATH_REPLY_STEP)) {

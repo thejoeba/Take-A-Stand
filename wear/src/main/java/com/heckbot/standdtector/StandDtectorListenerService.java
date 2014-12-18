@@ -30,10 +30,12 @@ public class StandDtectorListenerService extends WearableListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d("onCreate", "StandDtectorListenerService created");
     }
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
+        Log.d("onMessageReceived", "A message was received");
         if(messageEvent.getPath().equals(PATH_GET_STEP)) {
             Log.d("onMessageReceived", "Step Request Received");
             nodeId = messageEvent.getSourceNodeId();
