@@ -23,7 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
@@ -41,7 +43,7 @@ of the alarm, which is used at different points throughout the app. */
 /**
  * Created by Sean on 2014-10-11.
  */
-public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
+public class UnscheduledRepeatingAlarm implements RepeatingAlarm {
 
     //private static final String TAG = "UnscheduledRepeatingAlarm";
 
@@ -51,7 +53,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
 
 
     //For unscheduled alarms use this constructor
-    public UnscheduledRepeatingAlarm(Context context){
+    public UnscheduledRepeatingAlarm(Context context) {
         mContext = context;
     }
 
@@ -62,12 +64,15 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     @Override
     public void setRepeatingAlarm() {
         double alarmPeriodMinutes = Utils.getDefaultFrequency(mContext);
-        double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute  * Constants.millisecondsInSecond;
-        long triggerTime = SystemClock.elapsedRealtime() + (long)alarmTimeInMillis;
+        double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute * Constants.millisecondsInSecond;
+        long triggerTime = SystemClock.elapsedRealtime() + (long) alarmTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
-        nextAlarmTime.add(Calendar.MILLISECOND, (int)alarmTimeInMillis);
+        nextAlarmTime.add(Calendar.MILLISECOND, (int) alarmTimeInMillis);
         Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
+        Intent startStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
+        startStepCounterIntent.setAction("StartDeviceStepCounter");
+        mContext.startService(startStepCounterIntent);
     }
 
     @Override
@@ -76,7 +81,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
         long delayTimeInMillis = delayTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
-        nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
+        nextAlarmTime.add(Calendar.MILLISECOND, (int) delayTimeInMillis);
         Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
     }
@@ -85,7 +90,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     public void postponeAlarm(long delayTimeInMillis) {
         long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();
-        nextAlarmTime.add(Calendar.MILLISECOND, (int)delayTimeInMillis);
+        nextAlarmTime.add(Calendar.MILLISECOND, (int) delayTimeInMillis);
         Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
     }
@@ -93,22 +98,25 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     @Override
     public void cancelAlarm() {
         PendingIntent pendingIntent = createPendingIntent(mContext);
-        AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         endAlarmService();
         Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
+        Intent stopStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
+        stopStepCounterIntent.setAction("StopDeviceStepCounter");
+        mContext.startService(stopStepCounterIntent);
     }
 
     @Override
     public void pause() {
         //Cancel previous
         PendingIntent pendingIntent = createPendingIntent(mContext);
-        AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         endAlarmService();
         int totalPauseTime = Utils.getDefaultPauseAmount(mContext);
         long delayTimeInMillis = totalPauseTime * Constants.secondsInMinute * Constants.millisecondsInSecond;
-        long  triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
+        long triggerTime = SystemClock.elapsedRealtime() + delayTimeInMillis;
         PendingIntent pausePendingIntent = createPausePendingIntent(mContext);
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pausePendingIntent);
         Calendar pausedUntilTime = Calendar.getInstance();
@@ -120,32 +128,32 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm{
     @Override
     public void unpause() {
         PendingIntent pendingIntent = createPausePendingIntent(mContext);
-        AlarmManager am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         setRepeatingAlarm();
         Utils.setImageStatus(mContext, Constants.NON_SCHEDULE_ALARM_RUNNING);
     }
 
 
-    private void setAlarm(long triggerTime){
+    private void setAlarm(long triggerTime) {
         PendingIntent pendingIntent = createPendingIntent(mContext);
-        AlarmManager am = ((AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE));
+        AlarmManager am = ((AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE));
         am.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
     }
 
-    private PendingIntent createPendingIntent(Context context){
+    private PendingIntent createPendingIntent(Context context) {
         Intent intent = new Intent(context, AlarmReceiver.class);
         return PendingIntent.getBroadcast(context, REPEATING_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    private PendingIntent createPausePendingIntent(Context context){
+    private PendingIntent createPausePendingIntent(Context context) {
         Intent intent = new Intent(context, EndPauseReceiver.class);
         return PendingIntent.getBroadcast(context, PAUSE_ALARM_ID, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    private void endAlarmService(){
+    private void endAlarmService() {
         Intent intent = new Intent(Constants.END_ALARM_SERVICE);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }

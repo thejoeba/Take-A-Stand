@@ -2,6 +2,7 @@ package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -21,20 +22,28 @@ public class StandCountActivity extends Activity {
 
     private static final String TAG = "StandCountActivity";
     private TextView txtStandCount;
+    private TextView tvStepCounter;
+    private TextView tvLastStep;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standcount);
-        txtStandCount = (TextView)findViewById(R.id.number_of_stands);
+        txtStandCount = (TextView) findViewById(R.id.number_of_stands);
         ActionBar actionBar = getActionBar();
-        if(actionBar != null){
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(getString(R.string.stand_count));
         }
-        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Stand Counter");
         t.send(new HitBuilders.AppViewBuilder().build());
+
+        tvLastStep = (TextView) findViewById(R.id.tvLastStep);
+        tvLastStep.setText("Last Step: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getLong("DEVICELASTSTEP", 0));
+
+        tvStepCounter = (TextView) findViewById(R.id.tvStepCounter);
+        tvStepCounter.setText("Steps: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getInt("TOTALDEVICESTEPS", 0));
     }
 
     @Override

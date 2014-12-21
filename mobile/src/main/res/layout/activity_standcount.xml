@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="30dp">
+
     <TextView
         android:id="@+id/number_of_stands"
         android:layout_width="wrap_content"
@@ -13,7 +14,8 @@
         android:layout_marginBottom="35dp"
         android:text="50"
         android:textColor="@android:color/primary_text_light"
-        android:textSize="75sp"/>
+        android:textSize="75sp" />
+
     <TextView
         android:id="@+id/stands"
         android:layout_width="wrap_content"
@@ -21,5 +23,27 @@
         android:layout_centerInParent="true"
         android:text="@string/stands"
         android:textColor="@android:color/primary_text_light"
-        android:textSize="50sp"/>
+        android:textSize="50sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Last Step:"
+        android:id="@+id/tvLastStep"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/tvStepCounter" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Steps: "
+        android:id="@+id/tvStepCounter"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
