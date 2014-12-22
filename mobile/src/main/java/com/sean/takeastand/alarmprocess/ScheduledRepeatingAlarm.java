@@ -80,9 +80,6 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         Utils.setRunningScheduledAlarm(mContext, mCurrentAlarmSchedule.getUID());
         setAlarm(triggerTime);
         Log.i(TAG, "Alarm set");
-        Intent startStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
-        startStepCounterIntent.setAction("StartDeviceStepCounter");
-        mContext.startService(startStepCounterIntent);
     }
 
     public void updateAlarm() {
@@ -127,9 +124,6 @@ public class ScheduledRepeatingAlarm implements RepeatingAlarm {
         endAlarmService();
         Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
         Utils.setRunningScheduledAlarm(mContext, -1);
-        Intent stopStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
-        stopStepCounterIntent.setAction("StopDeviceStepCounter");
-        mContext.startService(stopStepCounterIntent);
     }
 
     @Override

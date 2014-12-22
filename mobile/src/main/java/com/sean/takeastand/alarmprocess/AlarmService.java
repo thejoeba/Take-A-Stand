@@ -384,7 +384,7 @@ public class AlarmService extends Service {
     };
 
     private Runnable oneMinuteForNotificationResponse = new Runnable() {
-        //ToDo: Does this only update if the notification hasn't been removed?
+        //ToDo: Note: If user dismisses notification, it comes back every minute
         public void run() {
             updateNotification();
             int oneMinuteMillis = 60000;

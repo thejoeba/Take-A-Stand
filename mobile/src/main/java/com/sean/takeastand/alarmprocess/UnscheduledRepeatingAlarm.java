@@ -70,9 +70,6 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm {
         nextAlarmTime.add(Calendar.MILLISECOND, (int) alarmTimeInMillis);
         Utils.setNextAlarmTimeString(nextAlarmTime, mContext);
         setAlarm(triggerTime);
-        Intent startStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
-        startStepCounterIntent.setAction("StartDeviceStepCounter");
-        mContext.startService(startStepCounterIntent);
     }
 
     @Override
@@ -102,9 +99,6 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm {
         am.cancel(pendingIntent);
         endAlarmService();
         Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
-        Intent stopStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
-        stopStepCounterIntent.setAction("StopDeviceStepCounter");
-        mContext.startService(stopStepCounterIntent);
     }
 
     @Override

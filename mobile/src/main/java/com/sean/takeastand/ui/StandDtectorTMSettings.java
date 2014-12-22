@@ -132,16 +132,17 @@ public class StandDtectorTMSettings extends Activity {
                     .setMessage(getString(R.string.calibration_instructions))
                     .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            //ToDo: Lock orientation
                             Intent calibrationIntent = new Intent(StandDtectorTMSettings.this, StandDtectorTM.class);
                             calibrationIntent.setAction("StandDtectorTMCalibrate");
                             Intent intent = new Intent("CalibrationFinished");
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            PendingIntent pendingIntent = PendingIntent.getBroadcast(StandDtectorTMSettings.this,
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
                                     0, intent, PendingIntent.FLAG_ONE_SHOT);
                             calibrationIntent.putExtra("pendingIntent", pendingIntent);
                             startService(calibrationIntent);
-                            LocalBroadcastManager.getInstance(StandDtectorTMSettings.this).registerReceiver(calibrationFinishedReceiver, new IntentFilter("CalibrationFinished"));
+                            getApplicationContext().registerReceiver(calibrationFinishedReceiver, new IntentFilter("CalibrationFinished"));
+                            btnCalibrate.setEnabled(false);
+                            btnCalibrate.setText("Calibrating");
                         }
                     })
                     .setNegativeButton(getString(R.string.cancel), null)
@@ -165,9 +166,15 @@ public class StandDtectorTMSettings extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("StandDtectorTMSettings", "Calibration Finished");
-            //ToDo: unlock orientation
             LocalBroadcastManager.getInstance(StandDtectorTMSettings.this).unregisterReceiver(calibrationFinishedReceiver);
-            txtCalibratedValue.setText("Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
+            if (intent.getExtras().getString("Results").equals("Success")) {
+                txtCalibratedValue.setText("New Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
+            } else {
+                LocalBroadcastManager.getInstance(StandDtectorTMSettings.this).unregisterReceiver(calibrationFinishedReceiver);
+                txtCalibratedValue.setText("Calibration Failed");
+            }
+            btnCalibrate.setEnabled(true);
+            btnCalibrate.setText("Calibrate");
         }
     };
 

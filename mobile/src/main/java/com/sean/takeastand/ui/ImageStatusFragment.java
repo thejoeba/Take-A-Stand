@@ -47,14 +47,14 @@ import android.widget.ViewSwitcher;
 import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
 public class ImageStatusFragment
-        extends Fragment
-{
+        extends Fragment {
     private ImageView ivStickFigure;
     private TextSwitcher txtTap;
     private TextView tapTextView;
@@ -70,16 +70,15 @@ public class ImageStatusFragment
      */
 
     @Override
-    public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle)
-    {
+    public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
         mContext = getActivity();
         mHandler = new Handler();
         registerReceivers();
         View view = layoutInflater.inflate(R.layout.fragment_main_image_status, viewGroup, false);
-        ivStickFigure = (ImageView)view.findViewById(R.id.statusImage);
+        ivStickFigure = (ImageView) view.findViewById(R.id.statusImage);
         ivStickFigure.setOnClickListener(imageListener);
         ivStickFigure.setOnTouchListener(imageButtonListener);
-        txtTap = (TextSwitcher)view.findViewById(R.id.tap_to_set);
+        txtTap = (TextSwitcher) view.findViewById(R.id.tap_to_set);
         setTextSwitchers();
         updateLayoutStatic();
         //If stuck on a non-click listener view uncomment the below line:
@@ -107,14 +106,14 @@ public class ImageStatusFragment
         super.onStart();
     }
 
-    private void updateLayoutAnimated(){
+    private void updateLayoutAnimated() {
         int imageStatus = Utils.getImageStatus(getActivity());
-        switch (imageStatus){
+        switch (imageStatus) {
             case Constants.NO_ALARM_RUNNING:
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
                 ivStickFigure.setOnClickListener(imageListener);
                 ivStickFigure.setOnTouchListener(imageButtonListener);
-                if(!mCurrentText.equals(getResources().getString(R.string.tap_to_start))){
+                if (!mCurrentText.equals(getResources().getString(R.string.tap_to_start))) {
                     txtTap.setText(getResources().getString(R.string.tap_to_start));
                 }
                 mCurrentText = getResources().getString(R.string.tap_to_start);
@@ -132,7 +131,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_passed);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(!mCurrentText.equals(getResources().getString(R.string.stand_time))){
+                if (!mCurrentText.equals(getResources().getString(R.string.stand_time))) {
                     txtTap.setText(getResources().getString(R.string.stand_time));
                 }
                 mCurrentText = getResources().getString(R.string.stand_time);
@@ -141,7 +140,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(mPraise == null){
+                if (mPraise == null) {
                     Log.i(TAG, "mPraise is null");
                     txtTap.setText("");
                 } else {
@@ -160,7 +159,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_running);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(getCurrentTitle().equals("")){
+                if (getCurrentTitle().equals("")) {
                     txtTap.setText(mContext.getString(R.string.schedule_running));
                 } else {
                     txtTap.setText(getCurrentTitle());
@@ -172,7 +171,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_passed);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(!mCurrentText.equals(getResources().getString(R.string.stand_time))){
+                if (!mCurrentText.equals(getResources().getString(R.string.stand_time))) {
                     txtTap.setText(getResources().getString(R.string.stand_time));
                 }
                 mCurrentText = getResources().getString(R.string.stand_time);
@@ -181,7 +180,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(mPraise == null){
+                if (mPraise == null) {
                     txtTap.setText("");
                 } else {
                     txtTap.setText(mPraise);
@@ -205,9 +204,9 @@ public class ImageStatusFragment
         }
     }
 
-    private void updateLayoutStatic(){
+    private void updateLayoutStatic() {
         int imageStatus = Utils.getImageStatus(getActivity());
-        switch (imageStatus){
+        switch (imageStatus) {
             case Constants.NO_ALARM_RUNNING:
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
                 ivStickFigure.setOnClickListener(imageListener);
@@ -235,7 +234,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(mPraise == null){
+                if (mPraise == null) {
                     txtTap.setCurrentText(mContext.getString(R.string.default_praise));
                 } else {
                     txtTap.setCurrentText(mPraise);
@@ -253,7 +252,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_running);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(getCurrentTitle().equals("")){
+                if (getCurrentTitle().equals("")) {
                     txtTap.setCurrentText(mContext.getString(R.string.schedule_running));
                 } else {
                     txtTap.setCurrentText(getCurrentTitle());
@@ -272,7 +271,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
-                if(mPraise == null){
+                if (mPraise == null) {
                     txtTap.setCurrentText(mContext.getString(R.string.default_praise));
                 } else {
                     txtTap.setCurrentText(mPraise);
@@ -296,14 +295,14 @@ public class ImageStatusFragment
         }
     }
 
-    private void registerReceivers(){
+    private void registerReceivers() {
         LocalBroadcastManager.getInstance(getActivity())
                 .registerReceiver(updateImageReceiver, new IntentFilter(Constants.INTENT_MAIN_IMAGE));
         LocalBroadcastManager.getInstance(getActivity())
                 .registerReceiver(praiseTextReceiver, new IntentFilter(Constants.PRAISE_FOR_USER));
     }
 
-    private void unregisterReceivers(){
+    private void unregisterReceivers() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(updateImageReceiver);
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(praiseTextReceiver);
     }
@@ -311,7 +310,7 @@ public class ImageStatusFragment
     private BroadcastReceiver updateImageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(!mJustReceivedUpdate){
+            if (!mJustReceivedUpdate) {
                 mJustReceivedUpdate = true;
                 updateLayoutAnimated();
                 mHandler.postDelayed(updating, 290);
@@ -334,7 +333,7 @@ public class ImageStatusFragment
         }
     };
 
-    private OnClickListener imageListener = new OnClickListener(){
+    private OnClickListener imageListener = new OnClickListener() {
 
         @Override
         public void onClick(View view) {
@@ -342,27 +341,36 @@ public class ImageStatusFragment
         }
     };
 
-    private void switchStatus(){
+    private void switchStatus() {
         UnscheduledRepeatingAlarm unscheduledRepeatingAlarm =
                 new UnscheduledRepeatingAlarm(getActivity());
         int imageStatus = Utils.getImageStatus(getActivity());
-        if(imageStatus == Constants.NO_ALARM_RUNNING){
+        if (imageStatus == Constants.NO_ALARM_RUNNING) {
             Utils.setImageStatus(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
             unscheduledRepeatingAlarm.setRepeatingAlarm();
             sendAnalyticsEvent("User began unscheduled alarm");
+            if (mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
+                Intent startStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
+                startStepCounterIntent.setAction("StartDeviceStepCounter");
+                mContext.startService(startStepCounterIntent);
+            }
+
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
             Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
             sendAnalyticsEvent("User ended unscheduled alarm");
+            Intent stopStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
+            stopStepCounterIntent.setAction("StopDeviceStepCounter");
+            mContext.startService(stopStepCounterIntent);
         }
     }
 
     private View.OnTouchListener imageButtonListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                 ivStickFigure.setImageAlpha(220);
-            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP){
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                 ivStickFigure.setImageAlpha(255);
             }
             return false;
@@ -370,8 +378,7 @@ public class ImageStatusFragment
     };
 
 
-
-    private void setTextSwitchers(){
+    private void setTextSwitchers() {
         txtTap.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
             public View makeView() {
@@ -391,19 +398,19 @@ public class ImageStatusFragment
         txtTap.setOutAnimation(out);
     }
 
-    private String getCurrentTitle(){
+    private String getCurrentTitle() {
         SharedPreferences sharedPreferences =
                 mContext.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
         return sharedPreferences.getString(Constants.CURRENT_SCHEDULED_ALARM_TITLE, "");
     }
 
-    private void updateMainActionBar(){
+    private void updateMainActionBar() {
         Intent intent = new Intent(Constants.UPDATE_ACTION_BAR);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
     }
 
-    private void sendAnalyticsEvent(String action){
-        Tracker t = ((Application)getActivity().getApplication()).getTracker(
+    private void sendAnalyticsEvent(String action) {
+        Tracker t = ((Application) getActivity().getApplication()).getTracker(
                 Application.TrackerName.APP_TRACKER);
         t.enableAdvertisingIdCollection(true);
         // Build and send an Event.

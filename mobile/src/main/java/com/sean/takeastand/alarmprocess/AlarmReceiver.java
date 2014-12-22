@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
@@ -42,19 +43,17 @@ import java.util.Calendar;
  see if it now past the end time for the schedule and ends the repeating alarm process, if it is. */
 
 public class AlarmReceiver
-        extends BroadcastReceiver
-{
+        extends BroadcastReceiver {
     private static final String TAG = "AlarmReceiver";
     private Context mContext;
 
     @Override
-    public void onReceive(Context context, Intent intent)
-    {
+    public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "AlarmReceiver received alarm intent");
         mContext = context;
         FixedAlarmSchedule currentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
-        if(currentAlarmSchedule != null){
-            if(!hasEndTimePassed(currentAlarmSchedule.getEndTime())){
+        if (currentAlarmSchedule != null) {
+            if (!hasEndTimePassed(currentAlarmSchedule.getEndTime())) {
                 Intent serviceStartIntent = new Intent(mContext, AlarmService.class);
                 serviceStartIntent.putExtra(Constants.ALARM_SCHEDULE, currentAlarmSchedule);
                 mContext.startService(serviceStartIntent);
@@ -64,6 +63,9 @@ public class AlarmReceiver
                 Log.i(TAG, context.getString(R.string.alarm_day_over));
                 Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
                 endAlarmService();
+                Intent stopStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
+                stopStepCounterIntent.setAction("StopDeviceStepCounter");
+                mContext.startService(stopStepCounterIntent);
             }
         } else {
             //Unscheduled alarms
@@ -72,12 +74,12 @@ public class AlarmReceiver
         }
     }
 
-    private boolean hasEndTimePassed(Calendar endTime){
+    private boolean hasEndTimePassed(Calendar endTime) {
         Calendar rightNow = Calendar.getInstance();
         return endTime.before(rightNow);
     }
 
-    private void endAlarmService(){
+    private void endAlarmService() {
         Intent intent = new Intent(Constants.END_ALARM_SERVICE);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }

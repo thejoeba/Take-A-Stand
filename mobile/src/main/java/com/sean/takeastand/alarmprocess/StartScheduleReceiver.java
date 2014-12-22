@@ -25,6 +25,7 @@ import android.util.Log;
 import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
@@ -39,24 +40,28 @@ then starts the relevant alarm schedule.  */
 /**
  * Created by Sean on 2014-09-03.
  */
-public class StartScheduleReceiver extends BroadcastReceiver
-{
+public class StartScheduleReceiver extends BroadcastReceiver {
 
     private static final String TAG = "StartScheduleReceiver";
 
     @Override
-    public void onReceive(Context context, Intent intent)
-    {
+    public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "StartScheduleReceiver has received an intent");
         ArrayList<FixedAlarmSchedule> fixedAlarmSchedules =
                 new ScheduleDatabaseAdapter(context).getFixedAlarmSchedules();
-        if(!fixedAlarmSchedules.isEmpty()){
+        if (!fixedAlarmSchedules.isEmpty()) {
             FixedAlarmSchedule todayAlarm = Utils.findTodaysSchedule(fixedAlarmSchedules);
-            if(!(todayAlarm.getUID()== -100)){
-                if(todayAlarm.getActivated()){
+            if (!(todayAlarm.getUID() == -100)) {
+                if (todayAlarm.getActivated()) {
                     new ScheduledRepeatingAlarm(context, todayAlarm).setRepeatingAlarm();
                     sendAnalyticsEvent(context, "StartScheduleReceiver: Beginning Schedule");
                     Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
+                    if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
+                        Intent startStepCounterIntent = new Intent(context, StandDtectorTM.class);
+                        startStepCounterIntent.setAction("StartDeviceStepCounter");
+                        context.startService(startStepCounterIntent);
+                    }
+
                 } else {
                     Log.i(TAG, "Today's alarm is not activated.");
                 }
@@ -69,8 +74,8 @@ public class StartScheduleReceiver extends BroadcastReceiver
         }
     }
 
-    private void sendAnalyticsEvent(Context context, String action){
-        Tracker t = ((Application)context.getApplicationContext()).getTracker(
+    private void sendAnalyticsEvent(Context context, String action) {
+        Tracker t = ((Application) context.getApplicationContext()).getTracker(
                 Application.TrackerName.APP_TRACKER);
         t.enableAdvertisingIdCollection(true);
         // Build and send an Event.
