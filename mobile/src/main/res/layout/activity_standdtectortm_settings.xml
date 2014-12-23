@@ -131,7 +131,8 @@
                 android:text="@string/standdtectortm_calbirate"
                 android:id="@+id/btnCalibrate"
                 android:layout_below="@+id/toggleStandDtectorTM"
-                android:layout_centerHorizontal="true" />
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -139,7 +140,9 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/txtCalibratedValue"
                 android:layout_below="@+id/btnCalibrate"
-                android:layout_centerHorizontal="true" />
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                />
         </RelativeLayout>
 
     </RelativeLayout>

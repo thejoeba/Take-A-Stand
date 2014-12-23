@@ -1,6 +1,5 @@
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,7 +26,7 @@ import com.sean.takeastand.util.Utils;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class RemindersSettingsActivity extends ActionBarActivity {
+public class ReminderSettingsActivity extends ActionBarActivity {
 
     private CheckBox chbxLED;
     private CheckBox chbxVibrate;
@@ -61,7 +60,7 @@ public class RemindersSettingsActivity extends ActionBarActivity {
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    NavUtils.navigateUpFromSameTask(RemindersSettingsActivity.this);
+                    NavUtils.navigateUpFromSameTask(ReminderSettingsActivity.this);
                 }
             });
         }
@@ -101,10 +100,10 @@ public class RemindersSettingsActivity extends ActionBarActivity {
         @Override
         public void onClick(View view) {
             if (((Switch) view).isChecked()) {
-                setRepeatAlerts(RemindersSettingsActivity.this, true);
+                setRepeatAlerts(ReminderSettingsActivity.this, true);
                 sendAnalyticsEvent("Notification Reminders Repeat: On");
             } else {
-                setRepeatAlerts(RemindersSettingsActivity.this, false);
+                setRepeatAlerts(ReminderSettingsActivity.this, false);
                 sendAnalyticsEvent("Notification Reminders Repeat: Off");
             }
             setGrayedAreas();
@@ -128,10 +127,10 @@ public class RemindersSettingsActivity extends ActionBarActivity {
         @Override
         public void onClick(View view) {
             LayoutInflater inflater = getLayoutInflater();
-            AlertDialog.Builder builder = new AlertDialog.Builder(RemindersSettingsActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ReminderSettingsActivity.this);
             View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
             builder.setView(dialogView);
-            TextView title = new TextView(RemindersSettingsActivity.this);
+            TextView title = new TextView(ReminderSettingsActivity.this);
             title.setPadding(50, 50, 50, 50);
             title.setTextSize(22);
             title.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
@@ -140,7 +139,7 @@ public class RemindersSettingsActivity extends ActionBarActivity {
             final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.numberPicker);
             numberPicker.setMaxValue(120);
             numberPicker.setMinValue(2);
-            numberPicker.setValue(Utils.getDefaultFrequency(RemindersSettingsActivity.this));
+            numberPicker.setValue(Utils.getDefaultFrequency(ReminderSettingsActivity.this));
             numberPicker.setWrapSelectorWheel(false);
             builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                 @Override
@@ -170,7 +169,7 @@ public class RemindersSettingsActivity extends ActionBarActivity {
         public void onClick(View view) {
             mNotificationAlertChanged = true;
             setGrayedAreas();
-            setDefaultAlertType(RemindersSettingsActivity.this, new boolean[]{chbxLED.isChecked(),
+            setDefaultAlertType(ReminderSettingsActivity.this, new boolean[]{chbxLED.isChecked(),
                     chbxVibrate.isChecked(), chbxSound.isChecked()});
         }
 
@@ -180,10 +179,10 @@ public class RemindersSettingsActivity extends ActionBarActivity {
         @Override
         public void onClick(View view) {
             LayoutInflater inflater = getLayoutInflater();
-            AlertDialog.Builder builder = new AlertDialog.Builder(RemindersSettingsActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ReminderSettingsActivity.this);
             View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
             builder.setView(dialogView);
-            TextView title = new TextView(RemindersSettingsActivity.this);
+            TextView title = new TextView(ReminderSettingsActivity.this);
             title.setPadding(50, 50, 50, 50);
             title.setTextSize(22);
             title.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
@@ -192,13 +191,13 @@ public class RemindersSettingsActivity extends ActionBarActivity {
             final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.numberPicker);
             numberPicker.setMaxValue(60);
             numberPicker.setMinValue(1);
-            numberPicker.setValue(Utils.getNotificationReminderFrequency(RemindersSettingsActivity.this));
+            numberPicker.setValue(Utils.getNotificationReminderFrequency(ReminderSettingsActivity.this));
             numberPicker.setWrapSelectorWheel(false);
             builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     int frequency = numberPicker.getValue();
-                    setNotificationReminderFrequency(RemindersSettingsActivity.this, frequency);
+                    setNotificationReminderFrequency(ReminderSettingsActivity.this, frequency);
                     txtNotificationFrequency.setText(getString(R.string.every) + " " + setMinutes(frequency));
                     sendAnalyticsEvent("Notification Reminder Frequency " + Integer.toString(frequency));
                     dialogInterface.dismiss();
@@ -216,7 +215,7 @@ public class RemindersSettingsActivity extends ActionBarActivity {
     };
 
     private void setGrayedAreas() {
-        if (Utils.getRepeatAlerts(RemindersSettingsActivity.this)) {
+        if (Utils.getRepeatAlerts(ReminderSettingsActivity.this)) {
             //txtNotificationFrequencyTitle.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             rlNotificationFrequency.setVisibility(View.VISIBLE);

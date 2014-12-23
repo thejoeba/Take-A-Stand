@@ -41,7 +41,7 @@
             android:name=".ui.ScienceActivity"
             android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ui.RemindersSettingsActivity"
+            android:name=".ui.ReminderSettingsActivity"
             android:label="@string/title_activity_reminders"
             android:parentActivityName=".ui.MainActivity" />
         <activity
