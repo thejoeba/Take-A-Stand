@@ -61,7 +61,8 @@ public final class Constants {
     public static final String MAIN_ACTIVITY_VISIBILITY_STATUS = "MainVisibilityStatus";
     public static final String PRAISE_FOR_USER = "PraiseForUser";
     public static final String UPDATE_NEXT_ALARM_TIME = "UpdateNextAlarmTime";
-    public static final String LAST_STEP = "LastStep";
+    public static final String DEVICE_LAST_STEP = "DeviceLastStep";
+    public static final String WEAR_LAST_STEP = "WearLastStep";
     public static final int STEP_DETECTED_BEFORE_DEVICE = 1;
     public static final int TAPPED_NOTIFICATION_DEVICE = 2;
     public static final int TAPPED_ACTIVITY_DEVICE = 3;
@@ -79,7 +80,7 @@ public final class Constants {
     public static final String UI_EVENT = "UI Event";
     public static final String ALARM_PROCESS_EVENT = "Alarm Process Event";
     public static final String SCHEUDULE_LIST_EVENT = "Schedule List Event";
-    public static final String STEP_DETECTOR_ENABLED = "StepDetector";
+    public static final String DEVICE_STEP_DETECTOR_ENABLED = "StepDetector";
     public static final String WEAR_STEP_DETECTOR_ENABLED = "StepDetectorEnabled";
     public static final String STANDDTECTORTM_ENABLED = "StandDtectorTMEnabled";
 }

@@ -16,7 +16,6 @@
 
 package com.sean.takeastand.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,6 +29,8 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,7 +60,7 @@ import java.util.ArrayList;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "MainActivity";
     private DrawerLayout mDrawerLayout;
@@ -68,12 +69,11 @@ public class MainActivity extends Activity {
     private ArrayList<String> mNavDrawerOptions;
     private ArrayAdapter mListAdapter;
     private MenuItem mPausePlay;
-    private int[] pauseTimes= new int[] {5, 10, 15, 20, 25, 30, 45, 60, 75, 90, 105, 120, 135, 150,
-                        165, 180};
+    private int[] pauseTimes = new int[]{5, 10, 15, 20, 25, 30, 45, 60, 75, 90, 105, 120, 135, 150,
+            165, 180};
 
     @Override
-    protected void onCreate(Bundle paramBundle)
-    {
+    protected void onCreate(Bundle paramBundle) {
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
         //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
@@ -85,43 +85,35 @@ public class MainActivity extends Activity {
         mNavDrawerOptions.add(getString(R.string.science_app));
         mNavDrawerOptions.add(getString(R.string.stand_count));
         setContentView(R.layout.activity_main);
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_closed) {
+                R.drawable.ic_drawer_white, R.string.drawer_open, R.string.drawer_closed) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                if(getActionBar() != null){
-                    getActionBar().setTitle(getString(R.string.app_name));
-                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                if(getActionBar() != null){
-                    getActionBar().setTitle(getString(R.string.settings));
-                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        mDrawerList = (ListView)findViewById(R.id.left_drawer);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mListAdapter = new ArrayAdapter(this, R.layout.drawer_list_item, mNavDrawerOptions);
         mDrawerList.setAdapter(mListAdapter);
         mDrawerList.setOnItemClickListener(drawerClickListener);
         //mDrawerList.setOnItemClickListener();
-        //Navigation Drawer icon won't display without this
-        if(getActionBar() != null){
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Main Activity");
         t.send(new HitBuilders.AppViewBuilder().build());
 
@@ -136,14 +128,14 @@ public class MainActivity extends Activity {
     private AdapterView.OnItemClickListener drawerClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-            switch (position){
+            switch (position) {
                 case 0:
                     Intent intentNotification =
-                            new Intent(MainActivity.this, RemindersActivity.class);
+                            new Intent(MainActivity.this, RemindersSettingsActivity.class);
                     startActivity(intentNotification);
                     break;
                 case 1:
-                    Intent intentStandDetectorTMSettings = new Intent(MainActivity.this, StandDetectorTMSettings.class);
+                    Intent intentStandDetectorTMSettings = new Intent(MainActivity.this, StandDtectorTMSettings.class);
                     startActivity(intentStandDetectorTMSettings);
                     break;
                 case 2:
@@ -161,12 +153,11 @@ public class MainActivity extends Activity {
     };
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.schedules:
                 Intent intent = new Intent(this, ScheduleListActivity.class);
                 startActivity(intent);
@@ -218,7 +209,7 @@ public class MainActivity extends Activity {
         // If the nav drawer is open, hide action items related to the content view
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
         mPausePlay = menu.findItem(R.id.pauseplay);
-        if(drawerOpen){
+        if (drawerOpen) {
             menu.findItem(R.id.schedules).setVisible(false);
             mPausePlay.setVisible(false);
         } else {
@@ -241,14 +232,14 @@ public class MainActivity extends Activity {
         mDrawerToggle.syncState();
     }
 
-    private void registerReceivers(){
+    private void registerReceivers() {
         LocalBroadcastManager.getInstance(this).registerReceiver(visibilityReceiver,
                 new IntentFilter("Visible"));
         LocalBroadcastManager.getInstance(this).registerReceiver(updateActionBarReceiver,
                 new IntentFilter(Constants.UPDATE_ACTION_BAR));
     }
 
-    private void unregisterReceivers(){
+    private void unregisterReceivers() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(visibilityReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(updateActionBarReceiver);
     }
@@ -270,28 +261,28 @@ public class MainActivity extends Activity {
         }
     };
 
-    private void togglePausePlay(){
+    private void togglePausePlay() {
         int status = Utils.getImageStatus(this);
-        if(status == Constants.NON_SCHEDULE_ALARM_RUNNING || status == Constants.NON_SCHEDULE_STOOD_UP ||
-                status == Constants.NON_SCHEDULE_TIME_TO_STAND){
+        if (status == Constants.NON_SCHEDULE_ALARM_RUNNING || status == Constants.NON_SCHEDULE_STOOD_UP ||
+                status == Constants.NON_SCHEDULE_TIME_TO_STAND) {
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
             showPauseSettingsDialog();
         } else if (status == Constants.SCHEDULE_RUNNING || status == Constants.SCHEDULE_STOOD_UP ||
-                status == Constants.SCHEDULE_TIME_TO_STAND){
+                status == Constants.SCHEDULE_TIME_TO_STAND) {
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
             showPauseSettingsDialog();
-        } else if (status == Constants.NON_SCHEDULE_PAUSED ){
+        } else if (status == Constants.NON_SCHEDULE_PAUSED) {
             unPauseUnscheduled();
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
             sendAnalyticsEvent("Unpaused");
-        } else if (status == Constants.SCHEDULE_PAUSED){
+        } else if (status == Constants.SCHEDULE_PAUSED) {
             unPauseScheduled();
             mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
             sendAnalyticsEvent("Unpaused");
         }
     }
 
-    private void showPauseSettingsDialog(){
+    private void showPauseSettingsDialog() {
         LayoutInflater inflater = getLayoutInflater();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = inflater.inflate(R.layout.dialog_pause, null);
@@ -305,18 +296,18 @@ public class MainActivity extends Activity {
         int maxValue = 180;
         int step = 5;
         String[] valueSet = new String[pauseTimes.length];
-        for(int i = 0; i < pauseTimes.length; i++){
+        for (int i = 0; i < pauseTimes.length; i++) {
             valueSet[i] = Integer.toString(pauseTimes[i]);
         }
         builder.setView(dialogView);
-        final NumberPicker npPause = (NumberPicker)dialogView.findViewById(R.id.pauseNumberPicker);
+        final NumberPicker npPause = (NumberPicker) dialogView.findViewById(R.id.pauseNumberPicker);
         npPause.setDisplayedValues(valueSet);
         npPause.setMinValue(0);
         npPause.setMaxValue(valueSet.length - 1);
         npPause.setWrapSelectorWheel(false);
         int initialValue = Utils.getDefaultPauseAmount(this);
-        for(int i = 0; i < pauseTimes.length; i++){
-            if (initialValue == pauseTimes[i]){
+        for (int i = 0; i < pauseTimes.length; i++) {
+            if (initialValue == pauseTimes[i]) {
                 initialValue = i;
             }
         }
@@ -328,11 +319,11 @@ public class MainActivity extends Activity {
                 //actual value
                 setDefaultPauseAmount(pauseTimes[npPause.getValue()]);
                 int currentStatus = Utils.getImageStatus(MainActivity.this);
-                if(currentStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
+                if (currentStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
                         currentStatus == Constants.NON_SCHEDULE_STOOD_UP ||
-                        currentStatus == Constants.NON_SCHEDULE_TIME_TO_STAND){
+                        currentStatus == Constants.NON_SCHEDULE_TIME_TO_STAND) {
                     pauseUnscheduled();
-                } else{
+                } else {
                     pauseSchedule();
                     sendAnalyticsEvent("Paused");
                 }
@@ -349,12 +340,12 @@ public class MainActivity extends Activity {
         alertDialog.show();
     }
 
-    private void updatePausePlayIcon(){
-        if(mPausePlay != null){
+    private void updatePausePlayIcon() {
+        if (mPausePlay != null) {
             int currentImageStatus = Utils.getImageStatus(this);
-            if(currentImageStatus != Constants.NO_ALARM_RUNNING &&
+            if (currentImageStatus != Constants.NO_ALARM_RUNNING &&
                     currentImageStatus != Constants.NON_SCHEDULE_PAUSED &&
-                    currentImageStatus != Constants.SCHEDULE_PAUSED){
+                    currentImageStatus != Constants.SCHEDULE_PAUSED) {
                 mPausePlay.setVisible(true);
                 mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
             } else if (currentImageStatus == Constants.SCHEDULE_PAUSED ||
@@ -370,33 +361,33 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void pauseUnscheduled(){
+    private void pauseUnscheduled() {
         new UnscheduledRepeatingAlarm(this).pause();
     }
 
-    private void pauseSchedule(){
+    private void pauseSchedule() {
         int currentRunningAlarmUID = Utils.getRunningScheduledAlarm(this);
         ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
         FixedAlarmSchedule currentAlarmSchedule =
                 new FixedAlarmSchedule(
                         scheduleDatabaseAdapter.getSpecificAlarmSchedule(currentRunningAlarmUID));
-        new ScheduledRepeatingAlarm(this,currentAlarmSchedule).pause();
+        new ScheduledRepeatingAlarm(this, currentAlarmSchedule).pause();
     }
 
-    private void unPauseUnscheduled(){
+    private void unPauseUnscheduled() {
         new UnscheduledRepeatingAlarm(this).unpause();
     }
 
-    private void unPauseScheduled(){
+    private void unPauseScheduled() {
         int currentRunningAlarmUID = Utils.getRunningScheduledAlarm(this);
         ScheduleDatabaseAdapter scheduleDatabaseAdapter = new ScheduleDatabaseAdapter(this);
         FixedAlarmSchedule currentAlarmSchedule =
                 new FixedAlarmSchedule(
                         scheduleDatabaseAdapter.getSpecificAlarmSchedule(currentRunningAlarmUID));
-        new ScheduledRepeatingAlarm(this,currentAlarmSchedule).unpause();
+        new ScheduledRepeatingAlarm(this, currentAlarmSchedule).unpause();
     }
 
-    private void setDefaultPauseAmount(int pauseAmount){
+    private void setDefaultPauseAmount(int pauseAmount) {
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -410,8 +401,8 @@ public class MainActivity extends Activity {
         super.attachBaseContext(new CalligraphyContextWrapper(newBase));
     }
 
-    private void sendAnalyticsEvent(String action){
-        Tracker t = ((Application)this.getApplication()).getTracker(
+    private void sendAnalyticsEvent(String action) {
+        Tracker t = ((Application) this.getApplication()).getTracker(
                 Application.TrackerName.APP_TRACKER);
         t.enableAdvertisingIdCollection(true);
         // Build and send an Event.

@@ -5,13 +5,25 @@
     android:layout_width="match_parent"
     android:clickable="true"
     >
+
+    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/schedule_list_toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
     <FrameLayout
         android:id="@+id/fl_schedule_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
         android:focusable="true"
-        android:focusableInTouchMode="true">
+        android:focusableInTouchMode="true"
+        android:layout_below="@+id/schedule_list_toolbar">
+
         <ListView
             android:layout_width="match_parent" android:layout_height="match_parent"
             android:id="@+id/schedules_list"
@@ -45,4 +57,5 @@
         android:text="@string/click_for_first_schedule"
         android:textSize="30sp"
         android:visibility="gone"/>
+
 </RelativeLayout>

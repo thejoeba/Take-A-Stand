@@ -1,4 +1,5 @@
 package com.heckbot.standdtector;
+
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -29,12 +30,11 @@ public class WearResultsListenerService extends WearableListenerService {
             Long lData = Long.parseLong(new String(messageEvent.getData()));
             Log.d("onMessageReceived", "Last step: " + lData);
             stepDetectorIntent.putExtra("timestamp", lData);
-        }
-        else if (messageEvent.getPath().equals(PATH_REPLY_FAILED)) {
+        } else if (messageEvent.getPath().equals(PATH_REPLY_FAILED)) {
             Log.d("onMessageReceived", new String(messageEvent.getData()));
             stepDetectorIntent.putExtra("timestamp", -1);
         }
-        startService(stepDetectorIntent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(stepDetectorIntent);
         stopSelf();
     }
 }

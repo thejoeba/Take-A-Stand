@@ -1,11 +1,14 @@
 package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.Application;
@@ -20,7 +23,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  * Created by Sean on 2014-11-01.
  */
 
-public class ScienceActivity extends Activity {
+public class ScienceActivity extends ActionBarActivity {
 
     /*
     Need to figure out a way uo dynamically increase the parent layout's (scrollview's) height based
@@ -43,11 +46,16 @@ public class ScienceActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_science);
-        ActionBar actionBar = getActionBar();
-        //Is possible actionBar will be null
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.science_behind_app));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.science_toolbar);
+        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    NavUtils.navigateUpFromSameTask(ScienceActivity.this);
+                }
+            });
         }
         setUpTextViews();
         Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);

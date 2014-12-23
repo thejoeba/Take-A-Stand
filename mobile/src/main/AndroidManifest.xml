@@ -2,10 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sean.takeastand"
     android:versionCode="19"
-    android:versionName="A19" >
+    android:versionName="A19">
+
     <meta-data
         android:name="com.google.android.gms.analytics.globalConfigResource"
         android:resource="@xml/analytics_global_config" />
+
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,43 +17,54 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppThemeWithoutActionBarIcon"
+        android:theme="@style/Theme.MaterialTheme"
         android:name="com.Application">
-        <meta-data android:name="com.google.android.gms.version"
+        <!--android:theme="@style/AppThemeWithoutActionBarIcon"-->
+        <meta-data
+            android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ScheduleListActivity" />
-        <activity android:name=".ui.ScienceActivity" />
         <activity
-            android:name=".ui.RemindersActivity"
-            android:label="@string/title_activity_reminders" >
-        </activity>
+            android:name=".ui.ScheduleListActivity"
+            android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ui.StandDetectorTMSettings"
-            android:label="@string/title_activity_standdetectortmsettings" >
-        </activity>
-        <activity android:name=".ui.StandCountActivity"/>
+            android:name=".ui.ScienceActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.RemindersSettingsActivity"
+            android:label="@string/title_activity_reminders"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.StandDtectorTMSettings"
+            android:label="@string/title_activity_standdetectortmsettings"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.StandCountActivity"
+            android:parentActivityName=".ui.MainActivity" />
+
         <receiver android:name=".alarmprocess.AlarmReceiver" />
         <receiver android:name=".alarmprocess.StartScheduleReceiver" />
-        <receiver android:name=".alarmprocess.BootReceiver" >
+        <receiver android:name=".alarmprocess.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver android:name=".alarmprocess.EndPauseReceiver" />
+
         <service android:name=".alarmprocess.AlarmService" />
         <service android:name="com.heckbot.standdtector.StandDtectorTM" />
+        <service android:name="com.heckbot.standdtector.StandDtectorStepCounter" />
 
-        <receiver android:name="com.heckbot.standdtector.StandDtectorBroadcastReceiver" />
         <service android:name="com.heckbot.standdtector.WearResultsListenerService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />

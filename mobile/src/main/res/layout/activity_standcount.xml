@@ -2,8 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="30dp">
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/stand_count_toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
     <TextView
         android:id="@+id/number_of_stands"
         android:layout_width="wrap_content"
@@ -13,7 +22,8 @@
         android:layout_marginBottom="35dp"
         android:text="50"
         android:textColor="@android:color/primary_text_light"
-        android:textSize="75sp"/>
+        android:textSize="75sp" />
+
     <TextView
         android:id="@+id/stands"
         android:layout_width="wrap_content"
@@ -21,5 +31,30 @@
         android:layout_centerInParent="true"
         android:text="@string/stands"
         android:textColor="@android:color/primary_text_light"
-        android:textSize="50sp"/>
+        android:textSize="50sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Last Step:"
+        android:id="@+id/tvLastStep"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/tvStepCounter"
+        android:layout_marginLeft="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Steps: "
+        android:id="@+id/tvStepCounter"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="30dp" />
+
 </RelativeLayout>

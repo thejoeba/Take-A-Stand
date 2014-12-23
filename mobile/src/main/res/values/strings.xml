@@ -18,10 +18,18 @@
     <string name="default_praise">Good Job!</string>
     <string name="select_frequency">Select Frequency (Minutes)</string>
     <string name="medical_studies">Medical Studies</string>
-    <string name="medical1">A large <a href="http://www.ncbi.nlm.nih.gov/pubmed/19996993">long-term study</a> with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent.</string>
-    <string name="medical2">A Danish <a href="http://sjp.sagepub.com/content/35/5/510.abstract"> medical study </a>that looked into factors which decreased life quality found sedentary lifestyles reduced the quality-adjusted life years by 7 years.</string>
-    <string name="medical3">A British <a href=" http://bjsm.bmj.com/content/43/2/81.full">research study</a>  found that even exercising for more than 30 minutes a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.</string>
-    <string name="medical4">Sitting for prolonged periods of time may contribute to <a href="http://diabetes.diabetesjournals.org/content/56/11/2655.long">metabolic diseases</a> such as diabetes and cardiovascular disease.</string>
+    <string name="medical1title">Cardiovascular</string>
+    <string name="medical1">A large long-term study with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent.</string>
+    <string name="medical1link"><a href="http://www.ncbi.nlm.nih.gov/pubmed/19996993">Learn More</a></string>
+    <string name="medical2title">Quality</string>
+    <string name="medical2">A Danish medical study that looked into factors which decreased life quality found sedentary lifestyles reduced the quality-adjusted life years by 7 years.</string>
+    <string name="medical2link"><a href="http://sjp.sagepub.com/content/35/5/510.abstract">Learn More</a></string>
+    <string name="medical3title">Exercise</string>
+    <string name="medical3">A British research study found that even exercising for more than 30 minutes a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.</string>
+    <string name="medical3link"><a href=" http://bjsm.bmj.com/content/43/2/81.full">Learn More</a></string>
+    <string name="medical4title">Diabetes</string>
+    <string name="medical4">Sitting for prolonged periods of time may contribute to metabolic diseases such as diabetes and cardiovascular disease.</string>
+    <string name="medical4link"><a href="http://diabetes.diabetesjournals.org/content/56/11/2655.long">Learn More</a></string>
     <string name="news_articles">News Articles</string>
     <string name="news1"><a href="http://lifehacker.com/tag/sitting">Lifehacker</a></string>
     <string name="news2"><a href="http://news.bbc.co.uk/2/hi/6187080.stm">BBC</a></string>

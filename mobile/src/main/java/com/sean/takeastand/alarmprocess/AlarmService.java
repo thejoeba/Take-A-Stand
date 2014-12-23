@@ -59,7 +59,7 @@ will vibrate or make a sound.  This class notifies the ui classes, to update to 
 /**
  * Created by Sean on 2014-09-18.
  */
-public class AlarmService extends Service  {
+public class AlarmService extends Service {
 
     private static final String TAG = "AlarmService";
 
@@ -67,11 +67,12 @@ public class AlarmService extends Service  {
     private Handler mHandler;
     private FixedAlarmSchedule mCurrentAlarmSchedule;
     private int mNotifTimePassed = 0;
-    long[] mVibrationPattern = {(long)200, (long)300, (long)200, (long)300, (long)200, (long)300};
+    long[] mVibrationPattern = {(long) 200, (long) 300, (long) 200, (long) 300, (long) 200, (long) 300};
     private boolean mainActivityVisible;
     private boolean bStepCounterHandled = false;
     private boolean bWearStepCounterHandled = false;
     long lDeviceLastStep = -1;
+    boolean bRepeatingAlarmStepCheck = false;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -79,34 +80,45 @@ public class AlarmService extends Service  {
         mainActivityVisible = false;
         registerReceivers();
 
-        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STEP_DETECTOR_ENABLED, false)) {
-            Log.d("onStartCommand", "Step Detector Enabled");
-            Intent stepDetectorIntent = new Intent(this, com.heckbot.standdtector.StandDtectorTM.class);
-            stepDetectorIntent.setAction(Constants.LAST_STEP);
-            Intent returnIntent = new Intent(Constants.LAST_STEP);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
-            stepDetectorIntent.putExtra("pendingIntent", pendingIntent);
-            startService(stepDetectorIntent);
-            //error handling if no step detector results are returned.
-            mHandler = new Handler();
-            int tenSecondMillis = 10000;
-
-            Runnable lastStepReceiverTimeout = new StepCounterTimeoutRunnable(intent);
-            mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
-        }
-        else if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
-            GetWearLastStep(intent);
-        }
-        else {
+        if (!UseLastStepCounters(intent)) {
+            Log.d("onStartCommand", "No Detectors Enabled");
             beginStandNotifications(intent);
         }
         return START_REDELIVER_INTENT;
     }
 
+    private boolean UseLastStepCounters(Intent intent) {
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
+            Log.d("UseLastStepCounters", "Step Detector Enabled");
+            GetDeviceLastStep(intent);
+            return true;
+        } else if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
+            Log.d("UseLastStepCounters", "Wear Detector Enabled");
+            GetWearLastStep(intent);
+            return true;
+        }
+        return false;
+    }
+
+    private void GetDeviceLastStep(Intent intent) {
+        Intent stepDetectorIntent = new Intent(this, StandDtectorTM.class);
+        stepDetectorIntent.setAction(Constants.DEVICE_LAST_STEP);
+        Intent returnIntent = new Intent(Constants.DEVICE_LAST_STEP);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
+        stepDetectorIntent.putExtra("pendingIntent", pendingIntent);
+        startService(stepDetectorIntent);
+        //error handling if no step detector results are returned.
+        mHandler = new Handler();
+        int tenSecondMillis = 10000;
+
+        Runnable lastStepReceiverTimeout = new StepCounterTimeoutRunnable(intent);
+        mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
+    }
+
     private void GetWearLastStep(Intent intent) {
         Intent wearStepDetectorIntent = new Intent(this, StandDtectorTM.class);
-        wearStepDetectorIntent.setAction("WearLastStep");
-        Intent returnIntent = new Intent("WearLastStep");
+        wearStepDetectorIntent.setAction(Constants.WEAR_LAST_STEP);
+        Intent returnIntent = new Intent(Constants.WEAR_LAST_STEP);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
         wearStepDetectorIntent.putExtra("pendingIntent", pendingIntent);
         startService(wearStepDetectorIntent);
@@ -125,10 +137,10 @@ public class AlarmService extends Service  {
         sendNotification();
         int oneMinuteMillis = 60000;
         mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
-        if(intent.hasExtra(Constants.ALARM_SCHEDULE)){
+        if (intent.hasExtra(Constants.ALARM_SCHEDULE)) {
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         }
-        if(mCurrentAlarmSchedule == null){
+        if (mCurrentAlarmSchedule == null) {
             Utils.setImageStatus(this, Constants.NON_SCHEDULE_TIME_TO_STAND);
         } else {
             Utils.setImageStatus(this, Constants.SCHEDULE_TIME_TO_STAND);
@@ -142,20 +154,18 @@ public class AlarmService extends Service  {
         Log.i(TAG, "AlarmService destroyed");
     }
 
-    private void checkMainActivityVisible(){
+    private void checkMainActivityVisible() {
         Intent intent = new Intent("Visible");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private void registerReceivers(){
+    private void registerReceivers() {
         getApplicationContext().registerReceiver(stoodUpReceiver,
                 new IntentFilter(Constants.STOOD_RESULTS));
-        getApplicationContext().registerReceiver(lastStepReceiver,
-                new IntentFilter(Constants.LAST_STEP));
+        getApplicationContext().registerReceiver(deviceLastStepReceiver,
+                new IntentFilter(Constants.DEVICE_LAST_STEP));
         getApplicationContext().registerReceiver(wearLastStepReceiver,
-                new IntentFilter("WearLastStep"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(wearLastStepReceiver,
-                new IntentFilter("WearLastStep"));
+                new IntentFilter(Constants.WEAR_LAST_STEP));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
@@ -164,9 +174,10 @@ public class AlarmService extends Service  {
                 new IntentFilter(Constants.ALARM_SCHEDULE_DELETED));
     }
 
-    private void unregisterReceivers(){
+    private void unregisterReceivers() {
         getApplicationContext().unregisterReceiver(stoodUpReceiver);
-        getApplicationContext().unregisterReceiver(lastStepReceiver);
+        getApplicationContext().unregisterReceiver(deviceLastStepReceiver);
+        getApplicationContext().unregisterReceiver(wearLastStepReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainVisibilityReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(endAlarmService);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(deletedAlarm);
@@ -184,7 +195,7 @@ public class AlarmService extends Service  {
         }
     };
 
-    private BroadcastReceiver stoodUpReceiver = new BroadcastReceiver(){
+    private BroadcastReceiver stoodUpReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
@@ -194,7 +205,7 @@ public class AlarmService extends Service  {
                     Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
                     long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
                     v.vibrate(pattern, -1);
-                    recordStand(Constants.STOOD_AFTER,Calendar.getInstance());
+                    recordStand(Constants.STOOD_AFTER, Calendar.getInstance());
                 }
                 // Expired or not in pocket
                 else {
@@ -202,9 +213,8 @@ public class AlarmService extends Service  {
                 }
             }
             //0 signifies stand recorded incorrectly, for whatever reason
-            if(intent.hasExtra(Constants.STOOD_METHOD)){
+            if (intent.hasExtra(Constants.STOOD_METHOD)) {
                 recordStand(intent.getIntExtra(Constants.STOOD_METHOD, 0), Calendar.getInstance());
-
             } else {
                 recordStand(0, Calendar.getInstance());
             }
@@ -215,7 +225,7 @@ public class AlarmService extends Service  {
             mHandler.postDelayed(changeImage, fiveSeconds);
             long threeSeconds = 3 * Constants.millisecondsInSecond;
             mHandler.postDelayed(stoodUp, threeSeconds);
-            if(mCurrentAlarmSchedule == null){
+            if (mCurrentAlarmSchedule == null) {
                 Utils.setImageStatus(getApplicationContext(), Constants.NON_SCHEDULE_STOOD_UP);
             } else {
                 Utils.setImageStatus(getApplicationContext(), Constants.SCHEDULE_STOOD_UP);
@@ -236,7 +246,7 @@ public class AlarmService extends Service  {
         }
     };
 
-    private BroadcastReceiver lastStepReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver deviceLastStepReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Step Data Received");
@@ -249,26 +259,44 @@ public class AlarmService extends Service  {
                     lDeviceLastStep = extras.getLong("Last_Step");
                     if (lDeviceLastStep < (lDefaultFrequencyMilliseconds * .9)) {
                         Log.d(TAG, "Last step less than default frequency");
-                    }
-                    else {
+                    } else {
                         lDeviceLastStep = -1;
                     }
                 }
                 if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
-                    Log.d("lastStepReceiver","Device Step Processed, getting Wear Step");
+                    Log.d("deviceLastStepReceiver", "Device Step Processed, getting Wear Step");
                     GetWearLastStep(intent);
-                }
-                else if (lDeviceLastStep < 0) {
-                    Log.d("lastStepReceiver","Last Step < 0");
-                    beginStandNotifications(intent);
-                }
-                else {
-                    Log.d("lastStepReceiver","Device Step Processed, postponing reminder");
-                    //if wear step detector not enabled, and valid device steps returned, postpone and finish
+                } else if (lDeviceLastStep < 0) {
+                    Log.d("deviceLastStepReceiver", "Last Step < 0");
+                    if (bRepeatingAlarmStepCheck) {
+                        updateNotification();
+                    } else {
+                        beginStandNotifications(intent);
+                    }
+                } else {
+                    Log.d("deviceLastStepReceiver", "Device Step Processed, postponing reminder");
+                    //if notification path
+                    int strStepDetectionMethod;
+                    if (bRepeatingAlarmStepCheck) {
+                        bRepeatingAlarmStepCheck = false;
+                        cancelNotification();
+                        mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+                        long fiveSeconds = 5 * Constants.millisecondsInSecond;
+                        mHandler.postDelayed(changeImage, fiveSeconds);
+                        long threeSeconds = 3 * Constants.millisecondsInSecond;
+                        if (mCurrentAlarmSchedule == null) {
+                            Utils.setImageStatus(getApplicationContext(), Constants.NON_SCHEDULE_STOOD_UP);
+                        } else {
+                            Utils.setImageStatus(getApplicationContext(), Constants.SCHEDULE_STOOD_UP);
+                        }
+                        strStepDetectionMethod = Constants.STEP_DETECTED_AFTER_DEVICE;
+                    } else {
+                        strStepDetectionMethod = Constants.STEP_DETECTED_BEFORE_DEVICE;
+                    }
                     postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lDeviceLastStep);
                     Calendar lastStepTime = Calendar.getInstance();
-                    lastStepTime.add(Calendar.MILLISECOND, (int)-(lDeviceLastStep));
-                    recordStand(Constants.STEP_DETECTED_BEFORE_DEVICE, lastStepTime);
+                    lastStepTime.add(Calendar.MILLISECOND, (int) -(lDeviceLastStep));
+                    recordStand(strStepDetectionMethod, lastStepTime);
                     stopSelf();
                 }
             }
@@ -289,28 +317,46 @@ public class AlarmService extends Service  {
                     lWearLastStep = extras.getLong("Wear_Last_Step");
                     if (lWearLastStep < (lDefaultFrequencyMilliseconds * .9)) {
                         Log.d(TAG, "Last wear step less than default frequency");
-                    }
-                    else {
+                    } else {
                         lWearLastStep = -1;
                     }
                 }
-                long lLastStep = -1;
-                int stepType;
-                if (lDeviceLastStep >= lWearLastStep){
-                    lLastStep = lDeviceLastStep;
-                    stepType = Constants.STEP_DETECTED_BEFORE_DEVICE;
-                }
-                else {
-                    lLastStep = lWearLastStep;
-                    stepType = Constants.STEP_DETECTED_BEFORE_WEAR;
-                }
-                if (lLastStep < 0) {
+                if (lWearLastStep < 0 && lDeviceLastStep < 0) {
                     beginStandNotifications(intent);
-                }
-                else {
+                } else {
+                    int stepType;
+                    long lLastStep;
+                    if (bRepeatingAlarmStepCheck) {
+                        bRepeatingAlarmStepCheck = false;
+                        cancelNotification();
+                        mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+                        long fiveSeconds = 5 * Constants.millisecondsInSecond;
+                        mHandler.postDelayed(changeImage, fiveSeconds);
+                        if (mCurrentAlarmSchedule == null) {
+                            Utils.setImageStatus(getApplicationContext(), Constants.NON_SCHEDULE_STOOD_UP);
+                        } else {
+                            Utils.setImageStatus(getApplicationContext(), Constants.SCHEDULE_STOOD_UP);
+                        }
+                        if (lDeviceLastStep >= lWearLastStep) {
+                            lLastStep = lDeviceLastStep;
+                            stepType = Constants.STEP_DETECTED_AFTER_DEVICE;
+                        } else {
+                            lLastStep = lWearLastStep;
+                            stepType = Constants.STEP_DETECTED_AFTER_WEAR;
+                        }
+                    } else {
+                        if (lDeviceLastStep >= lWearLastStep) {
+                            lLastStep = lDeviceLastStep;
+                            stepType = Constants.STEP_DETECTED_BEFORE_DEVICE;
+                        } else {
+                            lLastStep = lWearLastStep;
+                            stepType = Constants.STEP_DETECTED_BEFORE_WEAR;
+                        }
+                    }
+
                     postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lWearLastStep);
                     Calendar lastStepTime = Calendar.getInstance();
-                    lastStepTime.add(Calendar.MILLISECOND, (int)-(lLastStep));
+                    lastStepTime.add(Calendar.MILLISECOND, (int) -(lLastStep));
                     recordStand(stepType, lastStepTime);
                     stopSelf();
                 }
@@ -324,11 +370,11 @@ public class AlarmService extends Service  {
             Log.i(TAG, "User deleted an Alarm Schedule.  Checking to see if that is the currently" +
                     " alarm notification.");
             int currentAlarmUID = -1;
-            if(mCurrentAlarmSchedule!=null){
+            if (mCurrentAlarmSchedule != null) {
                 currentAlarmUID = mCurrentAlarmSchedule.getUID();
             }
-            int deletedAlarmUID = intent.getIntExtra("UID" , -2);
-            if(deletedAlarmUID == currentAlarmUID){
+            int deletedAlarmUID = intent.getIntExtra("UID", -2);
+            if (deletedAlarmUID == currentAlarmUID) {
                 mHandler.removeCallbacks(oneMinuteForNotificationResponse);
                 cancelNotification();
                 //End this service
@@ -338,7 +384,7 @@ public class AlarmService extends Service  {
     };
 
     private Runnable oneMinuteForNotificationResponse = new Runnable() {
-
+        //ToDo: Note: If user dismisses notification, it comes back every minute
         public void run() {
             updateNotification();
             int oneMinuteMillis = 60000;
@@ -356,14 +402,13 @@ public class AlarmService extends Service  {
         public void run() {
             if (!bStepCounterHandled) {
                 bStepCounterHandled = true;
-                Intent stopStepDetectorIntent = new Intent("STOP");
-                startService(stopStepDetectorIntent);
+                Intent stopStepDetectorIntent = new Intent("StandDtectorTMStop");
+                LocalBroadcastManager.getInstance(AlarmService.this).sendBroadcast(stopStepDetectorIntent);
                 Log.i(TAG, "Step Data Timeout");
 
                 if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
                     GetWearLastStep(intent);
-                }
-                else {
+                } else {
                     beginStandNotifications(intent);
                 }
             }
@@ -380,21 +425,20 @@ public class AlarmService extends Service  {
         public void run() {
             if (!bWearStepCounterHandled) {
                 bWearStepCounterHandled = true;
-                Intent stopWearStepDetectorIntent = new Intent("STOP");
-                startService(stopWearStepDetectorIntent);
+                Intent stopStepDetectorIntent = new Intent("StandDtectorTMStop");
+                LocalBroadcastManager.getInstance(AlarmService.this).sendBroadcast(stopStepDetectorIntent);
                 Log.i(TAG, "Wear Step Data Timeout");
 
                 if (lDeviceLastStep < 0) {
-                    Log.d("WearStepCounterTimeoutRunnable","Wear Timeout, no device step");
+                    Log.d("WearStepCounterTimeoutRunnable", "Wear Timeout, no device step");
                     beginStandNotifications(intent);
-                }
-                else {
-                    Log.d("WearStepCounterTimeoutRunnable","Wear Timeout, Device Step Processed, postponing reminder");
+                } else {
+                    Log.d("WearStepCounterTimeoutRunnable", "Wear Timeout, Device Step Processed, postponing reminder");
                     long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
                     //if wear step detector timed out, and valid device steps returned, postpone and finish
                     postponeAlarm(getApplicationContext(), lDefaultFrequencyMilliseconds - lDeviceLastStep);
                     Calendar lastStepTime = Calendar.getInstance();
-                    lastStepTime.add(Calendar.MILLISECOND, (int)-(lDeviceLastStep));
+                    lastStepTime.add(Calendar.MILLISECOND, (int) -(lDeviceLastStep));
                     recordStand(Constants.STEP_DETECTED_BEFORE_DEVICE, lastStepTime);
                     stopSelf();
                 }
@@ -412,10 +456,10 @@ public class AlarmService extends Service  {
         }
     };
 
-    private Runnable changeImage= new Runnable() {
+    private Runnable changeImage = new Runnable() {
         @Override
         public void run() {
-            if(mCurrentAlarmSchedule==null){
+            if (mCurrentAlarmSchedule == null) {
                 Utils.setImageStatus(getApplicationContext(), Constants.NON_SCHEDULE_ALARM_RUNNING);
             } else {
                 Utils.setImageStatus(getApplicationContext(), Constants.SCHEDULE_RUNNING);
@@ -423,9 +467,9 @@ public class AlarmService extends Service  {
         }
     };
 
-    private void setStoodUpAlarm(Context context){
+    private void setStoodUpAlarm(Context context) {
         RepeatingAlarm repeatingAlarm;
-        if(mCurrentAlarmSchedule == null){
+        if (mCurrentAlarmSchedule == null) {
             repeatingAlarm = new UnscheduledRepeatingAlarm(context);
         } else {
             repeatingAlarm = new ScheduledRepeatingAlarm(context, mCurrentAlarmSchedule);
@@ -433,9 +477,9 @@ public class AlarmService extends Service  {
         repeatingAlarm.setRepeatingAlarm();
     }
 
-    private void postponeAlarm(Context context, long milliseconds){
+    private void postponeAlarm(Context context, long milliseconds) {
         RepeatingAlarm repeatingAlarm;
-        if(mCurrentAlarmSchedule == null){
+        if (mCurrentAlarmSchedule == null) {
             repeatingAlarm = new UnscheduledRepeatingAlarm(context);
             Utils.setImageStatus(context, Constants.NON_SCHEDULE_ALARM_RUNNING);
         } else {
@@ -447,9 +491,9 @@ public class AlarmService extends Service  {
         LocalBroadcastManager.getInstance(this).sendBroadcastSync(intent);
     }
 
-    private void showPraise(){
+    private void showPraise() {
         String praise = praiseForUser();
-        if(mainActivityVisible){
+        if (mainActivityVisible) {
             Intent intent = new Intent(Constants.PRAISE_FOR_USER);
             intent.putExtra("Praise", praise);
             LocalBroadcastManager.getInstance(this).sendBroadcastSync(intent);
@@ -458,25 +502,24 @@ public class AlarmService extends Service  {
         }
     }
 
-    private String praiseForUser(){
+    private String praiseForUser() {
         String[] praise = getResources().getStringArray(R.array.praise);
         Random random = new Random(System.currentTimeMillis());
         int randomNumber = random.nextInt(praise.length);
         return praise[randomNumber];
     }
 
-    private void sendNotification(){
-        NotificationManager notificationManager = (NotificationManager)this.getSystemService(
+    private void sendNotification() {
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         PendingIntent[] pendingIntents = makeNotificationIntents();
-        RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
+        RemoteViews rvRibbon = new RemoteViews(getPackageName(), R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
-        NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
+        NotificationCompat.Builder alarmNotificationBuilder = new NotificationCompat.Builder(this);
         alarmNotificationBuilder
                 .setContent(rvRibbon)
                 .setContentIntent(pendingIntents[0])
                 .setAutoCancel(false)
-//                .setOngoing(true)
                 .setTicker(getString(R.string.stand_up_time_low))
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setContentTitle("Take A Stand ✔")
@@ -486,47 +529,46 @@ public class AlarmService extends Service  {
                                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[2]).build())
                                 .setContentAction(0)
                                 .setHintHideIcon(true)
-//                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
-
+//                    .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
                 )
         ;
 
         //Purpose of below is to figure out what type of user alert to give with the notification
         //If scheduled, check settings for that schedule
         //If unscheduled, check user defaults
-        if(mCurrentAlarmSchedule!=null){
+        if (mCurrentAlarmSchedule != null) {
             boolean[] alertType = mCurrentAlarmSchedule.getAlertType();
-            if((alertType[0])){
+            if ((alertType[0])) {
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1]){
+            if (alertType[1]) {
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                if (audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
                         Utils.getVibrateOverride(this)) {
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     v.vibrate(mVibrationPattern, -1);
                 }
             }
-            if(alertType[2]){
+            if (alertType[2]) {
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 alarmNotificationBuilder.setSound(soundUri);
             }
         } else {
             boolean[] alertType = Utils.getDefaultAlertType(this);
-            if((alertType[0])){
+            if ((alertType[0])) {
                 alarmNotificationBuilder.setLights(238154000, 1000, 4000);
             }
-            if(alertType[1]){
+            if (alertType[1]) {
                 alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                if (audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
                         Utils.getVibrateOverride(this)) {
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     v.vibrate(mVibrationPattern, -1);
                 }
             }
-            if(alertType[2]){
+            if (alertType[2]) {
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 alarmNotificationBuilder.setSound(soundUri);
             }
@@ -534,11 +576,10 @@ public class AlarmService extends Service  {
         Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
 
-        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STANDDTECTORTM_ENABLED, false))
-        {
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STANDDTECTORTM_ENABLED, false)) {
             Intent standSensorIntent = new Intent(this, StandDtectorTM.class);
-            standSensorIntent.setAction("START");
-            standSensorIntent.putExtra("MILLISECONDS",(long) 60000);
+            standSensorIntent.setAction("StandDtectorTMStart");
+            standSensorIntent.putExtra("MILLISECONDS", (long) 60000);
 
             standSensorIntent.putExtra("pendingIntent", pendingIntents[1]);
 
@@ -546,23 +587,24 @@ public class AlarmService extends Service  {
         }
     }
 
-    private void updateNotification(){
-        mNotifTimePassed ++;
+    private void updateNotification() {
+        if (!bRepeatingAlarmStepCheck) {
+            mNotifTimePassed++;
+        }
         Log.i(TAG, "time since first notification: " + mNotifTimePassed + setMinutes(mNotifTimePassed));
-        NotificationManager notificationManager = (NotificationManager)this.getSystemService(
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         PendingIntent[] pendingIntents = makeNotificationIntents();
-        RemoteViews rvRibbon = new RemoteViews(getPackageName(),R.layout.stand_notification);
+        RemoteViews rvRibbon = new RemoteViews(getPackageName(), R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
         rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
         rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));
-        NotificationCompat.Builder alarmNotificationBuilder =  new NotificationCompat.Builder(this);
+        NotificationCompat.Builder alarmNotificationBuilder = new NotificationCompat.Builder(this);
         alarmNotificationBuilder.setContent(rvRibbon);
         alarmNotificationBuilder
                 .setContentIntent(pendingIntents[0])
                 .setAutoCancel(false)
-//                .setOngoing(true)
                 .setTicker(getString(R.string.stand_up_time_low))
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setContentTitle("Take A Stand ✔")
@@ -572,56 +614,49 @@ public class AlarmService extends Service  {
                                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
                                 .setContentAction(0)
                                 .setHintHideIcon(true)
-//                                .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
-
+//                    .setBackground(BitmapFactory.decodeResource(getResources(), R.drawable.alarm_schedule_passed))
                 )
         ;
-        if(mCurrentAlarmSchedule != null){
-            boolean[] alertType = mCurrentAlarmSchedule.getAlertType();
-            if((alertType[0])){
-                alarmNotificationBuilder.setLights(238154000, 1000, 4000);
-            }
-            if(Utils.getRepeatAlerts(this)){
-                if(alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
-                    alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                    if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
-                            Utils.getVibrateOverride(this)) {
-                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                        v.vibrate(mVibrationPattern, -1);
-                    }
-                }
-                if(alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
-                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                    alarmNotificationBuilder.setSound(soundUri);
-                }
-            }
+
+        boolean[] alertType;
+        if (mCurrentAlarmSchedule != null) {
+            alertType = mCurrentAlarmSchedule.getAlertType();
         } else {
-            boolean[] alertType = Utils.getDefaultAlertType(this);
-            if((alertType[0])){
-                alarmNotificationBuilder.setLights(238154000, 1000, 4000);
-            }
-            if(Utils.getRepeatAlerts(this)){
-                if(alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
+            alertType = Utils.getDefaultAlertType(this);
+        }
+
+        if ((alertType[0])) {
+            alarmNotificationBuilder.setLights(238154000, 1000, 4000);
+        }
+        if (Utils.getRepeatAlerts(this)) {
+            if (alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0) {
+                boolean bUseLastStepCounters = false;
+                if (!bRepeatingAlarmStepCheck) {
+                    bRepeatingAlarmStepCheck = true;
+                    bUseLastStepCounters = UseLastStepCounters(null);
+                }
+                if (!bUseLastStepCounters) {
+                    bRepeatingAlarmStepCheck = false;
                     alarmNotificationBuilder.setVibrate(mVibrationPattern);
-                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                    if(audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
+                    AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    if (audioManager.getMode() == AudioManager.RINGER_MODE_SILENT &&
                             Utils.getVibrateOverride(this)) {
                         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                         v.vibrate(mVibrationPattern, -1);
                     }
                 }
-                if(alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0){
-                    Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                    alarmNotificationBuilder.setSound(soundUri);
-                }
+            }
+            if (alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0) {
+                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                alarmNotificationBuilder.setSound(soundUri);
             }
         }
+
         Notification alarmNotification = alarmNotificationBuilder.build();
         notificationManager.notify(R.integer.AlarmNotificationID, alarmNotification);
     }
 
-    private PendingIntent[] makeNotificationIntents(){
+    private PendingIntent[] makeNotificationIntents() {
         // Creates an explicit intent for an Activity in your app
         Intent launchActivityIntent = new Intent(this, MainActivity.class);
         // The stack builder object will contain an artificial back stack for the
@@ -646,22 +681,22 @@ public class AlarmService extends Service  {
         return new PendingIntent[]{launchActivityPendingIntent, stoodUpPendingIntent, stoodUpWearPendingIntent};
     }
 
-    private String setMinutes(int minutes){
-        if(minutes > 1 ){
+    private String setMinutes(int minutes) {
+        if (minutes > 1) {
             return getString(R.string.minutes_ago);
         } else {
             return getString(R.string.minute_ago);
         }
     }
 
-    private void cancelNotification(){
+    private void cancelNotification() {
         Log.i(TAG, "Notification removed");
-        NotificationManager notificationManager = (NotificationManager)this.getSystemService(
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(R.integer.AlarmNotificationID);
     }
 
-    private void recordStand(int stoodMethod, Calendar timeStamp){
+    private void recordStand(int stoodMethod, Calendar timeStamp) {
         StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(this);
         stoodLogsAdapter.newStoodLog(stoodMethod, timeStamp);
     }
