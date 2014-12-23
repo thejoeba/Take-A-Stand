@@ -1,12 +1,13 @@
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +26,7 @@ import com.sean.takeastand.util.Utils;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class ReminderSettingsActivity extends Activity {
+public class ReminderSettingsActivity extends ActionBarActivity {
 
     private CheckBox chbxLED;
     private CheckBox chbxVibrate;
@@ -45,18 +46,23 @@ public class ReminderSettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminder_settings);
         setUpLayout();
-        Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Reminder Settings");
         t.send(new HitBuilders.AppViewBuilder().build());
         mNotificationAlertChanged = false;
     }
 
     private void setUpLayout() {
-        ActionBar actionBar = getActionBar();
-        //Is possible actionBar will be null
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.reminder_settings));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.reminder_settings_toolbar);
+        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    NavUtils.navigateUpFromSameTask(ReminderSettingsActivity.this);
+                }
+            });
         }
         boolean[] currentNotification = Utils.getDefaultAlertType(this);
         chbxLED = (CheckBox) findViewById(R.id.chbxLED);
@@ -93,7 +99,7 @@ public class ReminderSettingsActivity extends Activity {
     View.OnClickListener repeatListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if(((Switch)view).isChecked()){
+            if (((Switch) view).isChecked()) {
                 setRepeatAlerts(ReminderSettingsActivity.this, true);
                 sendAnalyticsEvent("Notification Reminders Repeat: On");
             } else {
@@ -104,12 +110,12 @@ public class ReminderSettingsActivity extends Activity {
         }
     };
 
-    View.OnClickListener silentModeListener = new View.OnClickListener(){
+    View.OnClickListener silentModeListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            boolean silentModeOn = ((Switch)view).isChecked();
+            boolean silentModeOn = ((Switch) view).isChecked();
             silentMode(silentModeOn);
-            if(silentModeOn){
+            if (silentModeOn) {
                 sendAnalyticsEvent("Override silent: On");
             } else {
                 sendAnalyticsEvent("Override silent: Off");
@@ -130,9 +136,9 @@ public class ReminderSettingsActivity extends Activity {
             title.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
             title.setText(getResources().getString(R.string.reminder_frequency));
             builder.setCustomTitle(title);
-            final NumberPicker numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
+            final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.numberPicker);
             numberPicker.setMaxValue(120);
-            numberPicker.setMinValue(1);
+            numberPicker.setMinValue(2);
             numberPicker.setValue(Utils.getDefaultFrequency(ReminderSettingsActivity.this));
             numberPicker.setWrapSelectorWheel(false);
             builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
@@ -182,7 +188,7 @@ public class ReminderSettingsActivity extends Activity {
             title.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
             title.setText(getResources().getString(R.string.notification_reminder_frequency));
             builder.setCustomTitle(title);
-            final NumberPicker numberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
+            final NumberPicker numberPicker = (NumberPicker) dialogView.findViewById(R.id.numberPicker);
             numberPicker.setMaxValue(60);
             numberPicker.setMinValue(1);
             numberPicker.setValue(Utils.getNotificationReminderFrequency(ReminderSettingsActivity.this));
@@ -208,7 +214,7 @@ public class ReminderSettingsActivity extends Activity {
         }
     };
 
-    private void setGrayedAreas(){
+    private void setGrayedAreas() {
         if (Utils.getRepeatAlerts(ReminderSettingsActivity.this)) {
             //txtNotificationFrequencyTitle.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
@@ -221,22 +227,22 @@ public class ReminderSettingsActivity extends Activity {
             //txtNotificationFrequencyTitle.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             swRepeat.setEnabled(true);
-            swRepeat.setAlpha((float)1);
+            swRepeat.setAlpha((float) 1);
         } else {
             txtRepeat.setTextColor(getResources().getColor(R.color.LightGrey));
             //txtNotificationFrequencyTitle.setTextColor(getResources().getColor(R.color.LightGrey));
             swRepeat.setEnabled(false);
-            swRepeat.setAlpha((float)0.5);
+            swRepeat.setAlpha((float) 0.5);
             txtNotificationFrequency.setTextColor(getResources().getColor(R.color.LightGrey));
         }
-        if (chbxVibrate.isChecked()){
+        if (chbxVibrate.isChecked()) {
             txtSilentMode.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             swSilent.setEnabled(true);
-            swSilent.setAlpha((float)1);
+            swSilent.setAlpha((float) 1);
         } else {
             txtSilentMode.setTextColor(getResources().getColor(R.color.LightGrey));
             swSilent.setEnabled(false);
-            swSilent.setAlpha((float)0.5);
+            swSilent.setAlpha((float) 0.5);
         }
     }
 
@@ -274,7 +280,7 @@ public class ReminderSettingsActivity extends Activity {
         editor.commit();
     }
 
-    private void setDefaultFrequency(int frequency){
+    private void setDefaultFrequency(int frequency) {
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -292,7 +298,7 @@ public class ReminderSettingsActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(mNotificationAlertChanged){
+        if (mNotificationAlertChanged) {
             boolean[] alertTypes = Utils.getDefaultAlertType(this);
             String newAlert = "Alert Type: ";
             newAlert += Boolean.toString(alertTypes[0]) + "-" + Boolean.toString(alertTypes[1]) + "-"
@@ -301,11 +307,11 @@ public class ReminderSettingsActivity extends Activity {
         }
     }
 
-    private String setMinutes(int minutes){
-        if(minutes > 1 ){
-            return Integer.toString(minutes) + getString(R.string.minutes);
+    private String setMinutes(int minutes) {
+        if (minutes == 1) {
+            return Integer.toString(minutes) + getString(R.string.minute);
         } else {
-            return getString(R.string.minute);
+            return Integer.toString(minutes) + getString(R.string.minutes);
         }
     }
 
@@ -315,8 +321,8 @@ public class ReminderSettingsActivity extends Activity {
         super.attachBaseContext(new CalligraphyContextWrapper(newBase));
     }
 
-    private void sendAnalyticsEvent(String action){
-        Tracker t = ((Application)this.getApplication()).getTracker(
+    private void sendAnalyticsEvent(String action) {
+        Tracker t = ((Application) this.getApplication()).getTracker(
                 Application.TrackerName.APP_TRACKER);
         t.enableAdvertisingIdCollection(true);
         // Build and send an Event.

@@ -25,7 +25,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -47,6 +47,7 @@ import com.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.internal.ic;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
@@ -89,7 +90,7 @@ public class MainActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_drawer_white, R.string.drawer_open, R.string.drawer_closed) {
+                toolbar, R.string.app_name, R.string.app_name) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
@@ -131,7 +132,7 @@ public class MainActivity extends ActionBarActivity {
             switch (position) {
                 case 0:
                     Intent intentNotification =
-                            new Intent(MainActivity.this, RemindersSettingsActivity.class);
+                            new Intent(MainActivity.this, ReminderSettingsActivity.class);
                     startActivity(intentNotification);
                     break;
                 case 1:
