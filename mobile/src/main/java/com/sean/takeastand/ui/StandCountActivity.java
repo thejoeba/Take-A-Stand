@@ -1,10 +1,13 @@
 package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.Application;
@@ -13,12 +16,10 @@ import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
-import org.w3c.dom.Text;
-
 /**
  * Created by Sean on 2014-12-15.
  */
-public class StandCountActivity extends Activity {
+public class StandCountActivity extends ActionBarActivity {
 
     private static final String TAG = "StandCountActivity";
     private TextView txtStandCount;
@@ -29,12 +30,18 @@ public class StandCountActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standcount);
-        txtStandCount = (TextView) findViewById(R.id.number_of_stands);
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.stand_count));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.stand_count_toolbar);
+        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    NavUtils.navigateUpFromSameTask(StandCountActivity.this);
+                }
+            });
         }
+        txtStandCount = (TextView) findViewById(R.id.number_of_stands);
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Stand Counter");
         t.send(new HitBuilders.AppViewBuilder().build());

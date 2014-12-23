@@ -16,7 +16,6 @@
 
 package com.sean.takeastand.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -86,7 +85,7 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions.add(getString(R.string.science_app));
         mNavDrawerOptions.add(getString(R.string.stand_count));
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -95,18 +94,12 @@ public class MainActivity extends ActionBarActivity {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                if (getActionBar() != null) {
-                    getActionBar().setTitle(getString(R.string.app_name));
-                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                if (getActionBar() != null) {
-                    getActionBar().setTitle(getString(R.string.settings));
-                }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -118,10 +111,6 @@ public class MainActivity extends ActionBarActivity {
         mDrawerList.setAdapter(mListAdapter);
         mDrawerList.setOnItemClickListener(drawerClickListener);
         //mDrawerList.setOnItemClickListener();
-        //Navigation Drawer icon won't display without this
-        if (getActionBar() != null) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
         //Styling
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);

@@ -19,22 +19,19 @@ package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -51,7 +48,6 @@ import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.widget.TimePickerFragment;
 
-import java.sql.Time;
 import java.util.ArrayList;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -59,7 +55,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 /**
  * Created by Sean on 2014-09-21.
  */
-public class ScheduleListActivity extends FragmentActivity {
+public class ScheduleListActivity extends ActionBarActivity {
 
     private static final String TAG = "SchedulesListActivity";
     private ImageView imgAddAlarm;
@@ -112,11 +108,16 @@ public class ScheduleListActivity extends FragmentActivity {
     }
 
     private void setUpLayout(){
-        ActionBar actionBar = getActionBar();
-        //Is possible actionBar will be null
-        if(actionBar !=null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.schedules));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.schedule_list_toolbar);
+        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    NavUtils.navigateUpFromSameTask(ScheduleListActivity.this);
+                }
+            });
         }
         imgAddAlarm = (ImageView)this.findViewById(R.id.btn_add_alarm);
         imgAddAlarm.setOnClickListener(addAlarmOnClickListener);

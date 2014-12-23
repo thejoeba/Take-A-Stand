@@ -2,8 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="30dp">
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/stand_count_toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <TextView
         android:id="@+id/number_of_stands"
@@ -34,7 +42,8 @@
         android:layout_alignParentBottom="false"
         android:layout_alignParentLeft="false"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/tvStepCounter" />
+        android:layout_above="@+id/tvStepCounter"
+        android:layout_marginLeft="30dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -44,6 +53,8 @@
         android:id="@+id/tvStepCounter"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="false"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="30dp" />
 
 </RelativeLayout>

@@ -1,12 +1,14 @@
 package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +27,7 @@ import com.sean.takeastand.util.Utils;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class RemindersSettingsActivity extends Activity {
+public class RemindersSettingsActivity extends ActionBarActivity {
 
     private CheckBox chbxLED;
     private CheckBox chbxVibrate;
@@ -43,7 +45,7 @@ public class RemindersSettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notifications);
+        setContentView(R.layout.activity_reminder_settings);
         setUpLayout();
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Reminder Settings");
@@ -52,11 +54,16 @@ public class RemindersSettingsActivity extends Activity {
     }
 
     private void setUpLayout() {
-        ActionBar actionBar = getActionBar();
-        //Is possible actionBar will be null
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.notification_settings));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.reminder_settings_toolbar);
+        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    NavUtils.navigateUpFromSameTask(RemindersSettingsActivity.this);
+                }
+            });
         }
         boolean[] currentNotification = Utils.getDefaultAlertType(this);
         chbxLED = (CheckBox) findViewById(R.id.chbxLED);

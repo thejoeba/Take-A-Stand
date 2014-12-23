@@ -13,7 +13,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,7 +30,7 @@ import com.sean.takeastand.util.Constants;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class StandDtectorTMSettings extends Activity {
+public class StandDtectorTMSettings extends ActionBarActivity {
     private Switch toggleDeviceStepCounter;
     private Switch toggleWearStepCounter;
     private Switch toggleStandDtectorTM;
@@ -44,11 +47,17 @@ public class StandDtectorTMSettings extends Activity {
     }
 
     private void setUpLayout() {
-        ActionBar actionBar = getActionBar();
-        //Is possible actionBar will be null
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getString(R.string.standdtectortm_settings));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.standdtectortm_settings_toolbar);
+        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    NavUtils.navigateUpFromSameTask(StandDtectorTMSettings.this);
+                }
+            });
         }
 
         sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
