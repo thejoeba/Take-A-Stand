@@ -89,7 +89,7 @@ public class MainActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_closed) {
+                R.drawable.ic_drawer_white, R.string.drawer_open, R.string.drawer_closed) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {

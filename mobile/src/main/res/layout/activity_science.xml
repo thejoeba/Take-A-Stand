@@ -3,20 +3,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
+
     <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/science_toolbar"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:minHeight="?attr/actionBarSize"
-        android:background="?attr/colorPrimary" />
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/medical_title"
@@ -34,10 +39,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 card_view:cardCornerRadius="4dp">
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -46,13 +53,15 @@
                         android:text="@string/medical1title"
                         android:layout_marginTop="10dp"
                         android:layout_marginLeft="10dp" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
                         android:id="@+id/medical1"
                         android:textSize="15sp"
-                        android:text="@string/medical1"/>
+                        android:text="@string/medical1" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -64,6 +73,7 @@
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
+
             <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/medical_card_view_2"
                 android:layout_gravity="center"
@@ -71,10 +81,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 card_view:cardCornerRadius="4dp">
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -83,13 +95,15 @@
                         android:text="@string/medical2title"
                         android:layout_marginTop="10dp"
                         android:layout_marginLeft="10dp" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
                         android:id="@+id/medical2"
                         android:textSize="15sp"
-                        android:text="@string/medical2"/>
+                        android:text="@string/medical2" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -101,6 +115,7 @@
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
+
             <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/medical_card_view_3"
                 android:layout_gravity="center"
@@ -108,10 +123,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 card_view:cardCornerRadius="4dp">
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -120,13 +137,15 @@
                         android:text="@string/medical3title"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="10dp" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
                         android:id="@+id/medical3"
                         android:textSize="15sp"
-                        android:text="@string/medical3"/>
+                        android:text="@string/medical3" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -138,6 +157,7 @@
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
+
             <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/medical_card_view_4"
                 android:layout_gravity="center"
@@ -145,10 +165,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 card_view:cardCornerRadius="4dp">
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -157,13 +179,15 @@
                         android:text="@string/medical4title"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="10dp" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
                         android:id="@+id/medical4"
                         android:textSize="15sp"
-                        android:text="@string/medical4"/>
+                        android:text="@string/medical4" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -175,6 +199,7 @@
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
+
             <TextView
                 android:id="@+id/news_title"
                 android:layout_width="wrap_content"
@@ -182,7 +207,7 @@
                 android:layout_margin="15dp"
                 android:text="@string/news_articles"
                 android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/news_articles"
@@ -190,48 +215,54 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingBottom="30dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:id="@+id/news1"
                     android:textSize="15sp"
-                    android:text="@string/news1"/>
+                    android:text="@string/news1" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:id="@+id/news2"
                     android:textSize="15sp"
-                    android:text="@string/news2"/>
+                    android:text="@string/news2" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:id="@+id/news3"
                     android:textSize="15sp"
-                    android:text="@string/news3"/>
+                    android:text="@string/news3" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:id="@+id/news4"
                     android:textSize="15sp"
-                    android:text="@string/news4"/>
+                    android:text="@string/news4" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:id="@+id/news5"
                     android:textSize="15sp"
-                    android:text="@string/news5"/>
+                    android:text="@string/news5" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:id="@+id/news6"
                     android:textSize="15sp"
-                    android:text="@string/news6"/>
+                    android:text="@string/news6" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
