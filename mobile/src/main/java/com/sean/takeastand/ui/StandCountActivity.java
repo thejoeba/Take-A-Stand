@@ -49,8 +49,8 @@ public class StandCountActivity extends ActionBarActivity {
         tvLastStep = (TextView) findViewById(R.id.tvLastStep);
         tvLastStep.setText("Last Step: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getLong("DEVICELASTSTEP", 0));
 
-        tvStepCounter = (TextView) findViewById(R.id.tvStepCounter);
-        tvStepCounter.setText("Steps: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getInt("TOTALDEVICESTEPS", 0));
+//        tvStepCounter = (TextView) findViewById(R.id.tvStepCounter);
+//        tvStepCounter.setText("Steps: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getInt("TOTALDEVICESTEPS", 0));
     }
 
     @Override
