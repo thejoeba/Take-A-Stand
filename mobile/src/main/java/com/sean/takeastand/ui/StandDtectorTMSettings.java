@@ -5,13 +5,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
@@ -24,9 +29,15 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.android.vending.billing.IInAppBillingService;
 import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.util.Constants;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -39,11 +50,95 @@ public class StandDtectorTMSettings extends ActionBarActivity {
 
     SharedPreferences sharedPreferences;
 
+    String skuPro = "take_a_stand_pro";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standdtectortm_settings);
+
+        Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+        serviceIntent.setPackage("com.android.vending");
+        bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+
         setUpLayout();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mService != null) {
+            unbindService(mServiceConn);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1001) {
+            int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
+            String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
+            String dataSignature = data.getStringExtra("INAPP_DATA_SIGNATURE");
+
+            if (resultCode == RESULT_OK) {
+                try {
+                    JSONObject jo = new JSONObject(purchaseData);
+                    String sku = jo.getString("productId");
+                    Log.d("onActivityResult", "You have bought the " + sku + ". Excellent choice, adventurer!");
+                }
+                catch (JSONException e) {
+                    Log.d("onActivityResult", "Failed to parse purchase data.");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private boolean checkPro() {
+        //ToDo: Check shared perfs first to increase speed.
+        //ToDo: perfs should also store phone id to verify validity
+        //ToDo: Oldest Fit data should also be utilized
+        ArrayList<String> skuList = new ArrayList<String> ();
+        skuList.add("premiumUpgrade");
+        skuList.add("gas");
+        Bundle querySkus = new Bundle();
+        querySkus.putStringArrayList("ITEM_ID_LIST", skuList);
+
+        try {
+            Bundle ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null);
+
+            int response = ownedItems.getInt("RESPONSE_CODE");
+            if (response == 0) {
+                ArrayList<String> ownedSkus =
+                        ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
+                ArrayList<String>  purchaseDataList =
+                        ownedItems.getStringArrayList("INAPP_PURCHASE_DATA_LIST");
+                ArrayList<String>  signatureList =
+                        ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
+                String continuationToken =
+                        ownedItems.getString("INAPP_CONTINUATION_TOKEN");
+
+                for (int i = 0; i < purchaseDataList.size(); ++i) {
+                    String purchaseData = purchaseDataList.get(i);
+                    String signature = signatureList.get(i);
+                    String sku = ownedSkus.get(i);
+
+                    // do something with this purchase information
+                    // e.g. display the updated list of products owned by user
+
+                    if (sku.equals(skuPro)) {
+                        return true;
+                    }
+
+                }
+
+                // if continuationToken != null, call getPurchases again
+                // and pass in the token to retrieve more items
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     private void setUpLayout() {
@@ -60,26 +155,75 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             });
         }
 
-        sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+//        boolean enablePro = checkPro();
+        boolean enablePro = true;
+        boolean trial = false;
+        long installedDate;
 
-        toggleDeviceStepCounter = (Switch) findViewById(R.id.toggleDeviceStepCounter);
-        toggleDeviceStepCounter.setOnClickListener(StepCounterListener);
-        toggleDeviceStepCounter.setChecked(sharedPreferences.getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false));
-        toggleWearStepCounter = (Switch) findViewById(R.id.toggleWearStepCounter);
-        toggleWearStepCounter.setOnClickListener(WearStepCounterListener);
-        toggleWearStepCounter.setChecked(sharedPreferences.getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false));
-        toggleStandDtectorTM = (Switch) findViewById(R.id.toggleStandDtectorTM);
-        toggleStandDtectorTM.setOnClickListener(StandDtectorTMListener);
-        toggleStandDtectorTM.setChecked(sharedPreferences.getBoolean(Constants.STANDDTECTORTM_ENABLED, false));
-        btnCalibrate = (Button) findViewById(R.id.btnCalibrate);
-        btnCalibrate.setOnClickListener(CalibrateListener);
-        txtCalibratedValue = (TextView) findViewById(R.id.txtCalibratedValue);
-        //ToDo: look into getPackageName for all vars
-        txtCalibratedValue.setText("Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
-        FeatureCheck();
+        if (!enablePro) {
+            long freeTrialTime = 604800000;
+            try {
+                installedDate = this
+                        .getPackageManager()
+                        .getPackageInfo("package.name", 0)
+                        .firstInstallTime;
+                //ToDo: Convert to dates, round up.
+                if ((installedDate + freeTrialTime) > System.currentTimeMillis()) {
+                    trial = true;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        if (enablePro || trial) {
+
+            sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+
+            toggleDeviceStepCounter = (Switch) findViewById(R.id.toggleDeviceStepCounter);
+            toggleDeviceStepCounter.setOnClickListener(StepCounterListener);
+            toggleDeviceStepCounter.setChecked(sharedPreferences.getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false));
+            toggleWearStepCounter = (Switch) findViewById(R.id.toggleWearStepCounter);
+            toggleWearStepCounter.setOnClickListener(WearStepCounterListener);
+            toggleWearStepCounter.setChecked(sharedPreferences.getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false));
+            toggleStandDtectorTM = (Switch) findViewById(R.id.toggleStandDtectorTM);
+            toggleStandDtectorTM.setOnClickListener(StandDtectorTMListener);
+            toggleStandDtectorTM.setChecked(sharedPreferences.getBoolean(Constants.STANDDTECTORTM_ENABLED, false));
+            btnCalibrate = (Button) findViewById(R.id.btnCalibrate);
+            btnCalibrate.setOnClickListener(CalibrateListener);
+            txtCalibratedValue = (TextView) findViewById(R.id.txtCalibratedValue);
+            //ToDo: look into getPackageName for all vars
+            txtCalibratedValue.setText("Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
+            FeatureCheck();
+        }
+        else {
+            toggleDeviceStepCounter.setChecked(false);
+            toggleDeviceStepCounter.setEnabled(false);
+            toggleDeviceStepCounter.setOnClickListener(UpgradePurchase);
+
+            toggleWearStepCounter.setChecked(false);
+            toggleWearStepCounter.setEnabled(false);
+            toggleWearStepCounter.setOnClickListener(UpgradePurchase);
+
+            toggleStandDtectorTM.setChecked(false);
+            toggleStandDtectorTM.setEnabled(false);
+            toggleStandDtectorTM.setOnClickListener(UpgradePurchase);
+
+            btnCalibrate.setEnabled(false);
+            btnCalibrate.setOnClickListener(UpgradePurchase);
+            btnCalibrate.setText("Upgrade");
+
+            txtCalibratedValue.setText("Trial Expired. Upgrade to Pro.");
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false);
+            editor.putBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false);
+            editor.putBoolean(Constants.STANDDTECTORTM_ENABLED, false);
+            editor.commit();
+        }
     }
 
     private void FeatureCheck() {
+
         if (!getPackageManager().hasSystemFeature(getPackageManager().FEATURE_SENSOR_STEP_COUNTER)) {
             toggleDeviceStepCounter.setChecked(false);
             toggleDeviceStepCounter.setEnabled(false);
@@ -104,6 +248,30 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         }
 
     }
+
+    View.OnClickListener UpgradePurchase = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Bundle buyIntentBundle = null;
+            try {
+                buyIntentBundle = mService.getBuyIntent(3, getPackageName(),
+                        skuPro, "inapp", "bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
+            PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+
+            try {
+                startIntentSenderForResult(pendingIntent.getIntentSender(),
+                        1001, new Intent(), Integer.valueOf(0), Integer.valueOf(0),
+                        Integer.valueOf(0));
+            } catch (IntentSender.SendIntentException e) {
+                e.printStackTrace();
+            }
+
+        }
+    };
 
     View.OnClickListener StepCounterListener = new View.OnClickListener() {
         @Override
@@ -183,7 +351,22 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                 txtCalibratedValue.setText("Calibration Failed");
             }
             btnCalibrate.setEnabled(true);
-            btnCalibrate.setText("Calibrate");
+            btnCalibrate.setText(R.string.standdtectortm_calbirate);
+        }
+    };
+
+    IInAppBillingService mService;
+
+    ServiceConnection mServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name,
+                                       IBinder service) {
+            mService = IInAppBillingService.Stub.asInterface(service);
         }
     };
 

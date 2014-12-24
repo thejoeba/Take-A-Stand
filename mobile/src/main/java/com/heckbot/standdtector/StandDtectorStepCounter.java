@@ -63,7 +63,7 @@ public class StandDtectorStepCounter extends Service implements SensorEventListe
             Log.d("StepCounterSensor", "Step Detected at: " + timestamp);
             SharedPreferences.Editor editor = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).edit();
             editor.putLong("DEVICELASTSTEP", timestamp);
-            editor.putInt("TOTALDEVICESTEPS", getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getInt("TOTALDEVICESTEPS", 0) + 1);
+//            editor.putInt("TOTALDEVICESTEPS", getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getInt("TOTALDEVICESTEPS", 0) + 1);
             editor.commit();
 
             return null;
