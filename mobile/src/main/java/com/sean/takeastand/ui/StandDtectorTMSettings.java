@@ -50,7 +50,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
 
     SharedPreferences sharedPreferences;
 
-    String skuPro = "null";
+    String skuPro = "take_a_stand_pro";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +155,8 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             });
         }
 
-        boolean enablePro = checkPro();
+//        boolean enablePro = checkPro();
+        boolean enablePro = true;
         boolean trial = false;
         long installedDate;
 
