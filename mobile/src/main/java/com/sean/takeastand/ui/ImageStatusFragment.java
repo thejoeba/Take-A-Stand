@@ -112,6 +112,7 @@ public class ImageStatusFragment
             case Constants.NO_ALARM_RUNNING:
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
                 ivStickFigure.setOnClickListener(imageListener);
+                txtTap.setOnClickListener(imageListener);
                 ivStickFigure.setOnTouchListener(imageButtonListener);
                 if (!mCurrentText.equals(getResources().getString(R.string.tap_to_start))) {
                     txtTap.setText(getResources().getString(R.string.tap_to_start));
@@ -123,14 +124,16 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_running);
                 ivStickFigure.setOnClickListener(imageListener);
                 ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setText(getResources().getString(R.string.tap_to_stop));
                 mCurrentText = getResources().getString(R.string.tap_to_stop);
                 updateMainActionBar();
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_passed);
-                ivStickFigure.setOnClickListener(null);
-                ivStickFigure.setOnTouchListener(null);
+                ivStickFigure.setOnClickListener(imageListener);
+                ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 if (!mCurrentText.equals(getResources().getString(R.string.stand_time))) {
                     txtTap.setText(getResources().getString(R.string.stand_time));
                 }
@@ -140,6 +143,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 if (mPraise == null) {
                     Log.i(TAG, "mPraise is null");
                     txtTap.setText("");
@@ -153,12 +157,14 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 txtTap.setText(mContext.getString(R.string.paused));
                 break;
             case Constants.SCHEDULE_RUNNING:
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_running);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 if (getCurrentTitle().equals("")) {
                     txtTap.setText(mContext.getString(R.string.schedule_running));
                 } else {
@@ -171,6 +177,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_passed);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 if (!mCurrentText.equals(getResources().getString(R.string.stand_time))) {
                     txtTap.setText(getResources().getString(R.string.stand_time));
                 }
@@ -180,6 +187,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 if (mPraise == null) {
                     txtTap.setText("");
                 } else {
@@ -192,12 +200,14 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 txtTap.setText(mContext.getString(R.string.paused));
                 break;
             default:
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
                 ivStickFigure.setOnClickListener(imageListener);
                 ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setText(getResources().getString(R.string.tap_to_start));
                 mCurrentText = getResources().getString(R.string.tap_to_start);
                 break;
@@ -211,6 +221,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
                 ivStickFigure.setOnClickListener(imageListener);
                 ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setCurrentText(getResources().getString(R.string.tap_to_start));
                 mCurrentText = getResources().getString(R.string.tap_to_start);
                 updateMainActionBar();
@@ -219,14 +230,16 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_running);
                 ivStickFigure.setOnClickListener(imageListener);
                 ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setCurrentText(getResources().getString(R.string.tap_to_stop));
                 mCurrentText = getResources().getString(R.string.tap_to_stop);
                 updateMainActionBar();
                 break;
             case Constants.NON_SCHEDULE_TIME_TO_STAND:
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_passed);
-                ivStickFigure.setOnClickListener(null);
-                ivStickFigure.setOnTouchListener(null);
+                ivStickFigure.setOnClickListener(imageListener);
+                ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setCurrentText(getResources().getString(R.string.stand_time));
                 mCurrentText = getResources().getString(R.string.stand_time);
                 break;
@@ -234,6 +247,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 if (mPraise == null) {
                     txtTap.setCurrentText(mContext.getString(R.string.default_praise));
                 } else {
@@ -246,12 +260,14 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 txtTap.setCurrentText(mContext.getString(R.string.paused));
                 break;
             case Constants.SCHEDULE_RUNNING:
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_running);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 if (getCurrentTitle().equals("")) {
                     txtTap.setCurrentText(mContext.getString(R.string.schedule_running));
                 } else {
@@ -264,6 +280,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_passed);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 txtTap.setCurrentText(getResources().getString(R.string.stand_time));
                 mCurrentText = getResources().getString(R.string.stand_time);
                 break;
@@ -271,6 +288,7 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_stood);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 if (mPraise == null) {
                     txtTap.setCurrentText(mContext.getString(R.string.default_praise));
                 } else {
@@ -283,12 +301,14 @@ public class ImageStatusFragment
                 ivStickFigure.setImageResource(R.drawable.alarm_schedule_paused);
                 ivStickFigure.setOnClickListener(null);
                 ivStickFigure.setOnTouchListener(null);
+                txtTap.setOnClickListener(null);
                 txtTap.setCurrentText(mContext.getString(R.string.paused));
                 break;
             default:
                 ivStickFigure.setImageResource(R.drawable.alarm_image_inactive);
                 ivStickFigure.setOnClickListener(imageListener);
                 ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setCurrentText(getResources().getString(R.string.tap_to_start));
                 mCurrentText = getResources().getString(R.string.tap_to_start);
                 break;
@@ -355,7 +375,8 @@ public class ImageStatusFragment
                 mContext.startService(startStepCounterIntent);
             }
 
-        } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING) {
+        } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
+                imageStatus == Constants.NON_SCHEDULE_TIME_TO_STAND) {
             Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
             sendAnalyticsEvent("User ended unscheduled alarm");

@@ -83,7 +83,6 @@
     <string name="vibrate_sound_on_silent">Vibrate on silent</string>
     <string name="repeat_vibrate_sound">Repeat vibrate/sound notification when it is time to stand</string>
     <string name="every">Every</string>
-    <string name="title_activity_reminders">Reminder Settings</string>
     <string name="notification_reminder_frequency">Notification Reminder Frequency</string>
     <string name="hello_world">Hello world!</string>
     <string name="reminder_settings">Reminder Settings</string>\
@@ -96,7 +95,6 @@
     <string name="wear_step_counter">Wear Step Counter (StandDtector JR™)</string>
     <string name="standdtectortm">StandDtector™</string>
     <string name="standdtectortm_calbirate">Calibrate</string>
-    <string name="title_activity_standdetectortmsettings">StandDtectorTMActivity</string>
     <string name="stands">Stands</string>
     <string name="stand_count">Stand Counter</string>
     <string name="science_behind_app">Science Behind The App</string>

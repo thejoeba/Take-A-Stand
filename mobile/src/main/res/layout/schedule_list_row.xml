@@ -1,301 +1,309 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:layout_marginBottom="10dp">
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    card_view:cardCornerRadius="4dp">
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/topContainer"
-        android:layout_marginLeft="35dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="17dp"
-        android:layout_marginBottom="0dp">
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:id="@+id/touchInterceptor"></FrameLayout>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Schedule 1"
-            android:textColor="@color/Gray"
-            android:id="@+id/editTitle"
-            android:ems="7"
-            android:textSize="24sp"
-            android:layout_marginTop="12dp"/>
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnActivated"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="40dp"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:id="@+id/clickToExpand"
-            android:layout_below="@id/btnActivated"
-            android:layout_marginTop="2dp"
-            android:layout_marginRight="22dp"/>
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/deleteButton"
-            android:src="@drawable/ic_action_discard"
-            android:layout_marginTop="10dp"
-            android:layout_alignParentRight="true"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:background="@color/LightGrey"
-            android:layout_below="@id/btnActivated"/>
-    </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/bottomContainer"
-        android:layout_below="@id/topContainer"
-        android:layout_marginLeft="12dp"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="-20dp"
-        >
+        android:layout_marginBottom="25dp">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/firstRow">
-            <CheckBox
+            android:id="@+id/topContainer"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="17dp"
+            android:layout_marginBottom="0dp">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/touchInterceptor"></FrameLayout>
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chbxLED"
-                android:layout_toLeftOf="@+id/chbxVibrate"
-                android:layout_marginRight="11dp"
-                android:text="@string/led_light"
-                android:textSize="14sp"/>
-            <CheckBox
+                android:text="Schedule 1"
+                android:textColor="@color/Grey"
+                android:id="@+id/editTitle"
+                android:ems="7"
+                android:textSize="24sp"
+                android:layout_marginTop="12dp"/>
+            <ToggleButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chbxVibrate"
-                android:layout_centerHorizontal="true"
-                android:text="@string/vibrate"
-                android:textSize="14sp"/>
-            <CheckBox
+                android:id="@+id/btnActivated"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="40dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:id="@+id/clickToExpand"
+                android:layout_below="@id/btnActivated"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="22dp"/>
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chbxSound"
-                android:layout_toRightOf="@id/chbxVibrate"
-                android:layout_marginLeft="10dp"
-                android:text="@string/sound"
-                android:textSize="14sp"/>
+                android:id="@+id/deleteButton"
+                android:src="@drawable/ic_action_discard"
+                android:layout_marginTop="10dp"
+                android:layout_alignParentRight="true"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="20dp"
                 android:background="@color/LightGrey"
-                android:layout_below="@id/chbxVibrate"
+                android:layout_below="@id/btnActivated"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/bottomContainer"
+            android:layout_below="@id/topContainer"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="-20dp"
+            >
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/firstRow">
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chbxLED"
+                    android:layout_toLeftOf="@+id/chbxVibrate"
+                    android:layout_marginRight="11dp"
+                    android:text="@string/led_light"
+                    android:textSize="14sp"/>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chbxVibrate"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/vibrate"
+                    android:textSize="14sp"/>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chbxSound"
+                    android:layout_toRightOf="@id/chbxVibrate"
+                    android:layout_marginLeft="10dp"
+                    android:text="@string/sound"
+                    android:textSize="14sp"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@color/LightGrey"
+                    android:layout_below="@id/chbxVibrate"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginLeft="15dp"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/secondRow"
+                android:layout_below="@id/firstRow"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="33dp"
+                android:layout_marginRight="33dp">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/frequency">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/frequency"
+                        android:id="@+id/txtFrequency"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/txtFrequency"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="12dp"
+                        android:id="@+id/txtFrequencyValue"
+                        android:text = "20"
+                        android:textSize="17sp"
+                        android:textColor="@color/DarkDarkGrey"
+                        />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/startTime">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/start_time"
+                        android:id="@+id/txtStartTime"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/txtStartTime"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="12dp"
+                        android:id="@+id/txtStartTimeValue"
+                        android:text = "8:00"
+                        android:textSize="17sp"
+                        android:textColor="@color/DarkDarkGrey"/>
+                </RelativeLayout>
+                <RelativeLayout
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignParentRight="true"
+                    android:id="@+id/endTime">
+                   <TextView
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="@string/end_time"
+                       android:id="@+id/txtEndTime"/>
+                   <TextView
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_centerHorizontal="true"
+                       android:layout_marginTop="12dp"
+                       android:layout_below="@id/txtEndTime"
+                       android:id="@+id/txtEndTimeValue"
+                       android:text = "5:00"
+                       android:textSize="17sp"
+                       android:textColor="@color/DarkDarkGrey"/>
+                </RelativeLayout>
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/LightGrey"
+                android:layout_below="@id/secondRow"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/secondRow"
-            android:layout_below="@id/firstRow"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="33dp"
-            android:layout_marginRight="33dp">
+                android:layout_marginLeft="15dp"
+                android:layout_centerHorizontal="true"/>
             <RelativeLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/frequency">
+                android:id="@+id/thirdRow"
+                android:layout_below="@id/secondRow"
+                android:layout_marginTop="18dp">
                 <TextView
+                    android:textSize="14.0sp"
+                    android:gravity="center"
+                    android:id="@+id/txtWed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/frequency"
-                    android:id="@+id/txtFrequency"/>
+                    android:text="@string/abbWed"
+                    android:layout_centerHorizontal="true" />
                 <TextView
+                    android:textSize="14.0sp"
+                    android:id="@+id/txtTue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/txtFrequency"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="12dp"
-                    android:id="@+id/txtFrequencyValue"
-                    android:text = "20"
-                    android:textSize="17sp"
-                    android:textColor="@color/DarkDarkGray"
-                    />
+                    android:layout_marginRight="33dp"
+                    android:text="@string/abbTue"
+                    android:layout_toLeftOf="@id/txtWed"/>
+                <TextView
+                    android:textSize="14.0sp"
+                    android:id="@+id/txtMon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="33dp"
+                    android:text="@string/abbMon"
+                    android:layout_toLeftOf="@id/txtTue" />
+                <TextView
+                    android:textSize="14.0sp"
+                    android:id="@+id/txtSun"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="33dp"
+                    android:text="@string/abbSun"
+                    android:layout_toLeftOf="@id/txtMon"/>
+                <TextView
+                    android:textSize="14.0sp"
+                    android:id="@+id/txtThu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="33dp"
+                    android:text="@string/abbThu"
+                    android:layout_toRightOf="@id/txtWed" />
+                <TextView
+                    android:textSize="14.0sp"
+                    android:id="@+id/txtFri"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="33dp"
+                    android:text="@string/abbFri"
+                    android:layout_toRightOf="@id/txtThu" />
+                <TextView
+                    android:textSize="14.0sp"
+                    android:id="@+id/txtSat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="33dp"
+                    android:text="@string/abbSat"
+                    android:layout_toRightOf="@id/txtFri" />
             </RelativeLayout>
             <RelativeLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:id="@+id/startTime">
-                <TextView
+                android:id="@+id/fourthRow"
+                android:layout_below="@id/thirdRow">
+                <CheckBox
+                    android:gravity="center"
+                    android:id="@+id/chbxWed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/start_time"
-                    android:id="@+id/txtStartTime"/>
-                <TextView
+                    android:layout_centerHorizontal="true" />
+                <CheckBox
+                    android:gravity="center"
+                    android:id="@+id/chbxTue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/txtStartTime"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="12dp"
-                    android:id="@+id/txtStartTimeValue"
-                    android:text = "8:00"
-                    android:textSize="17sp"
-                    android:textColor="@color/DarkDarkGray"/>
-            </RelativeLayout>
-            <RelativeLayout
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_alignParentRight="true"
-                android:id="@+id/endTime">
-               <TextView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="@string/end_time"
-                   android:id="@+id/txtEndTime"/>
-               <TextView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_centerHorizontal="true"
-                   android:layout_marginTop="12dp"
-                   android:layout_below="@id/txtEndTime"
-                   android:id="@+id/txtEndTimeValue"
-                   android:text = "5:00"
-                   android:textSize="17sp"
-                   android:textColor="@color/DarkDarkGray"/>
-            </RelativeLayout>
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@id/chbxWed" />
+                <CheckBox
+                    android:gravity="center"
+                    android:id="@+id/chbxMon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@id/chbxTue" />
+                <CheckBox
+                    android:gravity="center"
+                    android:id="@+id/chbxSun"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@id/chbxMon"/>
+                <CheckBox
+                    android:gravity="center"
+                    android:id="@+id/chbxThu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/chbxWed"/>
+                <CheckBox
+                    android:gravity="center"
+                    android:id="@+id/chbxFri"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/chbxThu" />
+                <CheckBox
+                    android:gravity="center"
+                    android:id="@+id/chbxSat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/chbxFri" />
+                </RelativeLayout>
         </RelativeLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:background="@color/LightGrey"
-            android:layout_below="@id/secondRow"
-            android:layout_marginRight="15dp"
-            android:layout_marginLeft="15dp"
-            android:layout_centerHorizontal="true"/>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/thirdRow"
-            android:layout_below="@id/secondRow"
-            android:layout_marginTop="18dp">
-            <TextView
-                android:textSize="14.0sp"
-                android:gravity="center"
-                android:id="@+id/txtWed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/abbWed"
-                android:layout_centerHorizontal="true" />
-            <TextView
-                android:textSize="14.0sp"
-                android:id="@+id/txtTue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="33dp"
-                android:text="@string/abbTue"
-                android:layout_toLeftOf="@id/txtWed"/>
-            <TextView
-                android:textSize="14.0sp"
-                android:id="@+id/txtMon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="33dp"
-                android:text="@string/abbMon"
-                android:layout_toLeftOf="@id/txtTue" />
-            <TextView
-                android:textSize="14.0sp"
-                android:id="@+id/txtSun"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="33dp"
-                android:text="@string/abbSun"
-                android:layout_toLeftOf="@id/txtMon"/>
-            <TextView
-                android:textSize="14.0sp"
-                android:id="@+id/txtThu"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="33dp"
-                android:text="@string/abbThu"
-                android:layout_toRightOf="@id/txtWed" />
-            <TextView
-                android:textSize="14.0sp"
-                android:id="@+id/txtFri"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="33dp"
-                android:text="@string/abbFri"
-                android:layout_toRightOf="@id/txtThu" />
-            <TextView
-                android:textSize="14.0sp"
-                android:id="@+id/txtSat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="33dp"
-                android:text="@string/abbSat"
-                android:layout_toRightOf="@id/txtFri" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/fourthRow"
-            android:layout_below="@id/thirdRow">
-            <CheckBox
-                android:gravity="center"
-                android:id="@+id/chbxWed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true" />
-            <CheckBox
-                android:gravity="center"
-                android:id="@+id/chbxTue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@id/chbxWed" />
-            <CheckBox
-                android:gravity="center"
-                android:id="@+id/chbxMon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@id/chbxTue" />
-            <CheckBox
-                android:gravity="center"
-                android:id="@+id/chbxSun"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@id/chbxMon"/>
-            <CheckBox
-                android:gravity="center"
-                android:id="@+id/chbxThu"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@id/chbxWed"/>
-            <CheckBox
-                android:gravity="center"
-                android:id="@+id/chbxFri"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@id/chbxThu" />
-            <CheckBox
-                android:gravity="center"
-                android:id="@+id/chbxSat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@id/chbxFri" />
-            </RelativeLayout>
     </RelativeLayout>
-</RelativeLayout>
+</android.support.v7.widget.CardView>

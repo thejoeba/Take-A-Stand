@@ -42,11 +42,11 @@
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.ReminderSettingsActivity"
-            android:label="@string/title_activity_reminders"
+            android:label="@string/reminder_settings"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.StandDtectorTMSettings"
-            android:label="@string/title_activity_standdetectortmsettings"
+            android:label="@string/standdtectortm_settings"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.StandCountActivity"
