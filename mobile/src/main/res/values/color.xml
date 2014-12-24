@@ -12,7 +12,7 @@
     <color name="fuchsia">#ffff00ff</color>
     <color name="red">#ffff0000</color>
     <color name="silver">#ffc0c0c0</color>
-    <color name="gray">#ff808080</color>
+    <color name="grey">#ff808080</color>
     <color name="olive">#ff808000</color>
     <color name="purple">#ff800080</color>
     <color name="maroon">#ff800000</color>
@@ -23,7 +23,7 @@
     <color name="blue">#ff0000ff</color>
     <color name="navy">#ff000080</color>
     <color name="black">#ff000000</color>
-    <color name="DarkDarkGray">#ff19070b</color>
+    <color name="DarkDarkGrey">#ff19070b</color>
     <color name="White">#ffffffff</color>
     <color name="Ivory">#fffffff0</color>
     <color name="LightYellow">#ffffffe0</color>
@@ -101,7 +101,7 @@
     <color name="PaleTurquoise">#ffafeeee</color>
     <color name="GreenYellow">#ffadff2f</color>
     <color name="LightBlue">#ffadd8e6</color>
-    <color name="DarkGray">#696969</color>
+    <color name="DarkGrey">#696969</color>
     <color name="Brown">#ffa52a2a</color>
     <color name="Sienna">#ffa0522d</color>
     <color name="YellowGreen">#ff9acd32</color>
@@ -117,7 +117,7 @@
     <color name="BlueViolet">#ff8a2be2</color>
     <color name="LightSkyBlue">#ff87cefa</color>
     <color name="SkyBlue">#ff87ceeb</color>
-    <color name="Gray">#ff808080</color>
+    <color name="Grey">#ff808080</color>
     <color name="Olive">#ff808000</color>
     <color name="Purple">#ff800080</color>
     <color name="Maroon">#ff800000</color>
@@ -125,11 +125,11 @@
     <color name="Chartreuse">#ff7fff00</color>
     <color name="LawnGreen">#ff7cfc00</color>
     <color name="MediumSlateBlue">#ff7b68ee</color>
-    <color name="LightSlateGray">#ff778899</color>
-    <color name="SlateGray">#ff708090</color>
+    <color name="LightSlateGrey">#ff778899</color>
+    <color name="SlateGrey">#ff708090</color>
     <color name="OliveDrab">#ff6b8e23</color>
     <color name="SlateBlue">#ff6a5acd</color>
-    <color name="DimGray">#ff696969</color>
+    <color name="DimGrey">#ff696969</color>
     <color name="MediumAquamarine">#ff66cdaa</color>
     <color name="CornflowerBlue">#ff6495ed</color>
     <color name="CadetBlue">#ff5f9ea0</color>
@@ -142,7 +142,7 @@
     <color name="Turquoise">#ff40e0d0</color>
     <color name="MediumSeaGreen">#ff3cb371</color>
     <color name="LimeGreen">#ff32cd32</color>
-    <color name="DarkSlateGray">#ff2f4f4f</color>
+    <color name="DarkSlateGrey">#ff2f4f4f</color>
     <color name="SeaGreen">#ff2e8b57</color>
     <color name="ForestGreen">#ff228b22</color>
     <color name="LightSeaGreen">#ff20b2aa</color>
@@ -164,4 +164,7 @@
     <color name="DarkBlue">#ff00008b</color>
     <color name="Navy">#ff000080</color>
     <color name="Black">#ff000000</color>
+    <color name="ButtonRed">#E41C1C</color>
+    <color name="ButtonRedPressed">#CB0101</color>
+    <color name="ButtonRedRipple">#DB1313</color>
 </resources>

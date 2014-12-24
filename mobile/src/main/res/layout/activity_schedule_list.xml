@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rl_schedule_list"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
@@ -27,24 +28,23 @@
         <ListView
             android:layout_width="match_parent" android:layout_height="match_parent"
             android:id="@+id/schedules_list"
-            android:descendantFocusability="beforeDescendants">
+            android:descendantFocusability="beforeDescendants"
+            android:layout_margin="8dp">
         </ListView>
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom">
-            <ImageView
-                android:id="@+id/btn_add_alarm"
-                android:layout_width="@dimen/footer_button_size"
-                android:layout_height="@dimen/footer_button_size"
-                android:layout_marginTop="@dimen/footer_layout_margin"
-                android:layout_marginBottom="@dimen/footer_layout_margin"
-                android:layout_marginRight="@dimen/footer_layout_margin"
-                android:layout_marginLeft="@dimen/footer_layout_margin"
-                android:layout_marginStart="@dimen/footer_layout_margin"
-                android:layout_marginEnd="@dimen/footer_layout_margin"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/add_alarm"/>
+            <com.melnykov.fab.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_add_alarm"
+                fab:fab_colorNormal="@color/ButtonRed"
+                fab:fab_colorPressed="@color/ButtonRedPressed"
+                fab:fab_colorRipple="@color/ButtonRedRipple" />
         </FrameLayout>
     </FrameLayout>
     <TextView

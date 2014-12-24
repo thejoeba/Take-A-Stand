@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -47,6 +48,7 @@ import com.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.internal.cl;
 import com.google.android.gms.internal.ic;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
@@ -72,6 +74,7 @@ public class MainActivity extends ActionBarActivity {
     private MenuItem mPausePlay;
     private int[] pauseTimes = new int[]{5, 10, 15, 20, 25, 30, 45, 60, 75, 90, 105, 120, 135, 150,
             165, 180};
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle paramBundle) {
@@ -111,8 +114,7 @@ public class MainActivity extends ActionBarActivity {
         mListAdapter = new ArrayAdapter(this, R.layout.drawer_list_item, mNavDrawerOptions);
         mDrawerList.setAdapter(mListAdapter);
         mDrawerList.setOnItemClickListener(drawerClickListener);
-        //mDrawerList.setOnItemClickListener();
-        //Styling
+        mHandler = new Handler();
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Main Activity");
@@ -192,6 +194,14 @@ public class MainActivity extends ActionBarActivity {
         intent.putExtra("Visible", true);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         invalidateOptionsMenu();
+        if(mDrawerLayout.isDrawerOpen(mDrawerList)){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mDrawerLayout.closeDrawers();
+                }
+            }, 400);
+        }
         super.onResume();
     }
 
