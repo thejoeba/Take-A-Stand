@@ -10,9 +10,16 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.fitness.ConfigApi;
 import com.google.android.gms.fitness.Fitness;
-import com.sean.takeastand.ui.MainActivity;
+import com.google.android.gms.fitness.FitnessActivities;
+import com.google.android.gms.fitness.data.Session;
+import com.google.android.gms.fitness.request.SessionInsertRequest;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Joey on 12/23/2014.
@@ -63,6 +70,7 @@ public class GoogleFit extends Activity {
                                 Log.i("buildFitnessClient", "Connected!!!");
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
+                                InsertSession();
                             }
 
                             @Override
@@ -143,4 +151,50 @@ public class GoogleFit extends Activity {
         super.onSaveInstanceState(outState);
         outState.putBoolean(AUTH_PENDING, authInProgress);
     }
+
+    private void InsertSession(){
+//        // Create a session with metadata about the activity.
+//        Session session = new Session.Builder()
+//                .setName(SAMPLE_SESSION_NAME)
+//                .setDescription("Long run around Shoreline Park")
+//                .setIdentifier("UniqueIdentifierHere")
+//                .setActivity(FitnessActivities.RUNNING)
+//                .setStartTime(startTime, TimeUnit.MILLISECONDS)
+//                .setEndTime(endTime, TimeUnit.MILLISECONDS)
+//                .build();
+//
+//        // Build a session insert request
+//        SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
+//                .setSession(session)
+//                .addDataSet(runningDataSet)
+//                .build();
+//
+//        // Then, invoke the Sessions API to insert the session and await the result,
+//        // which is possible here because of the AsyncTask. Always include a timeout when
+//        // calling await() to avoid hanging that can occur from the service being shutdown
+//        // because of low memory or other conditions.
+//        Log.i("InsertSession", "Inserting the session in the History API");
+//        com.google.android.gms.common.api.Status insertStatus =
+//                Fitness.SessionsApi.insertSession(mClient, insertRequest)
+//                        .await(1, TimeUnit.MINUTES);
+//
+//        // Before querying the session, check to see if the insertion succeeded.
+//        if (!insertStatus.isSuccess()) {
+//            Log.i("InsertSession", "There was a problem inserting the session: " +
+//                    insertStatus.getStatusMessage());
+//        }
+//
+//        // At this point, the session has been inserted and can be read.
+//        Log.i("InsertSession", "Session insert was successful!");
+
+    }
+
+    //ToDo: Create a disconnect from fit button so users can 'log out'
+    private void DisconnectFit() {
+//        // 1. Invoke the Config API with the Google API client object
+//        PendingResult<Status> pendingResult = ConfigApi.disableFit(mClient);
+//
+//        // 2. Check the result (see other examples)
+    }
+
 }
