@@ -63,7 +63,7 @@ public class StoodLogsAdapter {
     public int getCount(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.UID };
-        Cursor cursor = stoodSQLHelper.getWritableDatabase().query(StoodSQLHelper.TABLE_MAIN,
+        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_MAIN,
                 columns, null, null, null, null, null);
         return cursor.getCount();
     }
@@ -71,7 +71,7 @@ public class StoodLogsAdapter {
     public long[][] getUnsyncedSessions(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.UID, StoodSQLHelper.SESSION_START, StoodSQLHelper.SESSION_TYPE};
-        Cursor cursor = stoodSQLHelper.getWritableDatabase().query(
+        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(
                 StoodSQLHelper.TABLE_SESSION,
                 columns,
                 StoodSQLHelper.SESSION_SYNC_STATUS + "=?",
@@ -99,10 +99,22 @@ public class StoodLogsAdapter {
         }
     }
 
+    public void updateSyncedSession(Integer session){
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        ContentValues databaseInfo = new ContentValues();
+        databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 1);
+        stoodSQLHelper.getWritableDatabase().update(
+                StoodSQLHelper.TABLE_SESSION,
+                databaseInfo,
+                StoodSQLHelper.UID + "=?",
+                new String[] { session.toString() }
+        );
+    }
+
     public long[][] getSessionStands(Integer session){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.STOOD_METHOD, StoodSQLHelper.STAND_TIMESTAMP};
-        Cursor cursor = stoodSQLHelper.getWritableDatabase().query(
+        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(
                 StoodSQLHelper.TABLE_MAIN,
                 columns,
                 StoodSQLHelper.SESSION_ID + "=?",
@@ -135,7 +147,7 @@ public class StoodLogsAdapter {
 
     public void getLastRow(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
-        Cursor cursor = stoodSQLHelper.getWritableDatabase().query(StoodSQLHelper.TABLE_MAIN,
+        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_MAIN,
                 null, null, null, null, null, null);
         cursor.moveToLast();
         //Check to make sure there is a row; this prevents IndexOutOfBoundsException

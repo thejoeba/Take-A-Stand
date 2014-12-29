@@ -1,7 +1,5 @@
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -17,7 +15,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.Vibrator;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
@@ -145,7 +142,6 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     private void setUpLayout() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.standdtectortm_settings_toolbar);
         setSupportActionBar(toolbar);
-        setSupportActionBar(toolbar);
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -228,7 +224,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
 
     private void FeatureCheck() {
 
-        if (!getPackageManager().hasSystemFeature(getPackageManager().FEATURE_SENSOR_STEP_COUNTER)) {
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
             toggleDeviceStepCounter.setChecked(false);
             toggleDeviceStepCounter.setEnabled(false);
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -241,6 +237,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             getPackageManager().getPackageInfo("com.google.android.wearable.app", PackageManager.GET_ACTIVITIES);
             wear_installed = true;
         } catch (Exception e) {
+            Log.e("FeatureCheck", "Unable to determine if wear installed: " + e.toString());
         }
 
         if (!wear_installed) {

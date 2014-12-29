@@ -1,6 +1,5 @@
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -8,7 +7,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.Application;
@@ -22,6 +20,7 @@ import com.sean.takeastand.storage.StoodLogsAdapter;
  */
 public class StandCountActivity extends ActionBarActivity {
 
+    //ToDo: Add more statistics
     private static final String TAG = "StandCountActivity";
     private TextView txtStandCount;
     private TextView tvLastStep;

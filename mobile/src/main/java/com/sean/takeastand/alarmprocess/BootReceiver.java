@@ -71,7 +71,7 @@ public class BootReceiver extends BroadcastReceiver
             Log.i(TAG, "There are no alarms in the database." +
                     " There should not be an alarm set in AlarmManager");
         }
-
+        Utils.syncFit(context);
     }
 
     private void sendAnalyticsEvent(Context context, String action){

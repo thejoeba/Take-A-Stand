@@ -31,7 +31,6 @@ import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -462,7 +461,10 @@ public final class Utils {
         Intent stopStepCounterIntent = new Intent(context, StandDtectorTM.class);
         stopStepCounterIntent.setAction("StopDeviceStepCounter");
         context.startService(stopStepCounterIntent);
+        syncFit(context);
+    }
 
+    public static void syncFit (Context context) {
         if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.GOOGLE_FIT_ENABLED, false)) {
             Intent insertIntent = new Intent(context, GoogleFitService.class);
             insertIntent.setAction("InsertData");
