@@ -31,7 +31,7 @@ import com.sean.takeastand.util.GoogleFitService;
  * Created by Joey on 12/23/2014.
  */
 public class GoogleFitActivity extends ActionBarActivity {
-//ToDo: several activity titles are not set
+    //ToDo: add some branding and explain https://developers.google.com/fit/branding
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
     private Button btnInsertData;

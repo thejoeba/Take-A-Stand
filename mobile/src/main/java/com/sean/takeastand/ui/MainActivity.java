@@ -48,8 +48,6 @@ import com.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.internal.cl;
-import com.google.android.gms.internal.ic;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
@@ -88,7 +86,7 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions.add(getString(R.string.standdtectortm_settings));
         mNavDrawerOptions.add(getString(R.string.science_app));
         mNavDrawerOptions.add(getString(R.string.stand_count));
-        mNavDrawerOptions.add("GoogleFit");
+        mNavDrawerOptions.add(getString(R.string.google_fit));
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -308,9 +306,6 @@ public class MainActivity extends ActionBarActivity {
         title.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
         title.setText(getResources().getString(R.string.select_pause_type));
         builder.setCustomTitle(title);
-        int minValue = 5;
-        int maxValue = 180;
-        int step = 5;
         String[] valueSet = new String[pauseTimes.length];
         for (int i = 0; i < pauseTimes.length; i++) {
             valueSet[i] = Integer.toString(pauseTimes[i]);
