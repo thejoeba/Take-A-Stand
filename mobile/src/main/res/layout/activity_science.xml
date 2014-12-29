@@ -69,7 +69,6 @@
                         android:id="@+id/medical1link"
                         android:textSize="15sp"
                         android:text="@string/medical1link"
-                        android:autoLink="web"
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -111,7 +110,6 @@
                         android:id="@+id/medical2link"
                         android:textSize="15sp"
                         android:text="@string/medical2link"
-                        android:autoLink="web"
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -153,7 +151,6 @@
                         android:id="@+id/medical3link"
                         android:textSize="15sp"
                         android:text="@string/medical3link"
-                        android:autoLink="web"
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -195,7 +192,6 @@
                         android:id="@+id/medical4link"
                         android:textSize="15sp"
                         android:text="@string/medical4link"
-                        android:autoLink="web"
                         android:textColor="@android:color/holo_blue_light" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>

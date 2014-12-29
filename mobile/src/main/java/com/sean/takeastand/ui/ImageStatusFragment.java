@@ -369,20 +369,14 @@ public class ImageStatusFragment
             Utils.setImageStatus(getActivity(), Constants.NON_SCHEDULE_ALARM_RUNNING);
             unscheduledRepeatingAlarm.setRepeatingAlarm();
             sendAnalyticsEvent("User began unscheduled alarm");
-            if (mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
-                Intent startStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
-                startStepCounterIntent.setAction("StartDeviceStepCounter");
-                mContext.startService(startStepCounterIntent);
-            }
+            Utils.startSession(mContext, Constants.NON_SCHEDULED_SESSION);
 
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
                 imageStatus == Constants.NON_SCHEDULE_TIME_TO_STAND) {
             Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
             sendAnalyticsEvent("User ended unscheduled alarm");
-            Intent stopStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
-            stopStepCounterIntent.setAction("StopDeviceStepCounter");
-            mContext.startService(stopStepCounterIntent);
+            Utils.endSession(mContext);
         }
     }
 
