@@ -23,10 +23,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
+import com.sean.takeastand.storage.StoodLogsAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -445,5 +447,24 @@ public final class Utils {
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
         return calendar;
+    }
+
+    public static void startSession(Context context, Integer sessionType){
+        new StoodLogsAdapter(context).newSession(sessionType);
+        if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
+            Intent startStepCounterIntent = new Intent(context, StandDtectorTM.class);
+            startStepCounterIntent.setAction("StartDeviceStepCounter");
+            context.startService(startStepCounterIntent);
+        }
+    }
+
+    public static void endSession(Context context){
+        Intent stopStepCounterIntent = new Intent(context, StandDtectorTM.class);
+        stopStepCounterIntent.setAction("StopDeviceStepCounter");
+        context.startService(stopStepCounterIntent);
+
+        Intent insertIntent = new Intent(context, GoogleFitService.class);
+        insertIntent.setAction("InsertData");
+        context.startService(insertIntent);
     }
 }

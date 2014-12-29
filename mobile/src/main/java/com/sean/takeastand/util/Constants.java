@@ -48,6 +48,8 @@ public final class Constants {
     public static final int SCHEDULE_TIME_TO_STAND = 7;
     public static final int SCHEDULE_STOOD_UP = 8;
     public static final int SCHEDULE_PAUSED = 9;
+    public static final int NON_SCHEDULED_SESSION = 1;
+    public static final int SCHEDULED_SESSION = 2;
     public static final String INTENT_MAIN_IMAGE = "UpdateMainImage";
     public static final String USER_ALERT_LED = "UserAlertLED";
     public static final String USER_ALERT_VIBRATE = "UserAlertVibrate";
@@ -83,4 +85,6 @@ public final class Constants {
     public static final String DEVICE_STEP_DETECTOR_ENABLED = "StepDetector";
     public static final String WEAR_STEP_DETECTOR_ENABLED = "StepDetectorEnabled";
     public static final String STANDDTECTORTM_ENABLED = "StandDtectorTMEnabled";
+    public static final String GOOGLE_FIT_ENABLED = "FitEnabled";
+    public static final String GOOGLE_FIT_AUTHORIZED = "FitAuthorized";
 }

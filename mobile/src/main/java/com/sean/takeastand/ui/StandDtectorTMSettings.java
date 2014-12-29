@@ -47,6 +47,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     private Switch toggleStandDtectorTM;
     private Button btnCalibrate;
     private TextView txtCalibratedValue;
+    private Button btnPurchase;
 
     SharedPreferences sharedPreferences;
 
@@ -160,6 +161,14 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         boolean trial = false;
         long installedDate;
 
+        toggleDeviceStepCounter = (Switch) findViewById(R.id.toggleDeviceStepCounter);
+        toggleWearStepCounter = (Switch) findViewById(R.id.toggleWearStepCounter);
+        toggleStandDtectorTM = (Switch) findViewById(R.id.toggleStandDtectorTM);
+        btnCalibrate = (Button) findViewById(R.id.btnCalibrate);
+        txtCalibratedValue = (TextView) findViewById(R.id.txtCalibratedValue);
+        btnPurchase = (Button) findViewById(R.id.btnPurchase);
+        btnPurchase.setOnClickListener(UpgradePurchase);
+
         if (!enablePro) {
             long freeTrialTime = 604800000;
             try {
@@ -179,18 +188,13 @@ public class StandDtectorTMSettings extends ActionBarActivity {
 
             sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
 
-            toggleDeviceStepCounter = (Switch) findViewById(R.id.toggleDeviceStepCounter);
             toggleDeviceStepCounter.setOnClickListener(StepCounterListener);
             toggleDeviceStepCounter.setChecked(sharedPreferences.getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false));
-            toggleWearStepCounter = (Switch) findViewById(R.id.toggleWearStepCounter);
             toggleWearStepCounter.setOnClickListener(WearStepCounterListener);
             toggleWearStepCounter.setChecked(sharedPreferences.getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false));
-            toggleStandDtectorTM = (Switch) findViewById(R.id.toggleStandDtectorTM);
             toggleStandDtectorTM.setOnClickListener(StandDtectorTMListener);
             toggleStandDtectorTM.setChecked(sharedPreferences.getBoolean(Constants.STANDDTECTORTM_ENABLED, false));
-            btnCalibrate = (Button) findViewById(R.id.btnCalibrate);
             btnCalibrate.setOnClickListener(CalibrateListener);
-            txtCalibratedValue = (TextView) findViewById(R.id.txtCalibratedValue);
             //ToDo: look into getPackageName for all vars
             txtCalibratedValue.setText("Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
             FeatureCheck();
