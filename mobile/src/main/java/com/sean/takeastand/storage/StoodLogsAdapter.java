@@ -71,7 +71,6 @@ public class StoodLogsAdapter {
     public long[][] getUnsyncedSessions(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.UID, StoodSQLHelper.SESSION_START, StoodSQLHelper.SESSION_TYPE};
-        //ToDo: Order by id
         Cursor cursor = stoodSQLHelper.getWritableDatabase().query(
                 StoodSQLHelper.TABLE_SESSION,
                 columns,
@@ -103,7 +102,6 @@ public class StoodLogsAdapter {
     public long[][] getSessionStands(Integer session){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.STOOD_METHOD, StoodSQLHelper.STAND_TIMESTAMP};
-        //ToDo: Order by id
         Cursor cursor = stoodSQLHelper.getWritableDatabase().query(
                 StoodSQLHelper.TABLE_MAIN,
                 columns,

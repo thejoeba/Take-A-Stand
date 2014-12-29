@@ -7,7 +7,6 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -32,7 +31,7 @@ import com.sean.takeastand.util.GoogleFitService;
  * Created by Joey on 12/23/2014.
  */
 public class GoogleFitActivity extends ActionBarActivity {
-
+//ToDo: several activity titles are not set
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
     private Button btnInsertData;
