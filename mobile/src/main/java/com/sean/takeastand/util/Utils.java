@@ -463,8 +463,10 @@ public final class Utils {
         stopStepCounterIntent.setAction("StopDeviceStepCounter");
         context.startService(stopStepCounterIntent);
 
-        Intent insertIntent = new Intent(context, GoogleFitService.class);
-        insertIntent.setAction("InsertData");
-        context.startService(insertIntent);
+        if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.GOOGLE_FIT_ENABLED, false)) {
+            Intent insertIntent = new Intent(context, GoogleFitService.class);
+            insertIntent.setAction("InsertData");
+            context.startService(insertIntent);
+        }
     }
 }
