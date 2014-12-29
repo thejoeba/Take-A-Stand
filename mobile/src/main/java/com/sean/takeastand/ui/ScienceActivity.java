@@ -1,6 +1,5 @@
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -30,10 +29,10 @@ public class ScienceActivity extends ActionBarActivity {
     on the new textviews added. GetHeight returns pixels.
      */
 
-    private TextView txtMedical1;
-    private TextView txtMedical2;
-    private TextView txtMedical3;
-    private TextView txtMedical4;
+    private TextView txtMedical1Link;
+    private TextView txtMedical2Link;
+    private TextView txtMedical3Link;
+    private TextView txtMedical4Link;
     private TextView txtNews1;
     private TextView txtNews2;
     private TextView txtNews3;
@@ -64,21 +63,20 @@ public class ScienceActivity extends ActionBarActivity {
     }
 
     private void setUpTextViews(){
-        //ToDo: Links don't work
-        txtMedical1 = (TextView)findViewById(R.id.medical1);
-        txtMedical2 = (TextView)findViewById(R.id.medical2);
-        txtMedical3 = (TextView)findViewById(R.id.medical3);
-        txtMedical4 = (TextView)findViewById(R.id.medical4);
+        txtMedical1Link = (TextView)findViewById(R.id.medical1link);
+        txtMedical2Link = (TextView)findViewById(R.id.medical2link);
+        txtMedical3Link = (TextView)findViewById(R.id.medical3link);
+        txtMedical4Link = (TextView)findViewById(R.id.medical4link);
         txtNews1 = (TextView)findViewById(R.id.news1);
         txtNews2 = (TextView)findViewById(R.id.news2);
         txtNews3 = (TextView)findViewById(R.id.news3);
         txtNews4 = (TextView)findViewById(R.id.news4);
         txtNews5 = (TextView)findViewById(R.id.news5);
         txtNews6 = (TextView)findViewById(R.id.news6);
-        txtMedical1.setMovementMethod(LinkMovementMethod.getInstance());
-        txtMedical2.setMovementMethod(LinkMovementMethod.getInstance());
-        txtMedical3.setMovementMethod(LinkMovementMethod.getInstance());
-        txtMedical4.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMedical1Link.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMedical2Link.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMedical3Link.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMedical4Link.setMovementMethod(LinkMovementMethod.getInstance());
         txtNews1.setMovementMethod(LinkMovementMethod.getInstance());
         txtNews2.setMovementMethod(LinkMovementMethod.getInstance());
         txtNews3.setMovementMethod(LinkMovementMethod.getInstance());
