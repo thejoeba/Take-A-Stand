@@ -64,6 +64,7 @@ public class ScienceActivity extends ActionBarActivity {
     }
 
     private void setUpTextViews(){
+        //ToDo: Links don't work
         txtMedical1 = (TextView)findViewById(R.id.medical1);
         txtMedical2 = (TextView)findViewById(R.id.medical2);
         txtMedical3 = (TextView)findViewById(R.id.medical3);

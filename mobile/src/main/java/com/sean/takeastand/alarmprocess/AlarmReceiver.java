@@ -63,9 +63,7 @@ public class AlarmReceiver
                 Log.i(TAG, context.getString(R.string.alarm_day_over));
                 Utils.setImageStatus(mContext, Constants.NO_ALARM_RUNNING);
                 endAlarmService();
-                Intent stopStepCounterIntent = new Intent(mContext, StandDtectorTM.class);
-                stopStepCounterIntent.setAction("StopDeviceStepCounter");
-                mContext.startService(stopStepCounterIntent);
+                Utils.endSession(mContext);
             }
         } else {
             //Unscheduled alarms

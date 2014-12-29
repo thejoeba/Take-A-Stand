@@ -56,12 +56,7 @@ public class StartScheduleReceiver extends BroadcastReceiver {
                     new ScheduledRepeatingAlarm(context, todayAlarm).setRepeatingAlarm();
                     sendAnalyticsEvent(context, "StartScheduleReceiver: Beginning Schedule");
                     Utils.setImageStatus(context, Constants.SCHEDULE_RUNNING);
-                    if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
-                        Intent startStepCounterIntent = new Intent(context, StandDtectorTM.class);
-                        startStepCounterIntent.setAction("StartDeviceStepCounter");
-                        context.startService(startStepCounterIntent);
-                    }
-
+                    Utils.startSession(context, Constants.SCHEDULED_SESSION);
                 } else {
                     Log.i(TAG, "Today's alarm is not activated.");
                 }

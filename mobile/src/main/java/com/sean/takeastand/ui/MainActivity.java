@@ -88,6 +88,7 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions.add(getString(R.string.standdtectortm_settings));
         mNavDrawerOptions.add(getString(R.string.science_app));
         mNavDrawerOptions.add(getString(R.string.stand_count));
+        mNavDrawerOptions.add("GoogleFit");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -148,6 +149,10 @@ public class MainActivity extends ActionBarActivity {
                 case 3:
                     Intent intentStandCount = new Intent(MainActivity.this, StandCountActivity.class);
                     startActivity(intentStandCount);
+                    break;
+                case 4:
+                    Intent intentGoogleFit = new Intent(MainActivity.this, GoogleFitActivity.class);
+                    startActivity(intentGoogleFit);
                     break;
             }
         }

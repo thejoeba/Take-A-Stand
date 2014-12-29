@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.Application;
@@ -23,7 +24,6 @@ public class StandCountActivity extends ActionBarActivity {
 
     private static final String TAG = "StandCountActivity";
     private TextView txtStandCount;
-    private TextView tvStepCounter;
     private TextView tvLastStep;
 
     @Override
@@ -48,9 +48,6 @@ public class StandCountActivity extends ActionBarActivity {
 
         tvLastStep = (TextView) findViewById(R.id.tvLastStep);
         tvLastStep.setText("Last Step: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getLong("DEVICELASTSTEP", 0));
-
-//        tvStepCounter = (TextView) findViewById(R.id.tvStepCounter);
-//        tvStepCounter.setText("Steps: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getInt("TOTALDEVICESTEPS", 0));
     }
 
     @Override
