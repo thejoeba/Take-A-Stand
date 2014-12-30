@@ -32,7 +32,6 @@ public class ScienceActivity extends ActionBarActivity {
     //ToDo: Change to listview of cards
     private TextView txtMedical1Link;
     private TextView txtMedical2Link;
-    //ToDo: Test Link 3
     private TextView txtMedical3Link;
     private TextView txtMedical4Link;
     private TextView txtNews1;

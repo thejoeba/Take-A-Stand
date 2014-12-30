@@ -24,6 +24,7 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.sean.takeastand.R;
+import com.sean.takeastand.storage.StoodLogsAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.GoogleFitService;
 
@@ -34,7 +35,7 @@ public class GoogleFitActivity extends ActionBarActivity {
     //ToDo: add some branding and explain https://developers.google.com/fit/branding
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
-    private Button btnInsertData;
+    private Button btnMarkDBSynced;
     private Button btnReadData;
     private Button btnDeleteData;
 
@@ -76,8 +77,8 @@ public class GoogleFitActivity extends ActionBarActivity {
         btnDeauthorizeFit = (Button) findViewById(R.id.btnDeauthorizeFit);
         btnDeauthorizeFit.setEnabled(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false));
         btnDeauthorizeFit.setOnClickListener(DisableFit);
-        btnInsertData = (Button) findViewById(R.id.btnInsertData);
-        btnInsertData.setOnClickListener(InsertData);
+        btnMarkDBSynced = (Button) findViewById(R.id.btnMarkDBSynced);
+        btnMarkDBSynced.setOnClickListener(MarkDBSynced);
         btnReadData = (Button) findViewById(R.id.btnReadData);
         btnReadData.setOnClickListener(ReadData);
         btnDeleteData = (Button) findViewById(R.id.btnDeleteData);
@@ -173,12 +174,11 @@ public class GoogleFitActivity extends ActionBarActivity {
         }
     };
 
-    View.OnClickListener InsertData = new View.OnClickListener() {
+    View.OnClickListener MarkDBSynced = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent insertIntent = new Intent(GoogleFitActivity.this, GoogleFitService.class);
-            insertIntent.setAction("InsertData");
-            startService(insertIntent);
+            StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(GoogleFitActivity.this);
+            stoodLogsAdapter.updateSyncedSession(1);
         }
     };
 

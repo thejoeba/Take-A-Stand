@@ -115,7 +115,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 stopSelf();
             }
             //ToDo:Remove returnIntent setAction where applicable
-            returnIntent.setAction(Constants.DEVICE_LAST_STEP);
+//            returnIntent.setAction(Constants.DEVICE_LAST_STEP);
             returnIntent.putExtra(Constants.DEVICE_STEP_HARDWARE, true);
             returnIntent.putExtra(Constants.LAST_STEP, timestamp);
             try {
@@ -466,7 +466,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                     }
                     stopSelf();
                 }
-                returnIntent.setAction(Constants.WEAR_LAST_STEP);
+//                returnIntent.setAction(Constants.WEAR_LAST_STEP);
                 returnIntent.putExtra(Constants.WEAR_STEP_HARDWARE, true);
                 returnIntent.putExtra("Wear_Last_Step", timestamp);
                 try {

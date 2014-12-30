@@ -33,16 +33,15 @@
         android:layout_height="wrap_content"
         android:text="Deauthorize Fit"
         android:id="@+id/btnDeauthorizeFit"
-        android:layout_gravity="center_horizontal"
-        android:onClick="deauthorizeFit" />
+        android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Insert Data"
-        android:id="@+id/btnInsertData"
+        android:id="@+id/btnMarkDBSynced"
         android:layout_gravity="center_horizontal"
-        android:visibility="invisible" />
+        android:visibility="visible" />
 
     <Button
         android:layout_width="wrap_content"

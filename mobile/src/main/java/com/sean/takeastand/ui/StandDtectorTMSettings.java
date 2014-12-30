@@ -97,21 +97,20 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     }
 
     private boolean checkPro() {
-        //ToDo: Check shared perfs first to increase speed.
-        //verify weekly
-        //ToDo: perfs should also store phone id to verify validity
-        //checked every time
-        //ToDo: handle null
-        String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        if (sharedPreferences.getString(Constants.PRO_ANDROID_ID, "").equals(android_id)) {
-            if (sharedPreferences.getLong(Constants.PRO_VERIFIED, 0) > System.currentTimeMillis() - 604800000l) {
-                return true;
+        try {
+            String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            if (sharedPreferences.getString(Constants.PRO_ANDROID_ID, "").equals(android_id)) {
+                if (sharedPreferences.getLong(Constants.PRO_VERIFIED, 0) > System.currentTimeMillis() - 604800000l) {
+                    return true;
+                }
+            } else {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(Constants.PRO_ANDROID_ID, android_id);
+                editor.commit();
             }
         }
-        else {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Constants.PRO_ANDROID_ID, android_id);
-            editor.commit();
+        catch (Exception e) {
+            Log.e("checkPro", "Failed to verify pro against sharedPreferences. Checking Purchase.");
         }
         ArrayList<String> skuList = new ArrayList<String> ();
         skuList.add("premiumUpgrade");
