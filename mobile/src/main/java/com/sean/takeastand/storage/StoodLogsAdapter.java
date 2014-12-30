@@ -100,6 +100,7 @@ public class StoodLogsAdapter {
     }
 
     public void updateSyncedSession(Integer session){
+        //ToDo: troubleshoot this
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 1);

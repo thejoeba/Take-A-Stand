@@ -102,8 +102,8 @@ public class AlarmService extends Service {
 
     private void GetDeviceLastStep(Intent intent) {
         Intent stepDetectorIntent = new Intent(this, StandDtectorTM.class);
-        stepDetectorIntent.setAction(Constants.DEVICE_LAST_STEP);
-        Intent returnIntent = new Intent(Constants.DEVICE_LAST_STEP);
+        stepDetectorIntent.setAction(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP);
+        Intent returnIntent = new Intent(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
         stepDetectorIntent.putExtra("pendingIntent", pendingIntent);
         startService(stepDetectorIntent);
@@ -117,8 +117,8 @@ public class AlarmService extends Service {
 
     private void GetWearLastStep(Intent intent) {
         Intent wearStepDetectorIntent = new Intent(this, StandDtectorTM.class);
-        wearStepDetectorIntent.setAction(Constants.WEAR_LAST_STEP);
-        Intent returnIntent = new Intent(Constants.WEAR_LAST_STEP);
+        wearStepDetectorIntent.setAction(com.heckbot.standdtector.Constants.WEAR_LAST_STEP);
+        Intent returnIntent = new Intent(com.heckbot.standdtector.Constants.WEAR_LAST_STEP);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
         wearStepDetectorIntent.putExtra("pendingIntent", pendingIntent);
         startService(wearStepDetectorIntent);
@@ -161,11 +161,11 @@ public class AlarmService extends Service {
 
     private void registerReceivers() {
         getApplicationContext().registerReceiver(stoodUpReceiver,
-                new IntentFilter(Constants.STOOD_RESULTS));
+                new IntentFilter(com.heckbot.standdtector.Constants.STOOD_RESULTS));
         getApplicationContext().registerReceiver(deviceLastStepReceiver,
-                new IntentFilter(Constants.DEVICE_LAST_STEP));
+                new IntentFilter(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP));
         getApplicationContext().registerReceiver(wearLastStepReceiver,
-                new IntentFilter(Constants.WEAR_LAST_STEP));
+                new IntentFilter(com.heckbot.standdtector.Constants.WEAR_LAST_STEP));
         LocalBroadcastManager.getInstance(this).registerReceiver(mainVisibilityReceiver,
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
@@ -199,9 +199,9 @@ public class AlarmService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "stoodUpReceiver");
-            if (intent.hasExtra(Constants.STAND_DETECTOR_RESULT)) {
-                String result = intent.getStringExtra(Constants.STAND_DETECTOR_RESULT);
-                if (result.equals(Constants.STAND_DETECTED)) {
+            if (intent.hasExtra(com.heckbot.standdtector.Constants.STAND_DETECTOR_RESULT)) {
+                String result = intent.getStringExtra(com.heckbot.standdtector.Constants.STAND_DETECTOR_RESULT);
+                if (result.equals(com.heckbot.standdtector.Constants.STAND_DETECTED)) {
                     Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
                     long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
                     v.vibrate(pattern, -1);
@@ -253,10 +253,10 @@ public class AlarmService extends Service {
             if (!bStepCounterHandled) {
                 bStepCounterHandled = true;
                 Bundle extras = intent.getExtras();
-                boolean bHasStepHardware = extras.getBoolean("Step_Hardware");
+                boolean bHasStepHardware = extras.getBoolean(com.heckbot.standdtector.Constants.DEVICE_STEP_HARDWARE);
                 long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
                 if (bHasStepHardware) {
-                    lDeviceLastStep = extras.getLong("Last_Step");
+                    lDeviceLastStep = extras.getLong(com.heckbot.standdtector.Constants.LAST_STEP);
                     if (lDeviceLastStep < (lDefaultFrequencyMilliseconds * .9)) {
                         Log.d(TAG, "Last step less than default frequency");
                     } else {
@@ -310,7 +310,7 @@ public class AlarmService extends Service {
             if (!bWearStepCounterHandled) {
                 bWearStepCounterHandled = true;
                 Bundle extras = intent.getExtras();
-                boolean bHasWearStepHardware = extras.getBoolean("Wear_Step_Hardware");
+                boolean bHasWearStepHardware = extras.getBoolean(com.heckbot.standdtector.Constants.WEAR_STEP_HARDWARE);
                 long lDefaultFrequencyMilliseconds = Utils.getDefaultFrequency(getApplicationContext()) * 60000;
                 long lWearLastStep = -1;
                 if (bHasWearStepHardware) {
@@ -402,7 +402,7 @@ public class AlarmService extends Service {
         public void run() {
             if (!bStepCounterHandled) {
                 bStepCounterHandled = true;
-                Intent stopStepDetectorIntent = new Intent("StandDtectorTMStop");
+                Intent stopStepDetectorIntent = new Intent(com.heckbot.standdtector.Constants.STANDDTECTOR_STOP);
                 LocalBroadcastManager.getInstance(AlarmService.this).sendBroadcast(stopStepDetectorIntent);
                 Log.i(TAG, "Step Data Timeout");
 
@@ -425,7 +425,7 @@ public class AlarmService extends Service {
         public void run() {
             if (!bWearStepCounterHandled) {
                 bWearStepCounterHandled = true;
-                Intent stopStepDetectorIntent = new Intent("StandDtectorTMStop");
+                Intent stopStepDetectorIntent = new Intent(com.heckbot.standdtector.Constants.STANDDTECTOR_STOP);
                 LocalBroadcastManager.getInstance(AlarmService.this).sendBroadcast(stopStepDetectorIntent);
                 Log.i(TAG, "Wear Step Data Timeout");
 
@@ -578,7 +578,7 @@ public class AlarmService extends Service {
 
         if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.STANDDTECTORTM_ENABLED, false)) {
             Intent standSensorIntent = new Intent(this, StandDtectorTM.class);
-            standSensorIntent.setAction("StandDtectorTMStart");
+            standSensorIntent.setAction(com.heckbot.standdtector.Constants.STANDDTECTOR_START);
             standSensorIntent.putExtra("MILLISECONDS", (long) 60000);
 
             standSensorIntent.putExtra("pendingIntent", pendingIntents[1]);
@@ -670,11 +670,11 @@ public class AlarmService extends Service {
         stackBuilder.addNextIntent(launchActivityIntent);
         PendingIntent launchActivityPendingIntent = PendingIntent.getActivity(this, 0,
                 launchActivityIntent, 0);
-        Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
+        Intent stoodUpIntent = new Intent(com.heckbot.standdtector.Constants.STOOD_RESULTS);
         stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION_DEVICE);
         PendingIntent stoodUpPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
-        Intent stoodUpWearIntent = new Intent(Constants.STOOD_RESULTS);
+        Intent stoodUpWearIntent = new Intent(com.heckbot.standdtector.Constants.STOOD_RESULTS);
         stoodUpWearIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_NOTIFICATION_WEAR);
         PendingIntent stoodUpWearPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
