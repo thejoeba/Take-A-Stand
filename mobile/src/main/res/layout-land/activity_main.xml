@@ -1,0 +1,49 @@
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main_toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+    <android.support.v4.widget.DrawerLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".Main_Activity"
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <fragment
+                android:name="com.sean.takeastand.ui.ImageStatusFragment"
+                android:id="@+id/main_current_status_fragment"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_vertical|left"/>
+            <fragment
+                android:name="com.sean.takeastand.ui.AlarmFragment"
+                android:id="@+id/alarm_fragment"
+                android:layout_marginRight="120dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical|right"/>
+        </FrameLayout>
+        <ListView
+            android:id="@+id/left_drawer"
+            android:layout_width="280dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:choiceMode="singleChoice"
+            android:divider="@android:color/holo_blue_light"
+            android:dividerHeight="1dp"
+            android:background="#ffffffff"
+            android:paddingLeft="15sp"
+            android:paddingRight="15sp" />
+    </android.support.v4.widget.DrawerLayout>
+</LinearLayout>

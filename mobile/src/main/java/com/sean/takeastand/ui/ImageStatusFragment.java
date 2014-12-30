@@ -141,9 +141,9 @@ public class ImageStatusFragment
                 break;
             case Constants.NON_SCHEDULE_STOOD_UP:
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_stood);
-                ivStickFigure.setOnClickListener(null);
-                ivStickFigure.setOnTouchListener(null);
-                txtTap.setOnClickListener(null);
+                ivStickFigure.setOnClickListener(imageListener);
+                ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 if (mPraise == null) {
                     Log.i(TAG, "mPraise is null");
                     txtTap.setText("");
@@ -372,7 +372,8 @@ public class ImageStatusFragment
             Utils.startSession(mContext, Constants.NON_SCHEDULED_SESSION);
 
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
-                imageStatus == Constants.NON_SCHEDULE_TIME_TO_STAND) {
+                imageStatus == Constants.NON_SCHEDULE_TIME_TO_STAND ||
+                imageStatus == Constants.NON_SCHEDULE_STOOD_UP) {
             Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
             sendAnalyticsEvent("User ended unscheduled alarm");
