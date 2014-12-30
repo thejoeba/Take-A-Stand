@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.heckbot.standdtector.Constants;
+import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
@@ -47,7 +47,7 @@ public class StandCountActivity extends ActionBarActivity {
         t.send(new HitBuilders.AppViewBuilder().build());
 
         tvLastStep = (TextView) findViewById(R.id.tvLastStep);
-        tvLastStep.setText("Last Step: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getLong(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP, 0));
+        tvLastStep.setText("Last Step: " + getSharedPreferences(com.heckbot.standdtector.Constants.STANDDTECTORTM_SHARED_PREFERENCES, Context.MODE_PRIVATE).getLong(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP, 0));
     }
 
     @Override

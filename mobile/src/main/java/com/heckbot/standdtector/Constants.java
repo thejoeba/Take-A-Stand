@@ -19,4 +19,5 @@ public class Constants {
     public static final String STOOD_RESULTS = "STOOD_RESULTS";
     public static final String STAND_DETECTOR_RESULT = "StandDetectorResult";
     public static final String STAND_DETECTED = "StandDetected";
+    public static final String STANDDTECTORTM_SHARED_PREFERENCES = "StandDetectorSharedPreferences";
 }
