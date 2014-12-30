@@ -471,4 +471,11 @@ public final class Utils {
             context.startService(insertIntent);
         }
     }
+    public static void getOldestFitSession (Context context) {
+        if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
+            Intent insertIntent = new Intent(context, GoogleFitService.class);
+            insertIntent.setAction("GetOldestSession");
+            context.startService(insertIntent);
+        }
+    }
 }

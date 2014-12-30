@@ -11,10 +11,12 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
@@ -55,6 +57,9 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standdtectortm_settings);
 
+
+        sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
@@ -93,8 +98,21 @@ public class StandDtectorTMSettings extends ActionBarActivity {
 
     private boolean checkPro() {
         //ToDo: Check shared perfs first to increase speed.
+        //verify weekly
         //ToDo: perfs should also store phone id to verify validity
-        //ToDo: Oldest Fit data should also be utilized
+        //checked every time
+        //ToDo: handle null
+        String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        if (sharedPreferences.getString(Constants.PRO_ANDROID_ID, "").equals(android_id)) {
+            if (sharedPreferences.getLong(Constants.PRO_VERIFIED, 0) > System.currentTimeMillis() - 604800000l) {
+                return true;
+            }
+        }
+        else {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(Constants.PRO_ANDROID_ID, android_id);
+            editor.commit();
+        }
         ArrayList<String> skuList = new ArrayList<String> ();
         skuList.add("premiumUpgrade");
         skuList.add("gas");
@@ -124,6 +142,9 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                     // e.g. display the updated list of products owned by user
 
                     if (sku.equals(skuPro)) {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putLong(Constants.PRO_VERIFIED, System.currentTimeMillis());
+                        editor.commit();
                         return true;
                     }
 
@@ -153,7 +174,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         }
 
 //        boolean enablePro = checkPro();
-        boolean enablePro = true;
+        boolean enablePro = false;
         boolean trial = false;
         long installedDate;
 
@@ -166,7 +187,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         btnPurchase.setOnClickListener(UpgradePurchase);
 
         if (!enablePro) {
-            long freeTrialTime = 604800000;
+            long freeTrialTime = 604800000l;
             try {
                 installedDate = this
                         .getPackageManager()
@@ -174,16 +195,20 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                         .firstInstallTime;
                 //ToDo: Convert to dates, round up.
                 if ((installedDate + freeTrialTime) > System.currentTimeMillis()) {
-                    trial = true;
+                    if (sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
+                        if (sharedPreferences.getLong(Constants.GOOGLE_FIT_AUTHORIZED, 0) > System.currentTimeMillis() - freeTrialTime) {
+                            trial = true;
+                        }
+                    }
+                    else {
+                        trial = true;
+                    }
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
         }
         if (enablePro || trial) {
-
-            sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
-
             toggleDeviceStepCounter.setOnClickListener(StepCounterListener);
             toggleDeviceStepCounter.setChecked(sharedPreferences.getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false));
             toggleWearStepCounter.setOnClickListener(WearStepCounterListener);
@@ -191,8 +216,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             toggleStandDtectorTM.setOnClickListener(StandDtectorTMListener);
             toggleStandDtectorTM.setChecked(sharedPreferences.getBoolean(Constants.STANDDTECTORTM_ENABLED, false));
             btnCalibrate.setOnClickListener(CalibrateListener);
-            //ToDo: look into getPackageName for all vars
-            txtCalibratedValue.setText("Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
+            txtCalibratedValue.setText("Calibrated Value: " + sharedPreferences.getFloat("CALIBRATEDVARIATION", 0));
             FeatureCheck();
         }
         else {
@@ -346,13 +370,14 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             Log.d("StandDtectorTMSettings", "Calibration Finished");
             LocalBroadcastManager.getInstance(StandDtectorTMSettings.this).unregisterReceiver(calibrationFinishedReceiver);
             if (intent.getExtras().getString("Results").equals("Success")) {
-                txtCalibratedValue.setText("New Calibrated Value: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getFloat("CALIBRATEDVARIATION", 0));
+                txtCalibratedValue.setText("New Calibrated Value: " + sharedPreferences.getFloat("CALIBRATEDVARIATION", 0));
             } else {
                 LocalBroadcastManager.getInstance(StandDtectorTMSettings.this).unregisterReceiver(calibrationFinishedReceiver);
                 txtCalibratedValue.setText("Calibration Failed");
             }
             btnCalibrate.setEnabled(true);
             btnCalibrate.setText(R.string.standdtectortm_calbirate);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
     };
 

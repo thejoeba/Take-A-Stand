@@ -25,8 +25,10 @@ import com.google.android.gms.fitness.request.DataDeleteRequest;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.DataTypeCreateRequest;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
+import com.google.android.gms.fitness.request.SessionReadRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataTypeResult;
+import com.google.android.gms.fitness.result.SessionReadResult;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
 import java.text.SimpleDateFormat;
@@ -48,7 +50,7 @@ public class GoogleFitService extends IntentService{
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        sharedPref = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE);
         mAction = intent.getAction();
 
         Log.i("onHandleIntent", "Action: " + mAction);
@@ -68,7 +70,8 @@ public class GoogleFitService extends IntentService{
                                 Log.i("buildFitnessClient", "Connected!!!");
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
-                                readStandDataType();
+//                                readStandDataType();
+                                createStandDataType();
                             }
 
                             @Override
@@ -80,14 +83,6 @@ public class GoogleFitService extends IntentService{
                                 } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
                                     Log.i("onConnectionSuspended", "Connection lost.  Reason: Service Disconnected");
                                 }
-//                                btnConnectClient.setEnabled(true);
-//                                btnDisconnectClient.setEnabled(false);
-//                                btnReadDataType.setEnabled(false);
-//                                btnCreateDataType.setEnabled(false);
-//                                btnInsertData.setEnabled(false);
-//                                btnReadData.setEnabled(false);
-//                                btnDeleteData.setEnabled(false);
-//                                btnDisconnectFit.setEnabled(false);
                             }
                         }
                 )
@@ -144,6 +139,9 @@ public class GoogleFitService extends IntentService{
                     else if(mAction.equals("ReadData")) {
                         readData();
                     }
+                    else if(mAction.equals("GetOldestSession")){
+                        readOldestSession();
+                    }
                     else if(mAction.equals("DeleteData")) {
                         deleteData();
                     }
@@ -191,6 +189,9 @@ public class GoogleFitService extends IntentService{
                     }
                     else if(mAction.equals("ReadData")) {
                         readData();
+                    }
+                    else if(mAction.equals("GetOldestSession")){
+                        readOldestSession();
                     }
                     else if(mAction.equals("DeleteData")) {
                         deleteData();
@@ -354,6 +355,43 @@ public class GoogleFitService extends IntentService{
         };
 
         readThread.start();
+    }
+
+    public void readOldestSession() {
+        long startTime = 1419840000000l;
+        long endTime = System.currentTimeMillis();
+        // Build a session read request
+        SessionReadRequest readRequest = new SessionReadRequest.Builder()
+                .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+                .read(standDataType)
+//                .setSessionName(SAMPLE_SESSION_NAME)
+                .build();
+
+        // Invoke the Sessions API to fetch the session with the query and wait for the result
+        // of the read request.
+        SessionReadResult sessionReadResult =
+                Fitness.SessionsApi.readSession(mClient, readRequest)
+                        .await(1, TimeUnit.MINUTES);
+
+        // Get a list of the sessions that match the criteria to check the result.
+        Log.i("readSession", "Session read was successful. Number of returned sessions is: "
+                + sessionReadResult.getSessions().size());
+
+        long oldestSession = endTime;
+        for (Session session : sessionReadResult.getSessions()) {
+            Long sessionTime = session.getStartTime(TimeUnit.MILLISECONDS);
+            if (sessionTime < oldestSession) {
+                oldestSession = sessionTime;
+            }
+        }
+//        return oldestSession;
+//        Intent intent = new Intent("ReturnOldestSession");
+//        intent.putExtra("OldestSession", oldestSession);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putLong(Constants.GOOGLE_FIT_OLDEST_SESSION, oldestSession);
+        editor.commit();
+        disconnectClient();
     }
 
     public void deleteData() {

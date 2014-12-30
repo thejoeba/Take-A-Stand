@@ -72,6 +72,7 @@ public class BootReceiver extends BroadcastReceiver
                     " There should not be an alarm set in AlarmManager");
         }
         Utils.syncFit(context);
+        Utils.getOldestFitSession(context);
     }
 
     private void sendAnalyticsEvent(Context context, String action){

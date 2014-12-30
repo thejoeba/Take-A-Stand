@@ -36,7 +36,7 @@ public class StoodLogsAdapter {
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.STOOD_METHOD, stoodMethod);
         databaseInfo.put(StoodSQLHelper.STAND_TIMESTAMP, timeStamp.getTimeInMillis());
-        databaseInfo.put(StoodSQLHelper.SESSION_ID, mContext.getSharedPreferences(mContext.getPackageName(), Context.MODE_PRIVATE).getLong("CurrentSession", 0));
+        databaseInfo.put(StoodSQLHelper.SESSION_ID, mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE).getLong("CurrentSession", 0));
         long l = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_MAIN, null, databaseInfo);
         localSQLiteDatabase.close();
         scheduleSQLHelper.close();
@@ -55,7 +55,7 @@ public class StoodLogsAdapter {
         long sessionID = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_SESSION, null, databaseInfo);
         localSQLiteDatabase.close();
         scheduleSQLHelper.close();
-        SharedPreferences.Editor editor = mContext.getSharedPreferences(mContext.getPackageName(), Context.MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE).edit();
         editor.putLong("CurrentSession", sessionID);
         editor.commit();
     }
