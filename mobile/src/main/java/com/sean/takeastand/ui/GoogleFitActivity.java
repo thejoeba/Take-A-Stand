@@ -118,6 +118,9 @@ public class GoogleFitActivity extends ActionBarActivity {
                         Log.i("buildFitnessClient", "Connected!!!");
                         // Now you can make calls to the Fitness APIs.
                         // Put application specific code here.
+                        if(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
+                            //ToDo: if not yet authorized, download all previous data
+                        }
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, true);
                         editor.putBoolean(Constants.GOOGLE_FIT_AUTHORIZED, true);

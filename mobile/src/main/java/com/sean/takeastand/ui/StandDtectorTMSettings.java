@@ -185,17 +185,18 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         btnPurchase = (Button) findViewById(R.id.btnPurchase);
         btnPurchase.setOnClickListener(UpgradePurchase);
 
+        Log.d("setUpLayout", "enablePro: " + enablePro);
         if (!enablePro) {
             long freeTrialTime = 604800000l;
             try {
                 installedDate = this
                         .getPackageManager()
-                        .getPackageInfo("package.name", 0)
+                        .getPackageInfo(getPackageName(), 0)
                         .firstInstallTime;
                 //ToDo: Convert to dates, round up.
                 if ((installedDate + freeTrialTime) > System.currentTimeMillis()) {
                     if (sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
-                        if (sharedPreferences.getLong(Constants.GOOGLE_FIT_AUTHORIZED, 0) > System.currentTimeMillis() - freeTrialTime) {
+                        if (sharedPreferences.getLong(Constants.GOOGLE_FIT_OLDEST_SESSION, System.currentTimeMillis()) + freeTrialTime > System.currentTimeMillis()) {
                             trial = true;
                         }
                     }

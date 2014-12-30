@@ -65,7 +65,9 @@ public class StoodLogsAdapter {
         String[] columns = {StoodSQLHelper.UID };
         Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_MAIN,
                 columns, null, null, null, null, null);
-        return cursor.getCount();
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
     public long[][] getUnsyncedSessions(){
@@ -82,8 +84,8 @@ public class StoodLogsAdapter {
                 null
         );
         cursor.moveToFirst();
+        long[][] unsyncedSessions = new long[cursor.getCount()][3];
         if(!(cursor.getCount()==0)) {
-            long[][] unsyncedSessions = new long[cursor.getCount()][3];
             Integer row = 0;
             while (!cursor.isAfterLast()) {
                 unsyncedSessions[row][0] = (long) cursor.getInt(0);
@@ -92,16 +94,16 @@ public class StoodLogsAdapter {
                 row++;
                 cursor.moveToNext();
             }
-            return unsyncedSessions;
         }
         else {
-            return new long[0][0];
+            unsyncedSessions = new long[0][0];
         }
+        cursor.close();
+        return unsyncedSessions;
     }
 
     public void updateSyncedSession(Integer session){
-        //ToDo: troubleshoot this
-        Log.d("updateSyncedSession", "Starting DB Update");
+        Log.d("updateSyncedSession", "Marking Session " + session + " as synced.");
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 1);
@@ -139,14 +141,15 @@ public class StoodLogsAdapter {
                 row++;
                 cursor.moveToNext();
             }
-            return sessionArray;
         }
         else {
-            return new long[0][0];
+            sessionArray = new long[0][0];
         }
+        cursor.close();
+        return sessionArray;
     }
 
-
+    //ToDo: I don't think this does anything
     public void getLastRow(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_MAIN,

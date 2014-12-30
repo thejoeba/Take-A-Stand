@@ -244,57 +244,60 @@ public class GoogleFitService extends IntentService{
                                                 .setIntValues((int) sessionArray[sessionRows][0])
                                 );
                             }
+                            endTime = sessionArray[sessionArray.length - 1][1];
+
+                            String Session_Name;
+                            if (sessionType == 1) {
+                                Session_Name = "Unscheduled Stands";
+                            } else if (sessionType == 2) {
+                                Session_Name = "Scheduled Stands";
+                            } else {
+                                Session_Name = "Unknown Stands";
+                            }
+
+                            Log.i("insertUnsyncedData", "Session_Name: " + Session_Name);
+
+                            // Create a session with metadata about the activity.
+                            Session session = new Session.Builder()
+                                    .setName(Session_Name)
+                                    .setStartTime(startTime, TimeUnit.MILLISECONDS)
+                                    .setEndTime(endTime, TimeUnit.MILLISECONDS)
+    //                                .setDescription("Stands for today")
+    //                                .setIdentifier("UniqueIdentifierHere")
+    //                                .setActivity(FitnessActivities.RUNNING)
+                                    .build();
+
+                            Log.i("insertUnsyncedData", "Session built");
+
+                            // Build a session insert request
+                            SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
+                                    .setSession(session)
+                                    .addDataSet(dataSet)
+                                    .build();
+
+                            Log.i("insertUnsyncedData", "SessionInsertRequest built");
+
+                            // Then, invoke the Sessions API to insert the session and await the result,
+                            // which is possible here because of the AsyncTask. Always include a timeout when
+                            // calling await() to avoid hanging that can occur from the service being shutdown
+                            // because of low memory or other conditions.
+                            Log.i("insertUnsyncedData", "Inserting the session in the History API");
+                            com.google.android.gms.common.api.Status insertStatus =
+                                    Fitness.SessionsApi.insertSession(mClient, insertRequest)
+                                            .await(1, TimeUnit.MINUTES);
+
+                            //Before querying the session, check to see if the insertion succeeded.
+                            if (insertStatus.isSuccess()) {
+                                // At this point, the session has been inserted and can be read.
+                                Log.i("insertUnsyncedData", "Session " + intSession + " was added to Fit successful!");
+                                stoodLogsAdapter.updateSyncedSession(intSession);
+                            } else {
+                                Log.i("insertUnsyncedData", "There was a problem inserting the session: " +
+                                        insertStatus.getStatusMessage());
+                            }
                         }
-                        endTime = sessionArray[sessionArray.length - 1][1];
-
-                        String Session_Name;
-                        if (sessionType == 1) {
-                            Session_Name = "Unscheduled Stands";
-                        } else if (sessionType == 2) {
-                            Session_Name = "Scheduled Stands";
-                        } else {
-                            Session_Name = "Unknown Stands";
-                        }
-
-                        Log.i("insertUnsyncedData", "Session_Name: " + Session_Name);
-
-                        // Create a session with metadata about the activity.
-                        Session session = new Session.Builder()
-                                .setName(Session_Name)
-                                .setStartTime(startTime, TimeUnit.MILLISECONDS)
-                                .setEndTime(endTime, TimeUnit.MILLISECONDS)
-//                                .setDescription("Stands for today")
-//                                .setIdentifier("UniqueIdentifierHere")
-//                                .setActivity(FitnessActivities.RUNNING)
-                                .build();
-
-                        Log.i("insertUnsyncedData", "Session built");
-
-                        // Build a session insert request
-                        SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
-                                .setSession(session)
-                                .addDataSet(dataSet)
-                                .build();
-
-                        Log.i("insertUnsyncedData", "SessionInsertRequest built");
-
-                        // Then, invoke the Sessions API to insert the session and await the result,
-                        // which is possible here because of the AsyncTask. Always include a timeout when
-                        // calling await() to avoid hanging that can occur from the service being shutdown
-                        // because of low memory or other conditions.
-                        Log.i("insertUnsyncedData", "Inserting the session in the History API");
-                        com.google.android.gms.common.api.Status insertStatus =
-                                Fitness.SessionsApi.insertSession(mClient, insertRequest)
-                                        .await(1, TimeUnit.MINUTES);
-
-                        //Before querying the session, check to see if the insertion succeeded.
-                        if (insertStatus.isSuccess()) {
-                            // At this point, the session has been inserted and can be read.
-                            Log.i("insertUnsyncedData", "Session insert was successful!");
+                        else {
                             stoodLogsAdapter.updateSyncedSession(intSession);
-                        } else {
-                            Log.i("insertUnsyncedData", "There was a problem inserting the session: " +
-                                    insertStatus.getStatusMessage());
                         }
                         disconnectClient();
                     }

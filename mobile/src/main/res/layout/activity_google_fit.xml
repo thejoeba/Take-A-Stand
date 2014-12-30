@@ -38,10 +38,10 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Insert Data"
+        android:text="Mark DB Synced"
         android:id="@+id/btnMarkDBSynced"
         android:layout_gravity="center_horizontal"
-        android:visibility="visible" />
+        android:visibility="invisible" />
 
     <Button
         android:layout_width="wrap_content"
