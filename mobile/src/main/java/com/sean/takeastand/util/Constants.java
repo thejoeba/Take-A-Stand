@@ -59,12 +59,9 @@ public final class Constants {
     public static final String USER_DELAY = "UserDelay";
     public static final String VIBRATE_SILENT = "VibrateOnSilent";
     public static final String END_ALARM_SERVICE = "EndAlarmService";
-    public static final String STOOD_RESULTS = "STOOD_RESULTS";
     public static final String MAIN_ACTIVITY_VISIBILITY_STATUS = "MainVisibilityStatus";
     public static final String PRAISE_FOR_USER = "PraiseForUser";
     public static final String UPDATE_NEXT_ALARM_TIME = "UpdateNextAlarmTime";
-    public static final String DEVICE_LAST_STEP = "DeviceLastStep";
-    public static final String WEAR_LAST_STEP = "WearLastStep";
     public static final int STEP_DETECTED_BEFORE_DEVICE = 1;
     public static final int TAPPED_NOTIFICATION_DEVICE = 2;
     public static final int TAPPED_ACTIVITY_DEVICE = 3;
@@ -74,8 +71,6 @@ public final class Constants {
     public static final int STEP_DETECTED_AFTER_WEAR = 7;
     public static final int STEP_DETECTED_AFTER_DEVICE = 8;
     public static final String STOOD_METHOD = "HowUserStood";
-    public static final String STAND_DETECTOR_RESULT = "StandDetectorResult";
-    public static final String STAND_DETECTED = "StandDetected";
     public static final String UPDATE_ACTION_BAR = "UpdateActionBar";
     public static final String PAUSE_TIME = "PauseTimeAmount";
     public static final String PAUSED_UNTIL_TIME = "PausedUntilTime";
@@ -87,4 +82,7 @@ public final class Constants {
     public static final String STANDDTECTORTM_ENABLED = "StandDtectorTMEnabled";
     public static final String GOOGLE_FIT_ENABLED = "FitEnabled";
     public static final String GOOGLE_FIT_AUTHORIZED = "FitAuthorized";
+    public static final String GOOGLE_FIT_OLDEST_SESSION = "OldestGoogleFitSession";
+    public static final String PRO_VERIFIED = "ProVerified";
+    public static final String PRO_ANDROID_ID = "ProAndroidID";
 }

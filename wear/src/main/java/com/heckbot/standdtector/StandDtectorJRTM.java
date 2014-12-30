@@ -3,13 +3,12 @@ package com.heckbot.standdtector;
 import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.text.format.Time;
 import android.util.Log;
 
 /**
@@ -38,7 +37,7 @@ public class StandDtectorJRTM extends IntentService implements SensorEventListen
             mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
             if (action.equals("LastStep")) {
-                if (getPackageManager().hasSystemFeature(getPackageManager().FEATURE_SENSOR_STEP_COUNTER)) {
+                if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
                     Log.d("Step_Counter", "Step Counter Available");
                     mStepCounterSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
                     mSensorManager.registerListener(this, mStepCounterSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -50,9 +49,11 @@ public class StandDtectorJRTM extends IntentService implements SensorEventListen
                     } catch (PendingIntent.CanceledException e) {
                         e.printStackTrace();
                     }
+                    stopSelf();
                 }
             } else {
                 Log.d("MySensorEventListener", "Unrecognized Event");
+                stopSelf();
             }
         }
     }
@@ -71,6 +72,7 @@ public class StandDtectorJRTM extends IntentService implements SensorEventListen
             } catch (PendingIntent.CanceledException e) {
                 e.printStackTrace();
             }
+            stopSelf();
         }
     }
 

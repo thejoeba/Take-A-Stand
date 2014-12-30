@@ -25,8 +25,10 @@ import com.google.android.gms.fitness.request.DataDeleteRequest;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.DataTypeCreateRequest;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
+import com.google.android.gms.fitness.request.SessionReadRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataTypeResult;
+import com.google.android.gms.fitness.result.SessionReadResult;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
 import java.text.SimpleDateFormat;
@@ -39,8 +41,7 @@ public class GoogleFitService extends IntentService{
 
     SharedPreferences sharedPref;
     private GoogleApiClient mClient = null;
-    private ResultCallback<DataTypeResult> FitReadDataTypeCallback;
-    private ResultCallback<DataTypeResult> FitCreateDataTypeCallback;
+    private String mAction;
     private DataType standDataType;
 
     public GoogleFitService() {
@@ -49,126 +50,11 @@ public class GoogleFitService extends IntentService{
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Bundle extras = intent.getExtras();
-        sharedPref = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
-        String action = intent.getAction();
+        sharedPref = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        mAction = intent.getAction();
 
-        Log.i("onHandleIntent", "Action: " + action);
-        if (action.equals("InsertData")) {
-            FitReadDataTypeCallback = new ResultCallback<DataTypeResult>() {
-                @Override
-                public void onResult(DataTypeResult dataTypeResult) {
-                    Log.d("readStandDataType", "Status: " + dataTypeResult.getStatus());
-                    Log.d("readStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
-                    if (dataTypeResult.getStatus().isSuccess()) {
-                        // Retrieve the custom data type
-                        Log.d("readStandDataType", "Stand DataType found");
-                        standDataType = dataTypeResult.getDataType();
-                        // Use this custom data type with Google Fit
-                        insertUnsyncedData();
-                    }
-                    else {
-                        // Failed (not created)
-                        // Status: Status{statusCode=unknown status code: 5003, resolution=null}
-                        Log.d("readStandDataType", "Stand DataType not found, try creating");
-                        createStandDataType();
-                    }
-                }
-            };
-            //ToDo: Create is the same as read, so I could remove the read step
-            FitCreateDataTypeCallback = new ResultCallback<DataTypeResult>() {
-                @Override
-                public void onResult(DataTypeResult dataTypeResult) {
-                    Log.d("createStandDataType", "Status: " + dataTypeResult.getStatus());
-                    Log.d("createStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
-                    if (dataTypeResult.getStatus().isSuccess()) {
-                        // Retrieve the created data type
-                        Log.d("createStandDataType", "Stand DataType created");
-                        standDataType = dataTypeResult.getDataType();
-                        // Use this custom data type to insert data in your app
-                        insertUnsyncedData();
-                    }
-                }
-            };
-            buildFitnessClient();
-        }
-        else if (action.equals("ReadData")) {
-            Log.i("ReadData","");
-            FitReadDataTypeCallback = new ResultCallback<DataTypeResult>() {
-                @Override
-                public void onResult(DataTypeResult dataTypeResult) {
-                    Log.d("readStandDataType", "Status: " + dataTypeResult.getStatus());
-                    Log.d("readStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
-                    if (dataTypeResult.getStatus().isSuccess()) {
-                        // Retrieve the custom data type
-                        Log.d("readStandDataType", "Stand DataType found");
-                        standDataType = dataTypeResult.getDataType();
-                        // Use this custom data type with Google Fit
-                        readData();
-                    }
-                    else {
-                        // Failed (not created)
-                        // Status: Status{statusCode=unknown status code: 5003, resolution=null}
-                        Log.d("readStandDataType", "Stand DataType not found, try creating");
-                        createStandDataType();
-                    }
-                }
-            };
-            //ToDo: Create is the same as read, so I could remove the read step
-            FitCreateDataTypeCallback = new ResultCallback<DataTypeResult>() {
-                @Override
-                public void onResult(DataTypeResult dataTypeResult) {
-                    Log.d("createStandDataType", "Status: " + dataTypeResult.getStatus());
-                    Log.d("createStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
-                    if (dataTypeResult.getStatus().isSuccess()) {
-                        // Retrieve the created data type
-                        Log.d("createStandDataType", "Stand DataType created");
-                        standDataType = dataTypeResult.getDataType();
-                        // Use this custom data type to insert data in your app
-                        readData();
-                    }
-                }
-            };
-            buildFitnessClient();
-        }
-        else if (action.equals("DeleteData")) {
-            FitReadDataTypeCallback = new ResultCallback<DataTypeResult>() {
-                @Override
-                public void onResult(DataTypeResult dataTypeResult) {
-                    Log.d("readStandDataType", "Status: " + dataTypeResult.getStatus());
-                    Log.d("readStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
-                    if (dataTypeResult.getStatus().isSuccess()) {
-                        // Retrieve the custom data type
-                        Log.d("readStandDataType", "Stand DataType found");
-                        standDataType = dataTypeResult.getDataType();
-                        // Use this custom data type with Google Fit
-                        deleteData();
-                    }
-                    else {
-                        // Failed (not created)
-                        // Status: Status{statusCode=unknown status code: 5003, resolution=null}
-                        Log.d("readStandDataType", "Stand DataType not found, try creating");
-                        createStandDataType();
-                    }
-                }
-            };
-            //ToDo: Create is the same as read, so I could remove the read step
-            FitCreateDataTypeCallback = new ResultCallback<DataTypeResult>() {
-                @Override
-                public void onResult(DataTypeResult dataTypeResult) {
-                    Log.d("createStandDataType", "Status: " + dataTypeResult.getStatus());
-                    Log.d("createStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
-                    if (dataTypeResult.getStatus().isSuccess()) {
-                        // Retrieve the created data type
-                        Log.d("createStandDataType", "Stand DataType created");
-                        standDataType = dataTypeResult.getDataType();
-                        // Use this custom data type to insert data in your app
-                        deleteData();
-                    }
-                }
-            };
-            buildFitnessClient();
-        }
+        Log.i("onHandleIntent", "Action: " + mAction);
+        buildFitnessClient();
     }
 
     private void buildFitnessClient() {
@@ -184,7 +70,8 @@ public class GoogleFitService extends IntentService{
                                 Log.i("buildFitnessClient", "Connected!!!");
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
-                                readStandDataType();
+//                                readStandDataType();
+                                createStandDataType();
                             }
 
                             @Override
@@ -196,14 +83,6 @@ public class GoogleFitService extends IntentService{
                                 } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
                                     Log.i("onConnectionSuspended", "Connection lost.  Reason: Service Disconnected");
                                 }
-//                                btnConnectClient.setEnabled(true);
-//                                btnDisconnectClient.setEnabled(false);
-//                                btnReadDataType.setEnabled(false);
-//                                btnCreateDataType.setEnabled(false);
-//                                btnInsertData.setEnabled(false);
-//                                btnReadData.setEnabled(false);
-//                                btnDeleteData.setEnabled(false);
-//                                btnDisconnectFit.setEnabled(false);
                             }
                         }
                 )
@@ -244,7 +123,37 @@ public class GoogleFitService extends IntentService{
 
         // 2. Check the result asynchronously
         // (The result may not be immediately available)
-        pendingResult.setResultCallback(FitReadDataTypeCallback);
+        pendingResult.setResultCallback(new ResultCallback<DataTypeResult>() {
+            @Override
+            public void onResult(DataTypeResult dataTypeResult) {
+                Log.d("readStandDataType", "Status: " + dataTypeResult.getStatus());
+                Log.d("readStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
+                if (dataTypeResult.getStatus().isSuccess()) {
+                    // Retrieve the custom data type
+                    Log.d("readStandDataType", "Stand DataType found");
+                    standDataType = dataTypeResult.getDataType();
+                    // Use this custom data type with Google Fit
+                    if(mAction.equals("InsertData")) {
+                        insertUnsyncedData();
+                    }
+                    else if(mAction.equals("ReadData")) {
+                        readData();
+                    }
+                    else if(mAction.equals("GetOldestSession")){
+                        readOldestSession();
+                    }
+                    else if(mAction.equals("DeleteData")) {
+                        deleteData();
+                    }
+                }
+                else {
+                    // Failed (not created)
+                    // Status: Status{statusCode=unknown status code: 5003, resolution=null}
+                    Log.d("readStandDataType", "Stand DataType not found, try creating");
+                    createStandDataType();
+                }
+            }
+        });
     }
 
     public void createStandDataType() {
@@ -265,15 +174,40 @@ public class GoogleFitService extends IntentService{
 
         // 3. Check the result asynchronously
         // (The result may not be immediately available)
-        pendingResult.setResultCallback(FitCreateDataTypeCallback);
+        pendingResult.setResultCallback(new ResultCallback<DataTypeResult>() {
+            @Override
+            public void onResult(DataTypeResult dataTypeResult) {
+                Log.d("createStandDataType", "Status: " + dataTypeResult.getStatus());
+                Log.d("createStandDataType", "Status Code: " + dataTypeResult.getStatus().getStatusCode());
+                if (dataTypeResult.getStatus().isSuccess()) {
+                    // Retrieve the created data type
+                    Log.d("createStandDataType", "Stand DataType created");
+                    standDataType = dataTypeResult.getDataType();
+                    // Use this custom data type to insert data in your app
+                    if(mAction.equals("InsertData")) {
+                        insertUnsyncedData();
+                    }
+                    else if(mAction.equals("ReadData")) {
+                        readData();
+                    }
+                    else if(mAction.equals("GetOldestSession")){
+                        readOldestSession();
+                    }
+                    else if(mAction.equals("DeleteData")) {
+                        deleteData();
+                    }
+                }
+            }
+        });
     }
 
     public void insertUnsyncedData() {
         Thread insertThread = new Thread() {
             @Override
             public void run() {
-                long startTime = 0;
-                long endTime = 0;
+                long startTime;
+                long endTime;
+                StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(GoogleFitService.this);
 
                 // Create a data source
                 DataSource dataSource =
@@ -282,7 +216,7 @@ public class GoogleFitService extends IntentService{
                                 .setDataType(standDataType)
                                 .setName("Take A Stand - Session").setType(DataSource.TYPE_RAW).build();
 
-                long[][] unsyncedSessions = new StoodLogsAdapter(GoogleFitService.this).getUnsyncedSessions();
+                long[][] unsyncedSessions = stoodLogsAdapter.getUnsyncedSessions();
                 Log.i("insertUnsyncedData", "unsyncedSessions: " + unsyncedSessions.length);
 
                 if (unsyncedSessions.length > 0) {
@@ -295,7 +229,7 @@ public class GoogleFitService extends IntentService{
                         Log.i("insertUnsyncedData", "\tstartTime: " + startTime);
                         Log.i("insertUnsyncedData", "\tsessionType: " + sessionType);
 
-                        long[][] sessionArray = new StoodLogsAdapter(GoogleFitService.this).getSessionStands(intSession);
+                        long[][] sessionArray = stoodLogsAdapter.getSessionStands(intSession);
                         Log.i("insertUnsyncedData", "Stands: " + sessionArray.length);
 
                         DataSet dataSet = DataSet.create(dataSource);
@@ -357,6 +291,7 @@ public class GoogleFitService extends IntentService{
                         if (insertStatus.isSuccess()) {
                             // At this point, the session has been inserted and can be read.
                             Log.i("insertUnsyncedData", "Session insert was successful!");
+                            stoodLogsAdapter.updateSyncedSession(intSession);
                         } else {
                             Log.i("insertUnsyncedData", "There was a problem inserting the session: " +
                                     insertStatus.getStatusMessage());
@@ -385,8 +320,8 @@ public class GoogleFitService extends IntentService{
 //                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 //                Log.i("readData", "Range Start: " + dateFormat.format(startTime));
 //                Log.i("readData", "Range End: " + dateFormat.format(endTime));
-                //ToDo: currently startTime is one year ago. this is dumb.
-                long startTime = System.currentTimeMillis() - (60000 * 525949);
+                // 1419840000000 is 12/29/2014 in unix epoch time
+                long startTime = 1419840000000l;
                 long endTime = System.currentTimeMillis();
 
                 DataReadRequest readRequest = new DataReadRequest.Builder()
@@ -422,6 +357,43 @@ public class GoogleFitService extends IntentService{
         readThread.start();
     }
 
+    public void readOldestSession() {
+        long startTime = 1419840000000l;
+        long endTime = System.currentTimeMillis();
+        // Build a session read request
+        SessionReadRequest readRequest = new SessionReadRequest.Builder()
+                .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+                .read(standDataType)
+//                .setSessionName(SAMPLE_SESSION_NAME)
+                .build();
+
+        // Invoke the Sessions API to fetch the session with the query and wait for the result
+        // of the read request.
+        SessionReadResult sessionReadResult =
+                Fitness.SessionsApi.readSession(mClient, readRequest)
+                        .await(1, TimeUnit.MINUTES);
+
+        // Get a list of the sessions that match the criteria to check the result.
+        Log.i("readSession", "Session read was successful. Number of returned sessions is: "
+                + sessionReadResult.getSessions().size());
+
+        long oldestSession = endTime;
+        for (Session session : sessionReadResult.getSessions()) {
+            Long sessionTime = session.getStartTime(TimeUnit.MILLISECONDS);
+            if (sessionTime < oldestSession) {
+                oldestSession = sessionTime;
+            }
+        }
+//        return oldestSession;
+//        Intent intent = new Intent("ReturnOldestSession");
+//        intent.putExtra("OldestSession", oldestSession);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putLong(Constants.GOOGLE_FIT_OLDEST_SESSION, oldestSession);
+        editor.commit();
+        disconnectClient();
+    }
+
     public void deleteData() {
         Thread deleteThread = new Thread() {
             @Override
@@ -433,8 +405,8 @@ public class GoogleFitService extends IntentService{
 //                long endTime = cal.getTimeInMillis();
 //                cal.add(Calendar.DAY_OF_YEAR, -1);
 //                long startTime = cal.getTimeInMillis();
-                //ToDo: currently startTime is one year ago. this is dumb.
-                long startTime = System.currentTimeMillis() - (60000 * 525949);
+                // 1419840000000 is 12/29/2014 in unix epoch time
+                long startTime = 1419840000000l;
                 long endTime = System.currentTimeMillis();
 
                 //  Create a delete request object, providing a data type and a time interval
