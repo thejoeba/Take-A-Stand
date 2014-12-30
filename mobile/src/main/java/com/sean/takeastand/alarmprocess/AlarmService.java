@@ -66,7 +66,7 @@ public class AlarmService extends Service {
 
     private Handler mHandler;
     private FixedAlarmSchedule mCurrentAlarmSchedule;
-    private int mNotifTimePassed = 0;
+    //private int mNotifTimePassed = 0;
     long[] mVibrationPattern = {(long) 200, (long) 300, (long) 200, (long) 300, (long) 200, (long) 300};
     private boolean mainActivityVisible;
     private boolean bStepCounterHandled = false;
@@ -135,8 +135,9 @@ public class AlarmService extends Service {
         mHandler = new Handler();
         checkMainActivityVisible();
         sendNotification();
-        int oneMinuteMillis = 60000;
-        mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
+        int defaultReminderTime = Utils.getNotificationReminderFrequency(AlarmService.this) *
+                Constants.secondsInMinute * Constants.millisecondsInSecond;
+        mHandler.postDelayed(timeToUpdateNotification, defaultReminderTime);
         if (intent.hasExtra(Constants.ALARM_SCHEDULE)) {
             mCurrentAlarmSchedule = intent.getParcelableExtra(Constants.ALARM_SCHEDULE);
         }
@@ -220,7 +221,7 @@ public class AlarmService extends Service {
             }
             cancelNotification();
             showPraise();
-            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+            mHandler.removeCallbacks(timeToUpdateNotification);
             long fiveSeconds = 5 * Constants.millisecondsInSecond;
             mHandler.postDelayed(changeImage, fiveSeconds);
             long threeSeconds = 3 * Constants.millisecondsInSecond;
@@ -237,7 +238,7 @@ public class AlarmService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "User switched off the repeating alarm");
-            mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+            mHandler.removeCallbacks(timeToUpdateNotification);
             mHandler.removeCallbacks(stoodUp);
             mHandler.removeCallbacks(changeImage);
             cancelNotification();
@@ -280,7 +281,7 @@ public class AlarmService extends Service {
                     if (bRepeatingAlarmStepCheck) {
                         bRepeatingAlarmStepCheck = false;
                         cancelNotification();
-                        mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+                        mHandler.removeCallbacks(timeToUpdateNotification);
                         long fiveSeconds = 5 * Constants.millisecondsInSecond;
                         mHandler.postDelayed(changeImage, fiveSeconds);
                         long threeSeconds = 3 * Constants.millisecondsInSecond;
@@ -329,7 +330,7 @@ public class AlarmService extends Service {
                     if (bRepeatingAlarmStepCheck) {
                         bRepeatingAlarmStepCheck = false;
                         cancelNotification();
-                        mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+                        mHandler.removeCallbacks(timeToUpdateNotification);
                         long fiveSeconds = 5 * Constants.millisecondsInSecond;
                         mHandler.postDelayed(changeImage, fiveSeconds);
                         if (mCurrentAlarmSchedule == null) {
@@ -375,7 +376,7 @@ public class AlarmService extends Service {
             }
             int deletedAlarmUID = intent.getIntExtra("UID", -2);
             if (deletedAlarmUID == currentAlarmUID) {
-                mHandler.removeCallbacks(oneMinuteForNotificationResponse);
+                mHandler.removeCallbacks(timeToUpdateNotification);
                 cancelNotification();
                 //End this service
                 AlarmService.this.stopSelf();
@@ -383,12 +384,13 @@ public class AlarmService extends Service {
         }
     };
 
-    private Runnable oneMinuteForNotificationResponse = new Runnable() {
+    private Runnable timeToUpdateNotification = new Runnable() {
         //ToDo: Note: If user dismisses notification, it comes back every minute
         public void run() {
             updateNotification();
-            int oneMinuteMillis = 60000;
-            mHandler.postDelayed(oneMinuteForNotificationResponse, oneMinuteMillis);
+            int defaultReminderTime = Utils.getNotificationReminderFrequency(AlarmService.this) *
+                    Constants.secondsInMinute * Constants.millisecondsInSecond;
+            mHandler.postDelayed(timeToUpdateNotification, defaultReminderTime);
         }
     };
 
@@ -588,18 +590,18 @@ public class AlarmService extends Service {
     }
 
     private void updateNotification() {
-        if (!bRepeatingAlarmStepCheck) {
+        /*if (!bRepeatingAlarmStepCheck) {
             mNotifTimePassed++;
         }
-        Log.i(TAG, "time since first notification: " + mNotifTimePassed + setMinutes(mNotifTimePassed));
+        Log.i(TAG, "time since first notification: " + mNotifTimePassed + setMinutes(mNotifTimePassed));*/
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         PendingIntent[] pendingIntents = makeNotificationIntents();
         RemoteViews rvRibbon = new RemoteViews(getPackageName(), R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
-        rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
+        /*rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
-        rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));
+        rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));*/
         NotificationCompat.Builder alarmNotificationBuilder = new NotificationCompat.Builder(this);
         alarmNotificationBuilder.setContent(rvRibbon);
         alarmNotificationBuilder
@@ -608,7 +610,7 @@ public class AlarmService extends Service {
                 .setTicker(getString(R.string.stand_up_time_low))
                 .setSmallIcon(R.drawable.ic_notification_small)
                 .setContentTitle("Take A Stand ✔")
-                .setContentText("Mark Stood\n" + mNotifTimePassed + setMinutes(mNotifTimePassed))
+                //.setContentText("Mark Stood\n" + mNotifTimePassed + setMinutes(mNotifTimePassed))
                 .extend(
                         new NotificationCompat.WearableExtender()
                                 .addAction(new NotificationCompat.Action.Builder(R.drawable.ic_action_done, "Stood", pendingIntents[1]).build())
@@ -629,7 +631,7 @@ public class AlarmService extends Service {
             alarmNotificationBuilder.setLights(238154000, 1000, 4000);
         }
         if (Utils.getRepeatAlerts(this)) {
-            if (alertType[1] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0) {
+            if (alertType[1]) {
                 boolean bUseLastStepCounters = false;
                 if (!bRepeatingAlarmStepCheck) {
                     bRepeatingAlarmStepCheck = true;
@@ -646,7 +648,7 @@ public class AlarmService extends Service {
                     }
                 }
             }
-            if (alertType[2] && mNotifTimePassed % (Utils.getNotificationReminderFrequency(this)) == 0) {
+            if (alertType[2]) {
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 alarmNotificationBuilder.setSound(soundUri);
             }
