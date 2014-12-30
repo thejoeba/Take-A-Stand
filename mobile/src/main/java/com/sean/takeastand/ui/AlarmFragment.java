@@ -247,7 +247,7 @@ public class AlarmFragment extends Fragment{
     private View.OnClickListener stoodListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent stoodUpIntent = new Intent(Constants.STOOD_RESULTS);
+            Intent stoodUpIntent = new Intent(com.heckbot.standdtector.Constants.STOOD_RESULTS);
             stoodUpIntent.putExtra(Constants.STOOD_METHOD, Constants.TAPPED_ACTIVITY_DEVICE);
             getActivity().sendBroadcast(stoodUpIntent);
         }

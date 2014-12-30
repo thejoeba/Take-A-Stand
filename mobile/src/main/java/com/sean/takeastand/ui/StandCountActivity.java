@@ -1,6 +1,5 @@
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -8,12 +7,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
@@ -22,6 +21,7 @@ import com.sean.takeastand.storage.StoodLogsAdapter;
  */
 public class StandCountActivity extends ActionBarActivity {
 
+    //ToDo: Add more statistics
     private static final String TAG = "StandCountActivity";
     private TextView txtStandCount;
     private TextView tvLastStep;
@@ -47,7 +47,7 @@ public class StandCountActivity extends ActionBarActivity {
         t.send(new HitBuilders.AppViewBuilder().build());
 
         tvLastStep = (TextView) findViewById(R.id.tvLastStep);
-        tvLastStep.setText("Last Step: " + getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getLong("DEVICELASTSTEP", 0));
+        tvLastStep.setText("Last Step: " + getSharedPreferences(com.heckbot.standdtector.Constants.STANDDTECTORTM_SHARED_PREFERENCES, Context.MODE_PRIVATE).getLong(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP, 0));
     }
 
     @Override

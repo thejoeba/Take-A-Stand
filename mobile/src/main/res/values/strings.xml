@@ -26,7 +26,7 @@
     <string name="medical2link"><a href="http://sjp.sagepub.com/content/35/5/510.abstract">Learn More</a></string>
     <string name="medical3title">Exercise</string>
     <string name="medical3">A British research study found that even exercising for more than 30 minutes a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.</string>
-    <string name="medical3link"><a href=" http://bjsm.bmj.com/content/43/2/81.full">Learn More</a></string>
+    <string name="medical3link"><a href="http://bjsm.bmj.com/content/43/2/81.full">Learn More</a></string>
     <string name="medical4title">Diabetes</string>
     <string name="medical4">Sitting for prolonged periods of time may contribute to metabolic diseases such as diabetes and cardiovascular disease.</string>
     <string name="medical4link"><a href="http://diabetes.diabetesjournals.org/content/56/11/2655.long">Learn More</a></string>
@@ -98,4 +98,5 @@
     <string name="stands">Stands</string>
     <string name="stand_count">Stand Counter</string>
     <string name="science_behind_app">Science Behind The App</string>
+    <string name="google_fit">Google Fit</string>
 </resources>

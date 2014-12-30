@@ -78,6 +78,7 @@ public class StandDtectorListenerService extends WearableListenerService {
                 Log.i("StepCounterRunnable", "Step Data Timeout");
 
                 replyMessage(PATH_REPLY_FAILED,  "Step Data Timeout");
+                stopSelf();
             }
         }
     }
@@ -86,6 +87,7 @@ public class StandDtectorListenerService extends WearableListenerService {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i("lastStepReceiver", "Step Data Received");
+            getApplicationContext().unregisterReceiver(lastStepReceiver);
             if (!bStepCounterHandled) {
                 bStepCounterHandled = true;
                 Bundle extras = intent.getExtras();
@@ -103,7 +105,7 @@ public class StandDtectorListenerService extends WearableListenerService {
             else{
                 Log.d("lastStepReceiver", "Step Listener Expired");
             }
-            getApplicationContext().unregisterReceiver(lastStepReceiver);
+            stopSelf();
         }
     };
 
@@ -111,7 +113,6 @@ public class StandDtectorListenerService extends WearableListenerService {
         Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, path, text.getBytes());
         Log.d("SendMessage", "Sent path: " + path);
         mGoogleApiClient.disconnect();
-        stopSelf();
     }
 
 }

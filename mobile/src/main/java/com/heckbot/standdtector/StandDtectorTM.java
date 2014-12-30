@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -23,7 +24,6 @@ import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
-import com.sean.takeastand.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,6 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     public float RotZAverageOld;
     public float flCalibratedVariation;
     public boolean bDetectedStand = false;
-    public String SensorMethod;
 
     public float mLux;
 
@@ -86,8 +85,6 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     GoogleApiClient mGoogleApiClient;
     Handler wearResultsTimoutHandler;
 
-    //ToDo: Create StandDTector Constants
-
     public StandDtectorTM() {
         super("StandDtectorTM");
     }
@@ -97,23 +94,19 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
         Bundle extras = intent.getExtras();
         sharedPref = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
         String action = intent.getAction();
-        Log.d("Intent", action);
-        Log.d("onHandleIntent", "Getting pendingintent");
-        pendingIntent = intent.getParcelableExtra("pendingIntent");
+        pendingIntent = intent.getParcelableExtra(Constants.PENDING_INTENT);
         returnIntent = new Intent();
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        if (action.equals("DeviceLastStep")) {
-            long timestamp = sharedPref.getLong("DEVICELASTSTEP", -1);
-            Log.d("SensorEvent", "Event Mills: " + timestamp);
+        if (action.equals(Constants.DEVICE_LAST_STEP)) {
+            long timestamp = sharedPref.getLong(Constants.DEVICE_LAST_STEP, -1);
             //determine time(ms) since last step
             if (timestamp > 86400000) {
                 timestamp = (System.currentTimeMillis() - timestamp);
             }
 
             if (timestamp <= 0) {
-                Log.d("Step_Counter", "No Timestamp Available");
-                returnIntent.putExtra("Step_Hardware", false);
+                returnIntent.putExtra(Constants.DEVICE_STEP_HARDWARE, false);
                 try {
                     pendingIntent.send(this, 0, returnIntent);
                 } catch (PendingIntent.CanceledException e) {
@@ -121,20 +114,18 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 }
                 stopSelf();
             }
-            Log.d("SensorEvent", "Device Last Step: " + (timestamp / 1000) + " seconds ago");
             //ToDo:Remove returnIntent setAction where applicable
-            returnIntent.setAction("DeviceLastStep");
-            returnIntent.putExtra("Step_Hardware", true);
-            returnIntent.putExtra("Last_Step", timestamp);
+            returnIntent.setAction(Constants.DEVICE_LAST_STEP);
+            returnIntent.putExtra(Constants.DEVICE_STEP_HARDWARE, true);
+            returnIntent.putExtra(Constants.LAST_STEP, timestamp);
             try {
                 pendingIntent.send(this, 0, returnIntent);
             } catch (PendingIntent.CanceledException e) {
                 e.printStackTrace();
             }
-        } else if (action.equals("WearLastStep")) {
-            Log.d("WearLastStep", "Attempting to contact wear");
+        } else if (action.equals(Constants.WEAR_LAST_STEP)) {
             LocalBroadcastManager.getInstance(this).registerReceiver(wearLastStepResults,
-                    new IntentFilter("WearLastStepResults"));
+                    new IntentFilter(Constants.WEAR_LAST_STEP_RESULTS));
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Wearable.API)
                     .addConnectionCallbacks(this)
@@ -143,29 +134,27 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
 
             wearResultsTimoutHandler = new Handler();
             wearResultsTimoutHandler.postDelayed(wearResultsTimout, 9000);
-        } else if (action.equals("StartDeviceStepCounter")) {
-            if (getPackageManager().hasSystemFeature(getPackageManager().FEATURE_SENSOR_STEP_COUNTER)) {
-                Log.d("StandDtectorTM", "Starting Step Service");
+        } else if (action.equals(Constants.START_DEVICE_STEP_COUNTER)) {
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
                 Intent intentStepCounter = new Intent(this, StandDtectorStepCounter.class);
                 startService(intentStepCounter);
             }
             stopSelf();
-        } else if (action.equals("StopDeviceStepCounter")) {
-            if (getPackageManager().hasSystemFeature(getPackageManager().FEATURE_SENSOR_STEP_COUNTER)) {
-                Log.d("StandDtectorTM", "Stopping Step Service");
+        } else if (action.equals(Constants.STOP_DEVICE_STEP_COUNTER)) {
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
                 Intent intentStepCounter = new Intent(this, StandDtectorStepCounter.class);
-                intentStepCounter.setAction("StopDeviceStepCounter");
+                intentStepCounter.setAction(Constants.STOP_DEVICE_STEP_COUNTER);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(intentStepCounter);
             }
             stopSelf();
-        } else if (action.equals("StandDtectorTMCalibrate")) {
+        } else if (action.equals(Constants.CALIBRATE)) {
             InitializeStandSensors();
             CalibrateSensor();
-        } else if (action.equals("StandDtectorTMStart")) {
+        } else if (action.equals(Constants.STANDDTECTOR_START)) {
             InitializeStandSensors();
             StartSensor(extras.getLong("MILLISECONDS", 0));
             LocalBroadcastManager.getInstance(this).registerReceiver(standDtectorTMStop,
-                    new IntentFilter("StandDtectorTMStop"));
+                    new IntentFilter(Constants.STANDDTECTOR_STOP));
         } else if (action.equals("STOP")) {
             StopSensor();
             stopSelf();
@@ -176,10 +165,8 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
         vibration = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) != null) {
             mRotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
-            SensorMethod = "Geomagnetic Rotation Sensor";
         } else {
             mRotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-            SensorMethod = "Rotation Sensor";
         }
 
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null) {
@@ -420,7 +407,6 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
 
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d("onConnected", "Connected");
         sendMessage(PATH_GET_STEP, "");
     }
 
@@ -437,7 +423,6 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 for (Node node : nodes.getNodes()) {
                     MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
                             mGoogleApiClient, node.getId(), path, text.getBytes()).await();
-                    Log.d("SendMessage", "Sent path: " + path);
                 }
             }
         }).start();
@@ -447,8 +432,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
 
         public void run() {
             //wear results timeout
-            Log.d("WearLastStepResults", "Wear Timeout");
-            returnIntent.putExtra("Wear_Step_Hardware", false);
+            returnIntent.putExtra(Constants.WEAR_STEP_HARDWARE, false);
             try {
                 pendingIntent.send(StandDtectorTM.this, 0, returnIntent);
             } catch (PendingIntent.CanceledException e) {
@@ -461,7 +445,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     private BroadcastReceiver wearLastStepResults = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("WearLastStepResults")) {
+            if (intent.getAction().equals(Constants.WEAR_LAST_STEP_RESULTS)) {
                 wearResultsTimoutHandler.removeCallbacks(wearResultsTimout);
                 Bundle extras = intent.getExtras();
                 long timestamp = extras.getLong("timestamp", -1);
@@ -474,8 +458,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                 }
 
                 if (timestamp <= 0) {
-                    Log.d("WearLastStepResults", "No Timestamp Available");
-                    returnIntent.putExtra("Wear_Step_Hardware", false);
+                    returnIntent.putExtra(Constants.WEAR_STEP_HARDWARE, false);
                     try {
                         pendingIntent.send(StandDtectorTM.this, 0, returnIntent);
                     } catch (PendingIntent.CanceledException e) {
@@ -483,9 +466,8 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
                     }
                     stopSelf();
                 }
-                Log.d("WearLastStepResults", "Last Step: " + (timestamp / 1000) + " seconds ago");
-                returnIntent.setAction("WearLastStep");
-                returnIntent.putExtra("Wear_Step_Hardware", true);
+                returnIntent.setAction(Constants.WEAR_LAST_STEP);
+                returnIntent.putExtra(Constants.WEAR_STEP_HARDWARE, true);
                 returnIntent.putExtra("Wear_Last_Step", timestamp);
                 try {
                     pendingIntent.send(StandDtectorTM.this, 0, returnIntent);
@@ -501,7 +483,7 @@ public class StandDtectorTM extends IntentService implements SensorEventListener
     private BroadcastReceiver standDtectorTMStop = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("StandDtectorTMStop")) {
+            if (intent.getAction().equals(Constants.STANDDTECTOR_STOP)) {
                 StopSensor();
                 LocalBroadcastManager.getInstance(StandDtectorTM.this).unregisterReceiver(standDtectorTMStop);
                 stopSelf();
