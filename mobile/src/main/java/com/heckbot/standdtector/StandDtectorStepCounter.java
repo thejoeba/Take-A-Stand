@@ -12,7 +12,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -30,11 +29,11 @@ public class StandDtectorStepCounter extends Service implements SensorEventListe
         mSensorManager.registerListener(this, mStepCounterSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         SharedPreferences.Editor editor = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).edit();
-        editor.remove("DEVICELASTSTEP");
+        editor.remove(Constants.DEVICE_LAST_STEP);
         editor.commit();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(deviceStopStepCounter,
-                new IntentFilter("StopDeviceStepCounter"));
+                new IntentFilter(Constants.STOP_DEVICE_STEP_COUNTER));
 
         return START_STICKY;
     }
@@ -62,7 +61,7 @@ public class StandDtectorStepCounter extends Service implements SensorEventListe
             long timestamp = System.currentTimeMillis();
             Log.d("StepCounterSensor", "Step Detected at: " + timestamp);
             SharedPreferences.Editor editor = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).edit();
-            editor.putLong("DEVICELASTSTEP", timestamp);
+            editor.putLong(Constants.DEVICE_LAST_STEP, timestamp);
 //            editor.putInt("TOTALDEVICESTEPS", getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getInt("TOTALDEVICESTEPS", 0) + 1);
             editor.commit();
 

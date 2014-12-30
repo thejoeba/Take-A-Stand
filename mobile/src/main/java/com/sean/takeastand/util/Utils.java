@@ -452,14 +452,14 @@ public final class Utils {
         new StoodLogsAdapter(context).newSession(sessionType);
         if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
             Intent startStepCounterIntent = new Intent(context, StandDtectorTM.class);
-            startStepCounterIntent.setAction("StartDeviceStepCounter");
+            startStepCounterIntent.setAction(com.heckbot.standdtector.Constants.START_DEVICE_STEP_COUNTER);
             context.startService(startStepCounterIntent);
         }
     }
 
     public static void endSession(Context context){
         Intent stopStepCounterIntent = new Intent(context, StandDtectorTM.class);
-        stopStepCounterIntent.setAction("StopDeviceStepCounter");
+        stopStepCounterIntent.setAction(com.heckbot.standdtector.Constants.STOP_DEVICE_STEP_COUNTER);
         context.startService(stopStepCounterIntent);
         syncFit(context);
     }

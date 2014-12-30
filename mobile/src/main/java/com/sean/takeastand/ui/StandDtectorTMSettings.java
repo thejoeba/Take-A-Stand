@@ -311,7 +311,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                     .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             Intent calibrationIntent = new Intent(StandDtectorTMSettings.this, StandDtectorTM.class);
-                            calibrationIntent.setAction("StandDtectorTMCalibrate");
+                            calibrationIntent.setAction(com.heckbot.standdtector.Constants.CALIBRATE);
                             Intent intent = new Intent("CalibrationFinished");
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
