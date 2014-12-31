@@ -42,12 +42,22 @@
         android:layout_height="40dp"
         android:background="@drawable/ic_stat_circle_shape_black"
         android:id="@+id/btnStood"
-        android:layout_alignParentTop="false"
-        android:layout_alignParentRight="true"
+        android:visibility="visible"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/notificationTimeStamp" />
+
+    <TextView
+        android:id="@+id/notificationTimeStamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12:12"
+        android:textSize="15sp"
+        android:textColor="@color/LightSlateGrey"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/imageView"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentStart="false"
         android:layout_marginRight="12dp"
         android:layout_marginLeft="12dp"
-        android:visibility="visible" />
+        android:layout_alignTop="@+id/btnStood" />
 
 </RelativeLayout>

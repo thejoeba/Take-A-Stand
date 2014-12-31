@@ -140,14 +140,28 @@
                 android:layout_marginTop="10dp"
                 android:layout_gravity="center_horizontal"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Purchase Pro"
-                android:id="@+id/btnPurchase"
-                android:layout_marginTop="20dp"
-                android:layout_gravity="center_horizontal"/>
         </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Purchase Pro"
+            android:id="@+id/btnPurchase"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvProStatus"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:text="Trial Version"
+            android:textColor="@android:color/primary_text_light"
+            android:gravity="center"
+            android:textSize="@dimen/alert_text_size"
+            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 </ScrollView>
