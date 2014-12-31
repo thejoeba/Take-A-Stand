@@ -119,7 +119,9 @@ public class GoogleFitActivity extends ActionBarActivity {
                         // Now you can make calls to the Fitness APIs.
                         // Put application specific code here.
                         if(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
-                            //ToDo: if not yet authorized, download all previous data
+                            Intent intentImport = new Intent(GoogleFitActivity.this, GoogleFitService.class);
+                            intentImport.setAction("ImportFitSessions");
+                            startService(intentImport);
                         }
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, true);
@@ -188,9 +190,12 @@ public class GoogleFitActivity extends ActionBarActivity {
     View.OnClickListener ReadData = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent insertRead = new Intent(GoogleFitActivity.this, GoogleFitService.class);
-            insertRead.setAction("ReadData");
-            startService(insertRead);
+//            Intent intentRead = new Intent(GoogleFitActivity.this, GoogleFitService.class);
+//            intentRead.setAction("ReadData");
+//            startService(intentRead);
+            Intent intentImport = new Intent(GoogleFitActivity.this, GoogleFitService.class);
+            intentImport.setAction("ImportFitSessions");
+            startService(intentImport);
         }
     };
 

@@ -24,7 +24,7 @@ public class StandCountActivity extends ActionBarActivity {
     //ToDo: Add more statistics
     private static final String TAG = "StandCountActivity";
     private TextView txtStandCount;
-    private TextView tvLastStep;
+//    private TextView tvLastStep;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +46,8 @@ public class StandCountActivity extends ActionBarActivity {
         t.setScreenName("Stand Counter");
         t.send(new HitBuilders.AppViewBuilder().build());
 
-        tvLastStep = (TextView) findViewById(R.id.tvLastStep);
-        tvLastStep.setText("Last Step: " + getSharedPreferences(com.heckbot.standdtector.Constants.STANDDTECTORTM_SHARED_PREFERENCES, Context.MODE_PRIVATE).getLong(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP, 0));
+//        tvLastStep = (TextView) findViewById(R.id.tvLastStep);
+//        tvLastStep.setText("Last Step: " + getSharedPreferences(com.heckbot.standdtector.Constants.STANDDTECTORTM_SHARED_PREFERENCES, Context.MODE_PRIVATE).getLong(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP, 0));
     }
 
     @Override

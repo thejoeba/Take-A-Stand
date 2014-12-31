@@ -31,33 +31,60 @@ public class StoodLogsAdapter {
 
     public long newStoodLog(int stoodMethod, Calendar timeStamp){
         Log.i(TAG, "newStoodLog");
-        StoodSQLHelper scheduleSQLHelper = new StoodSQLHelper(mContext);
-        SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.STOOD_METHOD, stoodMethod);
         databaseInfo.put(StoodSQLHelper.STAND_TIMESTAMP, timeStamp.getTimeInMillis());
         databaseInfo.put(StoodSQLHelper.SESSION_ID, mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE).getLong("CurrentSession", 0));
         long l = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_MAIN, null, databaseInfo);
         localSQLiteDatabase.close();
-        scheduleSQLHelper.close();
+        stoodSQLHelper.close();
         sendAnalyticsEvent(mContext, "Stood: " + stoodMethod);
         return l;
     }
 
     public void newSession(int sessionType){
         Log.i(TAG, "newSession");
-        StoodSQLHelper scheduleSQLHelper = new StoodSQLHelper(mContext);
-        SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.SESSION_TYPE, sessionType);
         databaseInfo.put(StoodSQLHelper.SESSION_START, System.currentTimeMillis());
         databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 0);
         long sessionID = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_SESSION, null, databaseInfo);
         localSQLiteDatabase.close();
-        scheduleSQLHelper.close();
+        stoodSQLHelper.close();
         SharedPreferences.Editor editor = mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE).edit();
         editor.putLong("CurrentSession", sessionID);
         editor.commit();
+    }
+
+    public int addFitSession(int sessionType, long sessionStart) {
+        Log.i(TAG, "addFitSession");
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
+        ContentValues databaseInfo = new ContentValues();
+        databaseInfo.put(StoodSQLHelper.SESSION_TYPE, sessionType);
+        databaseInfo.put(StoodSQLHelper.SESSION_START, sessionStart);
+        databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 1);
+        int sessionNum = (int)localSQLiteDatabase.insert(StoodSQLHelper.TABLE_SESSION, null, databaseInfo);
+        localSQLiteDatabase.close();
+        stoodSQLHelper.close();
+        return sessionNum;
+    }
+
+    public void addFitStand(int stoodMethod, long standTime, int session){
+        Log.i(TAG, "addFitStand");
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
+        ContentValues databaseInfo = new ContentValues();
+        databaseInfo.put(StoodSQLHelper.STOOD_METHOD, stoodMethod);
+        databaseInfo.put(StoodSQLHelper.STAND_TIMESTAMP, standTime);
+        databaseInfo.put(StoodSQLHelper.SESSION_ID, session);
+        localSQLiteDatabase.insert(StoodSQLHelper.TABLE_MAIN, null, databaseInfo);
+        localSQLiteDatabase.close();
+        stoodSQLHelper.close();
     }
 
     public int getCount(){
@@ -67,6 +94,7 @@ public class StoodLogsAdapter {
                 columns, null, null, null, null, null);
         int count = cursor.getCount();
         cursor.close();
+        stoodSQLHelper.close();
         return count;
     }
 
@@ -99,6 +127,7 @@ public class StoodLogsAdapter {
             unsyncedSessions = new long[0][0];
         }
         cursor.close();
+        stoodSQLHelper.close();
         return unsyncedSessions;
     }
 
@@ -146,6 +175,7 @@ public class StoodLogsAdapter {
             sessionArray = new long[0][0];
         }
         cursor.close();
+        stoodSQLHelper.close();
         return sessionArray;
     }
 
@@ -162,8 +192,8 @@ public class StoodLogsAdapter {
                 String timeStamp = cursor.getString(2);
             Log.i(TAG, UID + " " + standMethod + " " + timeStamp);
         }
-        stoodSQLHelper.close();
         cursor.close();
+        stoodSQLHelper.close();
     }
 
     private void sendAnalyticsEvent(Context context, String action){
