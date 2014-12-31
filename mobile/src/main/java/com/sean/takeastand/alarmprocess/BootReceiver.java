@@ -73,6 +73,13 @@ public class BootReceiver extends BroadcastReceiver
         }
         Utils.syncFit(context);
         Utils.getOldestFitSession(context);
+        int currentStatus = Utils.getImageStatus(context);
+        if(currentStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
+                currentStatus == Constants.NON_SCHEDULE_TIME_TO_STAND ||
+                currentStatus == Constants.NON_SCHEDULE_STOOD_UP ||
+                currentStatus == Constants.NON_SCHEDULE_PAUSED) {
+            new UnscheduledRepeatingAlarm(context).setRepeatingAlarm();
+        }
     }
 
     private void sendAnalyticsEvent(Context context, String action){

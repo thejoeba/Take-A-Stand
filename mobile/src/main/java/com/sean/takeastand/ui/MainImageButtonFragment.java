@@ -47,18 +47,17 @@ import android.widget.ViewSwitcher;
 import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
-public class ImageStatusFragment
+public class MainImageButtonFragment
         extends Fragment {
     private ImageView ivStickFigure;
     private TextSwitcher txtTap;
     private TextView tapTextView;
-    private static final String TAG = "ImageStatusFragment";
+    private static final String TAG = "MainImageButtonFragment";
     private Context mContext;
     private String mPraise;
     private boolean mJustReceivedUpdate;
@@ -74,7 +73,7 @@ public class ImageStatusFragment
         mContext = getActivity();
         mHandler = new Handler();
         registerReceivers();
-        View view = layoutInflater.inflate(R.layout.fragment_main_image_status, viewGroup, false);
+        View view = layoutInflater.inflate(R.layout.fragment_main_image_button, viewGroup, false);
         ivStickFigure = (ImageView) view.findViewById(R.id.statusImage);
         ivStickFigure.setOnClickListener(imageListener);
         ivStickFigure.setOnTouchListener(imageButtonListener);
@@ -155,9 +154,9 @@ public class ImageStatusFragment
                 break;
             case Constants.NON_SCHEDULE_PAUSED:
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_paused);
-                ivStickFigure.setOnClickListener(null);
-                ivStickFigure.setOnTouchListener(null);
-                txtTap.setOnClickListener(null);
+                ivStickFigure.setOnClickListener(imageListener);
+                ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setText(mContext.getString(R.string.paused));
                 break;
             case Constants.SCHEDULE_RUNNING:
@@ -245,9 +244,9 @@ public class ImageStatusFragment
                 break;
             case Constants.NON_SCHEDULE_STOOD_UP:
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_stood);
-                ivStickFigure.setOnClickListener(null);
-                ivStickFigure.setOnTouchListener(null);
-                txtTap.setOnClickListener(null);
+                ivStickFigure.setOnClickListener(imageListener);
+                ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 if (mPraise == null) {
                     txtTap.setCurrentText(mContext.getString(R.string.default_praise));
                 } else {
@@ -258,9 +257,9 @@ public class ImageStatusFragment
                 break;
             case Constants.NON_SCHEDULE_PAUSED:
                 ivStickFigure.setImageResource(R.drawable.alarm_unscheduled_paused);
-                ivStickFigure.setOnClickListener(null);
-                ivStickFigure.setOnTouchListener(null);
-                txtTap.setOnClickListener(null);
+                ivStickFigure.setOnClickListener(imageListener);
+                ivStickFigure.setOnTouchListener(imageButtonListener);
+                txtTap.setOnClickListener(imageListener);
                 txtTap.setCurrentText(mContext.getString(R.string.paused));
                 break;
             case Constants.SCHEDULE_RUNNING:
@@ -373,7 +372,8 @@ public class ImageStatusFragment
 
         } else if (imageStatus == Constants.NON_SCHEDULE_ALARM_RUNNING ||
                 imageStatus == Constants.NON_SCHEDULE_TIME_TO_STAND ||
-                imageStatus == Constants.NON_SCHEDULE_STOOD_UP) {
+                imageStatus == Constants.NON_SCHEDULE_STOOD_UP ||
+                imageStatus == Constants.NON_SCHEDULE_PAUSED) {
             Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
             unscheduledRepeatingAlarm.cancelAlarm();
             sendAnalyticsEvent("User ended unscheduled alarm");

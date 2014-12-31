@@ -37,6 +37,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
             <LinearLayout
+                android:id="@+id/checkmark"
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,9 +47,19 @@
                     android:src="@drawable/ic_action_done"
                     android:layout_width="75dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="26dp"
+                    android:layout_marginLeft="5dp"
                     android:id="@+id/btnStood" />
             </LinearLayout>
+            <TextView
+                android:id="@+id/notificationTimeStamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/checkmark"
+                android:text="12:12"
+                android:textSize="15sp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="3dp"
+                android:textColor="@color/LightSlateGrey"/>
         </RelativeLayout>
     </LinearLayout>
 </FrameLayout>

@@ -81,7 +81,7 @@
     <string name="calibration_instructions">To calibrate, the phone must be in your pocket and you must be sitting. The phone will Vibrate once, indicating you should stand. Once calibration is complete, the phone will vibrate again. Once you press OK, you will have 5 seconds to put the phone in your pocket and be sitting before you feel the first vibration.</string>
     <string name="click_for_first_schedule">No stand reminder schedules yet \n \n Click to Add</string>
     <string name="vibrate_sound_on_silent">Vibrate on silent</string>
-    <string name="repeat_vibrate_sound">Repeat vibrate/sound notification when it is time to stand</string>
+    <string name="repeat_vibrate_sound">Repeat notification when it is time to stand</string>
     <string name="every">Every</string>
     <string name="notification_reminder_frequency">Notification Reminder Frequency</string>
     <string name="hello_world">Hello world!</string>
