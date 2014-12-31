@@ -84,13 +84,12 @@
     <string name="repeat_vibrate_sound">Repeat vibrate/sound notification when it is time to stand</string>
     <string name="every">Every</string>
     <string name="notification_reminder_frequency">Notification Reminder Frequency</string>
-    <string name="hello_world">Hello world!</string>
     <string name="reminder_settings">Reminder Settings</string>\
     <string name="pause_description">If pausing for a set time, the next reminder will happen your default frequency minutes after the paused time has passed (20 minute frequency and 30 minute pause = next stand reminder in 50 minutes)</string>
     <string name="paused_until">Paused until:</string>
     <string name="select_pause_type">Pause Time (Minutes)</string>
     <string name="paused">Paused</string>
-    <string name="standdtectortm_settings">StandDtector™ Settings</string>\
+    <string name="standdtectortm_settings">StandDtector™ Settings Pro</string>\
     <string name="step_counter">Step Detection</string>
     <string name="wear_step_counter">Wear Step Counter (StandDtector JR™)</string>
     <string name="standdtectortm">StandDtector™</string>

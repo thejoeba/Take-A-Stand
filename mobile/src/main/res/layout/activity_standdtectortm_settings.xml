@@ -62,7 +62,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -93,7 +94,8 @@
             android:layout_marginTop="8dp"
             android:layout_marginRight="15dp"
             android:layout_marginLeft="15dp"
-            android:layout_marginBottom="6dp" />
+            android:layout_marginBottom="6dp"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/rlStandDTectorTM"
@@ -141,7 +143,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Purchase"
+                android:text="Purchase Pro"
                 android:id="@+id/btnPurchase"
                 android:layout_marginTop="20dp"
                 android:layout_gravity="center_horizontal"/>

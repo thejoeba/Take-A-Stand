@@ -27,6 +27,7 @@ import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.GoogleFitService;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 

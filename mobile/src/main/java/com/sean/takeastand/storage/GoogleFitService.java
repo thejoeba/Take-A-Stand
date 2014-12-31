@@ -1,4 +1,4 @@
-package com.sean.takeastand.util;
+package com.sean.takeastand.storage;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -22,16 +22,13 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.DataDeleteRequest;
-import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.DataTypeCreateRequest;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
 import com.google.android.gms.fitness.request.SessionReadRequest;
-import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataTypeResult;
 import com.google.android.gms.fitness.result.SessionReadResult;
-import com.sean.takeastand.storage.StoodLogsAdapter;
+import com.sean.takeastand.util.Constants;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -192,7 +189,7 @@ public class GoogleFitService extends IntentService{
                         readData();
                     }
                     else if(mAction.equals("ImportFitSessions")){
-                        importFitSessions();
+                        insertUnsyncedData();
                     }
                     else if(mAction.equals("GetOldestSession")){
                         readOldestSession();
@@ -297,6 +294,14 @@ public class GoogleFitService extends IntentService{
                             stoodLogsAdapter.updateSyncedSession(intSession);
                         }
                     }
+                }
+                Log.i("insertUnsyncedData", "sync to fit complete, action: " + mAction);
+                if(mAction.equals("ImportFitSessions")) {
+                    Log.i("insertUnsyncedData", "Clearing Database, then importing from Fit");
+                    stoodLogsAdapter.clearStands();
+                    importFitSessions();
+                }
+                else{
                     disconnectClient();
                 }
             }
@@ -309,45 +314,53 @@ public class GoogleFitService extends IntentService{
         Thread readThread = new Thread() {
             @Override
             public void run() {
-//                //Setting a start and end date using a range of 1 week before this moment.
-//                Calendar cal = Calendar.getInstance();
-//                Date now = new Date();
-//                cal.setTime(now);
-//                long endTime = cal.getTimeInMillis();
-//                cal.add(Calendar.WEEK_OF_YEAR, -1);
-//                long startTime = cal.getTimeInMillis();
-//
-//                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-//                Log.i("readData", "Range Start: " + dateFormat.format(startTime));
-//                Log.i("readData", "Range End: " + dateFormat.format(endTime));
-                // 1419840000000 is 12/29/2014 in unix epoch time
                 long startTime = 1419840000000l;
                 long endTime = System.currentTimeMillis();
-
-                DataReadRequest readRequest = new DataReadRequest.Builder()
-                        .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                // Build a session read request
+                SessionReadRequest readRequest = new SessionReadRequest.Builder()
+                        .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
                         .read(standDataType)
                         .build();
 
-                // Invoke the History API to fetch the data with the query and await the result of
-                // the read request.
-                DataReadResult dataReadResult =
-                        Fitness.HistoryApi.readData(mClient, readRequest).await(1, TimeUnit.MINUTES);
+                // Invoke the Sessions API to fetch the session with the query and wait for the result
+                // of the read request.
+                SessionReadResult sessionReadResult =
+                        Fitness.SessionsApi.readSession(mClient, readRequest)
+                                .await(1, TimeUnit.MINUTES);
 
-                //The following example demonstrates how to obtain the points from a dataset:
-                DataSet dataSet = dataReadResult.getDataSet(standDataType);
+                // Get a list of the sessions that match the criteria to check the result.
+                Log.i("readSession", "Session read was successful. Number of returned sessions is: "
+                        + sessionReadResult.getSessions().size());
 
-                Log.i("readData", "Data returned for Data type: " + dataSet.getDataType().getName());
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(GoogleFitService.this);
 
-                for (DataPoint dp : dataSet.getDataPoints()) {
-                    Log.i("readData", "Data point:");
-                    Log.i("readData", "\tType: " + dp.getDataType().getName());
-                    Log.i("readData", "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                    Log.i("readData", "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                    for(Field field : dp.getDataType().getFields()) {
-                        Log.i("readData", "\tField: " + field.getName() +
-                                " Value: " + dp.getValue(field));
+                for (Session session : sessionReadResult.getSessions()) {
+                    int sessionType;
+                    if (session.getName().equals("Unscheduled Stands")) {
+                        sessionType = 1;
+                    } else if (session.getName().equals("Scheduled Stands")) {
+                        sessionType = 2;
+                    } else {
+                        sessionType = 3;
+                    }
+                    Log.d("GoogleFitReadSession",
+                            "sessionType: " + sessionType +
+                                    " sessionStart: " + session.getStartTime(TimeUnit.MILLISECONDS));
+//                    int sessionNum = stoodLogsAdapter.addFitSession(sessionType, session.getStartTime(TimeUnit.MILLISECONDS));
+
+                    List<DataSet> dataSets = sessionReadResult.getDataSet(session);
+                    for (DataSet standDataSet : dataSets) {
+                        for (DataPoint dp : standDataSet.getDataPoints()) {
+                            long standTime = dp.getTimestamp(TimeUnit.MILLISECONDS);
+                            int stoodMethod = 0;
+                            for(Field field : dp.getDataType().getFields()) {
+                                stoodMethod = dp.getValue(field).asInt();
+                            }
+                            Log.d("GoogleFitReadStand",
+                                    "stoodMethod: " + stoodMethod +
+                                            " standTime: " + standTime);
+//                            stoodLogsAdapter.addFitStand(stoodMethod, standTime, sessionNum);
+                        }
                     }
                 }
                 disconnectClient();
@@ -432,7 +445,7 @@ public class GoogleFitService extends IntentService{
                     Log.d("GoogleFitReadSession",
                             "sessionType: " + sessionType +
                             " sessionStart: " + session.getStartTime(TimeUnit.MILLISECONDS));
-                    //int sessionNum = stoodLogsAdapter.addFitSession(sessionType, session.getStartTime(TimeUnit.MILLISECONDS));
+                    int sessionNum = stoodLogsAdapter.addFitSession(sessionType, session.getStartTime(TimeUnit.MILLISECONDS));
 
                     List<DataSet> dataSets = sessionReadResult.getDataSet(session);
                     for (DataSet standDataSet : dataSets) {
@@ -445,7 +458,7 @@ public class GoogleFitService extends IntentService{
                             Log.d("GoogleFitReadStand",
                                     "stoodMethod: " + stoodMethod +
                                     " standTime: " + standTime);
-                            //stoodLogsAdapter.addFitStand(stoodMethod, standTime, sessionNum);
+                            stoodLogsAdapter.addFitStand(stoodMethod, standTime, sessionNum);
                         }
                     }
                 }
@@ -459,13 +472,6 @@ public class GoogleFitService extends IntentService{
         Thread deleteThread = new Thread() {
             @Override
             public void run() {
-//                // Set a start and end time for our data, using a start time of 1 day before this moment.
-//                Calendar cal = Calendar.getInstance();
-//                Date now = new Date();
-//                cal.setTime(now);
-//                long endTime = cal.getTimeInMillis();
-//                cal.add(Calendar.DAY_OF_YEAR, -1);
-//                long startTime = cal.getTimeInMillis();
                 // 1419840000000 is 12/29/2014 in unix epoch time
                 long startTime = 1419840000000l;
                 long endTime = System.currentTimeMillis();
@@ -473,8 +479,10 @@ public class GoogleFitService extends IntentService{
                 //  Create a delete request object, providing a data type and a time interval
                 DataDeleteRequest request = new DataDeleteRequest.Builder()
                         .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
-                        .addDataType(standDataType)
+                        .deleteAllData()
+                        .deleteAllSessions()
                         .build();
+
 
                 // Invoke the History API with the Google API client object and delete request, and then
                 // specify a callback that will check the result.

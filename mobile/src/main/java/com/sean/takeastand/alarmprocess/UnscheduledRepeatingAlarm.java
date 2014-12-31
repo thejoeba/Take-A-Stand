@@ -23,9 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
-import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 

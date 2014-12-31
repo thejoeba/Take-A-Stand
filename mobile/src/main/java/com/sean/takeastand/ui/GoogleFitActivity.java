@@ -26,13 +26,14 @@ import com.google.android.gms.fitness.Fitness;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 import com.sean.takeastand.util.Constants;
-import com.sean.takeastand.util.GoogleFitService;
+import com.sean.takeastand.storage.GoogleFitService;
 
 /**
  * Created by Joey on 12/23/2014.
  */
 public class GoogleFitActivity extends ActionBarActivity {
     //ToDo: add some branding and explain https://developers.google.com/fit/branding
+    //ToDo: Add Analytics to Fit
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
     private Button btnMarkDBSynced;
@@ -118,7 +119,7 @@ public class GoogleFitActivity extends ActionBarActivity {
                         Log.i("buildFitnessClient", "Connected!!!");
                         // Now you can make calls to the Fitness APIs.
                         // Put application specific code here.
-                        if(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
+                        if(!sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
                             Intent intentImport = new Intent(GoogleFitActivity.this, GoogleFitService.class);
                             intentImport.setAction("ImportFitSessions");
                             startService(intentImport);
@@ -190,12 +191,9 @@ public class GoogleFitActivity extends ActionBarActivity {
     View.OnClickListener ReadData = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-//            Intent intentRead = new Intent(GoogleFitActivity.this, GoogleFitService.class);
-//            intentRead.setAction("ReadData");
-//            startService(intentRead);
-            Intent intentImport = new Intent(GoogleFitActivity.this, GoogleFitService.class);
-            intentImport.setAction("ImportFitSessions");
-            startService(intentImport);
+            Intent intentRead = new Intent(GoogleFitActivity.this, GoogleFitService.class);
+            intentRead.setAction("ReadData");
+            startService(intentRead);
         }
     };
 

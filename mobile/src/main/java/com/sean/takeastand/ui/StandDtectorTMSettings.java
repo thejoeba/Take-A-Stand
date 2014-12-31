@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class StandDtectorTMSettings extends ActionBarActivity {
+    //ToDo: Add Analytics to StandDtectorTMSettings
     private Switch toggleDeviceStepCounter;
     private Switch toggleWearStepCounter;
     private Switch toggleStandDtectorTM;
@@ -172,6 +173,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             });
         }
 
+        //ToDo: Notify users of trial/pro, check trial expiration when running
 //        boolean enablePro = checkPro();
         boolean enablePro = false;
         boolean trial = false;

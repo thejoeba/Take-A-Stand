@@ -71,7 +71,7 @@
         <service android:name=".alarmprocess.AlarmService" />
         <service android:name="com.heckbot.standdtector.StandDtectorTM" />
         <service android:name="com.heckbot.standdtector.StandDtectorStepCounter" />
-        <service android:name=".util.GoogleFitService" />
+        <service android:name=".storage.GoogleFitService" />
 
         <service android:name="com.heckbot.standdtector.WearResultsListenerService">
             <intent-filter>
