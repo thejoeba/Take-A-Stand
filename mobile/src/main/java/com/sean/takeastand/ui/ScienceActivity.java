@@ -23,7 +23,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  */
 
 public class ScienceActivity extends ActionBarActivity {
-
+//ToDo: Shrink Titles
     /*
     Need to figure out a way uo dynamically increase the parent layout's (scrollview's) height based
     on the new textviews added. GetHeight returns pixels.

@@ -42,6 +42,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class StandDtectorTMSettings extends ActionBarActivity {
     //ToDo: Add Analytics to StandDtectorTMSettings
+    //ToDo: Explain Settings
     private Switch toggleDeviceStepCounter;
     private Switch toggleWearStepCounter;
     private Switch toggleStandDtectorTM;

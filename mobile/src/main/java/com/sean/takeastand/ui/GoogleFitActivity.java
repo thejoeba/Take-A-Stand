@@ -32,8 +32,10 @@ import com.sean.takeastand.storage.GoogleFitService;
  * Created by Joey on 12/23/2014.
  */
 public class GoogleFitActivity extends ActionBarActivity {
-    //ToDo: add some branding and explain https://developers.google.com/fit/branding
+    //ToDo: add some branding https://developers.google.com/fit/branding
     //ToDo: Add Analytics to Fit
+    //ToDo: Explain Fit.
+    //ToDO: Prompt Fit Login on first launch
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
     private Button btnMarkDBSynced;
