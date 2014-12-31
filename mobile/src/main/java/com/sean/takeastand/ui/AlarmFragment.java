@@ -119,6 +119,9 @@ public class AlarmFragment extends Fragment{
                 if(stoodLayout.getVisibility() == View.VISIBLE){
                     mHandler.post(hideStoodAnimation);
                 }
+                if(pausedLayout.getVisibility() == View.VISIBLE){
+                    mHandler.post(hidePausedTimeAnimation);
+                }
                 break;
             case Constants.NON_SCHEDULE_ALARM_RUNNING:
                 nextAlert.setText(Utils.getNextAlarmTimeString(getActivity()));
@@ -359,7 +362,10 @@ public class AlarmFragment extends Fragment{
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     pausedLayout.setVisibility(View.GONE);
-                    mHandler.post(showNextAlertAnimation);
+                    if(Utils.getImageStatus(getActivity()) == Constants.NON_SCHEDULE_ALARM_RUNNING ||
+                           Utils.getImageStatus(getActivity()) == Constants.SCHEDULE_RUNNING){
+                        mHandler.post(showNextAlertAnimation);
+                    }
                 }
                 @Override
                 public void onAnimationRepeat(Animation animation) {}

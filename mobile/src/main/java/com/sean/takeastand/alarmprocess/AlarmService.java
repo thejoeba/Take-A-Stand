@@ -67,12 +67,13 @@ public class AlarmService extends Service {
     private Handler mHandler;
     private FixedAlarmSchedule mCurrentAlarmSchedule;
     //private int mNotifTimePassed = 0;
-    long[] mVibrationPattern = {(long) 200, (long) 300, (long) 200, (long) 300, (long) 200, (long) 300};
+    private long[] mVibrationPattern = {(long) 200, (long) 300, (long) 200, (long) 300, (long) 200, (long) 300};
     private boolean mainActivityVisible;
     private boolean bStepCounterHandled = false;
     private boolean bWearStepCounterHandled = false;
-    long lDeviceLastStep = -1;
-    boolean bRepeatingAlarmStepCheck = false;
+    private long lDeviceLastStep = -1;
+    private boolean bRepeatingAlarmStepCheck = false;
+    private String notificationClockTime;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -85,49 +86,6 @@ public class AlarmService extends Service {
             beginStandNotifications(intent);
         }
         return START_REDELIVER_INTENT;
-    }
-
-    private boolean UseLastStepCounters(Intent intent) {
-        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
-            Log.d("UseLastStepCounters", "Step Detector Enabled");
-            GetDeviceLastStep(intent);
-            return true;
-        } else if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
-            Log.d("UseLastStepCounters", "Wear Detector Enabled");
-            GetWearLastStep(intent);
-            return true;
-        }
-        return false;
-    }
-
-    private void GetDeviceLastStep(Intent intent) {
-        Intent stepDetectorIntent = new Intent(this, StandDtectorTM.class);
-        stepDetectorIntent.setAction(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP);
-        Intent returnIntent = new Intent(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
-        stepDetectorIntent.putExtra("pendingIntent", pendingIntent);
-        startService(stepDetectorIntent);
-        //error handling if no step detector results are returned.
-        mHandler = new Handler();
-        int tenSecondMillis = 10000;
-
-        Runnable lastStepReceiverTimeout = new StepCounterTimeoutRunnable(intent);
-        mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
-    }
-
-    private void GetWearLastStep(Intent intent) {
-        Intent wearStepDetectorIntent = new Intent(this, StandDtectorTM.class);
-        wearStepDetectorIntent.setAction(com.heckbot.standdtector.Constants.WEAR_LAST_STEP);
-        Intent returnIntent = new Intent(com.heckbot.standdtector.Constants.WEAR_LAST_STEP);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
-        wearStepDetectorIntent.putExtra("pendingIntent", pendingIntent);
-        startService(wearStepDetectorIntent);
-        //error handling if no step detector results are returned.
-        mHandler = new Handler();
-        int tenSecondMillis = 10000;
-
-        Runnable lastWearStepReceiverTimeout = new WearStepCounterTimeoutRunnable(intent);
-        mHandler.postDelayed(lastWearStepReceiverTimeout, tenSecondMillis);
     }
 
     private void beginStandNotifications(Intent intent) {
@@ -171,8 +129,6 @@ public class AlarmService extends Service {
                 new IntentFilter(Constants.MAIN_ACTIVITY_VISIBILITY_STATUS));
         LocalBroadcastManager.getInstance(this).registerReceiver(endAlarmService,
                 new IntentFilter(Constants.END_ALARM_SERVICE));
-        LocalBroadcastManager.getInstance(this).registerReceiver(deletedAlarm,
-                new IntentFilter(Constants.ALARM_SCHEDULE_DELETED));
     }
 
     private void unregisterReceivers() {
@@ -181,7 +137,6 @@ public class AlarmService extends Service {
         getApplicationContext().unregisterReceiver(wearLastStepReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainVisibilityReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(endAlarmService);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(deletedAlarm);
     }
 
     @Override
@@ -364,25 +319,6 @@ public class AlarmService extends Service {
         }
     };
 
-    private BroadcastReceiver deletedAlarm = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "User deleted an Alarm Schedule.  Checking to see if that is the currently" +
-                    " alarm notification.");
-            int currentAlarmUID = -1;
-            if (mCurrentAlarmSchedule != null) {
-                currentAlarmUID = mCurrentAlarmSchedule.getUID();
-            }
-            int deletedAlarmUID = intent.getIntExtra("UID", -2);
-            if (deletedAlarmUID == currentAlarmUID) {
-                mHandler.removeCallbacks(timeToUpdateNotification);
-                cancelNotification();
-                //End this service
-                AlarmService.this.stopSelf();
-            }
-        }
-    };
-
     private Runnable timeToUpdateNotification = new Runnable() {
         public void run() {
             updateNotification();
@@ -449,7 +385,7 @@ public class AlarmService extends Service {
     private Runnable stoodUp = new Runnable() {
         @Override
         public void run() {
-            setStoodUpAlarm(getApplicationContext());
+            setNewAlarm(getApplicationContext());
             StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(AlarmService.this);
             stoodLogsAdapter.getLastRow();
             AlarmService.this.stopSelf();
@@ -467,7 +403,7 @@ public class AlarmService extends Service {
         }
     };
 
-    private void setStoodUpAlarm(Context context) {
+    private void setNewAlarm(Context context) {
         RepeatingAlarm repeatingAlarm;
         if (mCurrentAlarmSchedule == null) {
             repeatingAlarm = new UnscheduledRepeatingAlarm(context);
@@ -515,6 +451,8 @@ public class AlarmService extends Service {
         PendingIntent[] pendingIntents = makeNotificationIntents();
         RemoteViews rvRibbon = new RemoteViews(getPackageName(), R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
+        notificationClockTime = Utils.getFormattedCalendarTime(Calendar.getInstance(), this);
+        rvRibbon.setTextViewText(R.id.notificationTimeStamp, notificationClockTime);
         NotificationCompat.Builder alarmNotificationBuilder = new NotificationCompat.Builder(this);
         alarmNotificationBuilder
                 .setContent(rvRibbon)
@@ -597,6 +535,7 @@ public class AlarmService extends Service {
         PendingIntent[] pendingIntents = makeNotificationIntents();
         RemoteViews rvRibbon = new RemoteViews(getPackageName(), R.layout.stand_notification);
         rvRibbon.setOnClickPendingIntent(R.id.btnStood, pendingIntents[1]);
+        rvRibbon.setTextViewText(R.id.notificationTimeStamp,notificationClockTime);
         /*rvRibbon.setTextViewText(R.id.stand_up_minutes, mNotifTimePassed +
                 setMinutes(mNotifTimePassed));
         rvRibbon.setTextViewText(R.id.topTextView, getString(R.string.stand_up_time_up));*/
@@ -680,6 +619,58 @@ public class AlarmService extends Service {
         PendingIntent stoodUpWearPendingIntent = PendingIntent.getBroadcast(this, 0,
                 stoodUpIntent, 0);
         return new PendingIntent[]{launchActivityPendingIntent, stoodUpPendingIntent, stoodUpWearPendingIntent};
+    }
+
+    private boolean UseLastStepCounters(Intent intent) {
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false)) {
+            Log.d("UseLastStepCounters", "Step Detector Enabled");
+            GetDeviceLastStep(intent);
+            return true;
+        } else if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.WEAR_STEP_DETECTOR_ENABLED, false)) {
+            Log.d("UseLastStepCounters", "Wear Detector Enabled");
+            GetWearLastStep(intent);
+            return true;
+        }
+        return false;
+    }
+
+    private void GetDeviceLastStep(Intent intent) {
+        Intent stepDetectorIntent = new Intent(this, StandDtectorTM.class);
+        stepDetectorIntent.setAction(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP);
+        Intent returnIntent = new Intent(com.heckbot.standdtector.Constants.DEVICE_LAST_STEP);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
+        stepDetectorIntent.putExtra("pendingIntent", pendingIntent);
+        startService(stepDetectorIntent);
+        //error handling if no step detector results are returned.
+        mHandler = new Handler();
+        int tenSecondMillis = 10000;
+
+        Runnable lastStepReceiverTimeout = new StepCounterTimeoutRunnable(intent);
+        mHandler.postDelayed(lastStepReceiverTimeout, tenSecondMillis);
+    }
+
+    private void GetWearLastStep(Intent intent) {
+        Intent wearStepDetectorIntent = new Intent(this, StandDtectorTM.class);
+        wearStepDetectorIntent.setAction(com.heckbot.standdtector.Constants.WEAR_LAST_STEP);
+        Intent returnIntent = new Intent(com.heckbot.standdtector.Constants.WEAR_LAST_STEP);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, returnIntent, PendingIntent.FLAG_ONE_SHOT);
+        wearStepDetectorIntent.putExtra("pendingIntent", pendingIntent);
+        startService(wearStepDetectorIntent);
+        //error handling if no step detector results are returned.
+        mHandler = new Handler();
+        int tenSecondMillis = 10000;
+
+        Runnable lastWearStepReceiverTimeout = new WearStepCounterTimeoutRunnable(intent);
+        mHandler.postDelayed(lastWearStepReceiverTimeout, tenSecondMillis);
+    }
+
+
+    private String setMinutes(int minutes) {
+        if (minutes > 1) {
+            return getString(R.string.minutes_ago);
+        } else {
+            return getString(R.string.minute_ago);
+        }
     }
 
     private void cancelNotification() {

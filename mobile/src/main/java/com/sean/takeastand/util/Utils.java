@@ -244,7 +244,7 @@ public final class Utils {
     }
 
     //Used by AlarmService, ScheduleEditor, ScheduledRepeatingAlarm, UnscheduledRepeatingAlarm,
-    //ImageStatusFragment, AlarmReceiver, StartScheduleReceiver, and MainActivity
+    //MainImageButtonFragment, AlarmReceiver, StartScheduleReceiver, and MainActivity
     public static void setImageStatus(Context context, int imageStatus){
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(Constants.EVENT_SHARED_PREFERENCES, 0);
@@ -255,7 +255,7 @@ public final class Utils {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
-    //Used by AlarmFragment and ImageStatusFragment. This method is used to find out
+    //Used by AlarmFragment and MainImageButtonFragment. This method is used to find out
     //which images to display and which onClickListeners to set.
     public static int getImageStatus(Context context){
         SharedPreferences sharedPreferences =

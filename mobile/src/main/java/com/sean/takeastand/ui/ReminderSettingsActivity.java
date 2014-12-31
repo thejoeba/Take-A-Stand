@@ -222,19 +222,6 @@ public class ReminderSettingsActivity extends ActionBarActivity {
         } else {
             rlNotificationFrequency.setVisibility(View.GONE);
         }
-        if (chbxVibrate.isChecked() || chbxSound.isChecked()) {
-            txtRepeat.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-            //txtNotificationFrequencyTitle.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-            txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-            swRepeat.setEnabled(true);
-            swRepeat.setAlpha((float) 1);
-        } else {
-            txtRepeat.setTextColor(getResources().getColor(R.color.LightGrey));
-            //txtNotificationFrequencyTitle.setTextColor(getResources().getColor(R.color.LightGrey));
-            swRepeat.setEnabled(false);
-            swRepeat.setAlpha((float) 0.5);
-            txtNotificationFrequency.setTextColor(getResources().getColor(R.color.LightGrey));
-        }
         if (chbxVibrate.isChecked()) {
             txtSilentMode.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             swSilent.setEnabled(true);

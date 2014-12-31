@@ -43,7 +43,6 @@ import com.google.android.gms.analytics.Tracker;
 import com.melnykov.fab.FloatingActionButton;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
-import com.sean.takeastand.storage.ExpandableAdapter;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.storage.ScheduleListAdapter;
 import com.sean.takeastand.util.Constants;
@@ -61,7 +60,6 @@ public class ScheduleListActivity extends ActionBarActivity {
     private static final String TAG = "SchedulesListActivity";
     private FloatingActionButton fab;
     private ScheduleListAdapter scheduleListAdapter;
-    private ExpandableAdapter expandableAdapter;
     private  ArrayList<AlarmSchedule> mAlarmSchedules;
     private ListView mSchedulesList;
     private TimePickerFragment timePickerFragment;
@@ -137,8 +135,6 @@ public class ScheduleListActivity extends ActionBarActivity {
                 new ScheduleListAdapter(this, android.R.id.list, mAlarmSchedules, getLayoutInflater());
 
         Log.i(TAG, "Number of Rows: " + Integer.toString(scheduleListAdapter.getCount()));
-        //expandableAdapter = new ExpandableAdapter(this, scheduleListAdapter, R.id.clickToExpand, R.id.bottomContainer);
-        //mSchedulesList.setAdapter(expandableAdapter);
         mSchedulesList.setAdapter(scheduleListAdapter);
     }
 
