@@ -32,6 +32,12 @@ Thumbs.db
 .classpath
 .project
 
+# Analytics files
+app_tracker.xml
+analytics_global_config.xml
+ecommerce_tracker.xml
+global_tracker.xml
+
 # Android Studio
 .idea
 #.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
