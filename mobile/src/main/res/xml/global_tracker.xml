@@ -5,5 +5,5 @@
     <!-- Enable automatic Activity measurement -->
     <boolean name="ga_dryRun">false</boolean>
     <string name="com.sean.takeastand.ui.MainActivity">Main Activity</string>
-    <string name="ga_trackingId">UA-57646863-1</string>
+    <string name="ga_trackingId">UA -57646863-1</string>
 </resources>
