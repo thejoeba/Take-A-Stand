@@ -26,11 +26,11 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,7 +62,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class MainActivity extends ActionBarActivity {
-//ToDo: Recenter layout
+    //ToDo: Recenter layout
     private static final String TAG = "MainActivity";
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -76,6 +76,8 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle paramBundle) {
+        Log.i(TAG, "onCreate");
+//        Log.d(TAG,"Line: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
         super.onCreate(paramBundle);
         //deleteDatabase("alarms_database");
         //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
@@ -87,6 +89,7 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions.add(getString(R.string.science_app));
         mNavDrawerOptions.add(getString(R.string.stand_count));
         mNavDrawerOptions.add(getString(R.string.google_fit));
+        mNavDrawerOptions.add(getString(R.string.help));
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -106,7 +109,6 @@ public class MainActivity extends ActionBarActivity {
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
-
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -118,7 +120,6 @@ public class MainActivity extends ActionBarActivity {
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Main Activity");
         t.send(new HitBuilders.AppViewBuilder().build());
-
     }
 
     @Override
@@ -151,6 +152,10 @@ public class MainActivity extends ActionBarActivity {
                 case 4:
                     Intent intentGoogleFit = new Intent(MainActivity.this, GoogleFitActivity.class);
                     startActivity(intentGoogleFit);
+                    break;
+                case 5:
+                    Intent intentHelp = new Intent(MainActivity.this, HelpActivity.class);
+                    startActivity(intentHelp);
                     break;
             }
         }
@@ -366,7 +371,8 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 mPausePlay.setVisible(false);
             }
-            invalidateOptionsMenu();
+            //ToDo: Report Infinite Loop to Sean
+//            invalidateOptionsMenu();
         } else {
             Log.i(TAG, "null");
         }
@@ -406,6 +412,7 @@ public class MainActivity extends ActionBarActivity {
         editor.commit();
     }
 
+    //ToDo:ReEnable this, but troubleshoot it, it doesn't work?
     //For Calligraphy font library class
     @Override
     protected void attachBaseContext(Context newBase) {

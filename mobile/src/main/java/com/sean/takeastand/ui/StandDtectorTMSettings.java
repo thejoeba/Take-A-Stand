@@ -127,14 +127,14 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                         ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
                 ArrayList<String>  purchaseDataList =
                         ownedItems.getStringArrayList("INAPP_PURCHASE_DATA_LIST");
-                ArrayList<String>  signatureList =
-                        ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
-                String continuationToken =
-                        ownedItems.getString("INAPP_CONTINUATION_TOKEN");
+//                ArrayList<String>  signatureList =
+//                        ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
+//                String continuationToken =
+//                        ownedItems.getString("INAPP_CONTINUATION_TOKEN");
 
                 for (int i = 0; i < purchaseDataList.size(); ++i) {
-                    String purchaseData = purchaseDataList.get(i);
-                    String signature = signatureList.get(i);
+//                    String purchaseData = purchaseDataList.get(i);
+//                    String signature = signatureList.get(i);
                     String sku = ownedSkus.get(i);
 
                     // do something with this purchase information
@@ -172,7 +172,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             });
         }
 
-        //ToDo: Notify users of trial/pro, check trial expiration when running
+        //ToDo: check trial expiration when starting session
         boolean enablePro = checkPro();
 //        boolean enablePro = false;
         boolean trial = false;
@@ -229,22 +229,16 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             FeatureCheck();
         }
         else {
-            //ToDo:Why disable them and set a listener?
             toggleDeviceStepCounter.setChecked(false);
-//            toggleDeviceStepCounter.setEnabled(false);
             toggleDeviceStepCounter.setOnClickListener(UpgradePurchase);
 
             toggleWearStepCounter.setChecked(false);
-//            toggleWearStepCounter.setEnabled(false);
             toggleWearStepCounter.setOnClickListener(UpgradePurchase);
 
             toggleStandDtectorTM.setChecked(false);
-//            toggleStandDtectorTM.setEnabled(false);
             toggleStandDtectorTM.setOnClickListener(UpgradePurchase);
 
-//            btnCalibrate.setEnabled(false);
             btnCalibrate.setOnClickListener(UpgradePurchase);
-//            btnCalibrate.setText("Upgrade");
 
             tvProStatus.setText("Trial Expired. Upgrade to Pro.");
 
@@ -333,6 +327,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     View.OnClickListener StandDtectorTMListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            //ToDo: calibrate first
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(Constants.STANDDTECTORTM_ENABLED, ((Switch) view).isChecked());
             editor.commit();

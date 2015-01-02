@@ -403,7 +403,13 @@ public class GoogleFitService extends IntentService{
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putLong(Constants.GOOGLE_FIT_OLDEST_SESSION, oldestSession);
                 editor.commit();
-                disconnectClient();
+
+                if (sharedPref.getBoolean(Constants.GOOGLE_FIT_ENABLED, false)) {
+                    insertUnsyncedData();
+                }
+                else {
+                    disconnectClient();
+                }
             }
         };
         readOldestThread.start();

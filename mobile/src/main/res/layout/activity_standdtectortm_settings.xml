@@ -39,6 +39,14 @@
                 android:textSize="@dimen/alert_text_size"
                 android:layout_gravity="center_horizontal" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/StepDetectionDescription"
+                android:id="@+id/tvStepDetectionDescription"
+                android:layout_gravity="center_horizontal" />
+
             <Switch
                 android:id="@+id/toggleDeviceStepCounter"
                 android:layout_width="wrap_content"
@@ -77,6 +85,14 @@
                 android:gravity="center"
                 android:textSize="@dimen/alert_text_size"
                 android:layout_gravity="center_horizontal"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/WearStepDetectionDescription"
+                android:id="@+id/tvWearStepDetection"
+                android:layout_gravity="center_horizontal" />
 
             <Switch
                 android:id="@+id/toggleWearStepCounter"

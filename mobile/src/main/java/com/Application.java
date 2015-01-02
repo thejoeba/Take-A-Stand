@@ -3,6 +3,7 @@ package com;
 import android.util.Log;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
 
@@ -33,16 +34,38 @@ public class Application extends android.app.Application {
 
     HashMap<TrackerName, Tracker> mTrackers = new HashMap<TrackerName, Tracker>();
 
+//    public synchronized Tracker getTracker(TrackerName trackerId) {
+//        if (!mTrackers.containsKey(trackerId)) {
+//
+//            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+//            //This is an if-else nested in an if-else
+//            Tracker t = (trackerId == TrackerName.APP_TRACKER) ? analytics.newTracker(R.xml.app_tracker)
+//                    : (trackerId == TrackerName.GLOBAL_TRACKER) ? analytics.newTracker(R.xml.global_tracker)
+//                    : analytics.newTracker(R.xml.ecommerce_tracker);
+//            mTrackers.put(trackerId, t);
+//            Log.i(TAG, "Worked " + Boolean.toString(trackerId == TrackerName.APP_TRACKER));
+//        }
+//        return mTrackers.get(trackerId);
+//    }
+//ToDo: fixed via http://stackoverflow.com/questions/27533679/google-analytics-blocks-android-app
     public synchronized Tracker getTracker(TrackerName trackerId) {
+        Log.d(TAG, "getTracker()");
         if (!mTrackers.containsKey(trackerId)) {
-
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            //This is an if-else nested in an if-else
-            Tracker t = (trackerId == TrackerName.APP_TRACKER) ? analytics.newTracker(R.xml.app_tracker)
-                    : (trackerId == TrackerName.GLOBAL_TRACKER) ? analytics.newTracker(R.xml.global_tracker)
-                    : analytics.newTracker(R.xml.ecommerce_tracker);
+
+            // Global GA Settings
+            // <!-- Google Analytics SDK V4 BUG20141213 Using a GA global xml freezes the app! Do config by coding. -->
+            analytics.setDryRun(false);
+
+            analytics.getLogger().setLogLevel(Logger.LogLevel.INFO);
+            //analytics.getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
+
+            // Create a new tracker
+            Tracker t = (trackerId == TrackerName.APP_TRACKER) ? analytics.newTracker(R.xml.analytics_global_config) : null;
+            if (t != null) {
+                t.enableAdvertisingIdCollection(true);
+            }
             mTrackers.put(trackerId, t);
-            Log.i(TAG, "Worked " + Boolean.toString(trackerId == TrackerName.APP_TRACKER));
         }
         return mTrackers.get(trackerId);
     }
