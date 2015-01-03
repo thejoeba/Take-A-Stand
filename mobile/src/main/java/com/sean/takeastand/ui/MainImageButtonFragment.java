@@ -52,8 +52,7 @@ import com.sean.takeastand.alarmprocess.UnscheduledRepeatingAlarm;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
 
-public class MainImageButtonFragment
-        extends Fragment {
+public class MainImageButtonFragment extends Fragment {
     private ImageView ivStickFigure;
     private TextSwitcher txtTap;
     private TextView tapTextView;
@@ -72,16 +71,16 @@ public class MainImageButtonFragment
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
         mContext = getActivity();
         mHandler = new Handler();
-        registerReceivers();
+//        registerReceivers();
         View view = layoutInflater.inflate(R.layout.fragment_main_image_button, viewGroup, false);
         ivStickFigure = (ImageView) view.findViewById(R.id.statusImage);
         ivStickFigure.setOnClickListener(imageListener);
         ivStickFigure.setOnTouchListener(imageButtonListener);
         txtTap = (TextSwitcher) view.findViewById(R.id.tap_to_set);
         setTextSwitchers();
-        updateLayoutStatic();
+//        updateLayoutStatic();
         //If stuck on a non-click listener view uncomment the below line:
-        //Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
+//        Utils.setImageStatus(getActivity(), Constants.NO_ALARM_RUNNING);
         return view;
     }
 
@@ -101,7 +100,7 @@ public class MainImageButtonFragment
 
     @Override
     public void onStart() {
-        updateLayoutStatic();
+//        updateLayoutStatic();
         super.onStart();
     }
 

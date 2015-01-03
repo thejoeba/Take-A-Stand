@@ -41,7 +41,6 @@ public class AlarmFragment extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_alarm, container, false);
         nextAlertLayout = (LinearLayout)view.findViewById(R.id.next_alert_time_layout);
         nextAlertLayout.setVisibility(View.GONE);
@@ -53,7 +52,7 @@ public class AlarmFragment extends Fragment{
         pausedLayout.setVisibility(View.GONE);
         nextAlert = (TextView)view.findViewById(R.id.next_alert_time);
         pausedTime = (TextView)view.findViewById(R.id.paused_until_time);
-        registerReceivers();
+//        registerReceivers();
         mHandler = new Handler();
         return view;
     }
@@ -66,7 +65,6 @@ public class AlarmFragment extends Fragment{
 
     @Override
     public void onResume() {
-        Log.i(TAG, "onResume");
         updateLayoutStatic();
         registerReceivers();
         super.onResume();

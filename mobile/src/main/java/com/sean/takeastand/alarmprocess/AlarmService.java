@@ -88,7 +88,6 @@ public class AlarmService extends Service {
         return START_REDELIVER_INTENT;
     }
 
-
     private void beginStandNotifications(Intent intent) {
         mainActivityVisible = false;
         mHandler = new Handler();
@@ -159,7 +158,7 @@ public class AlarmService extends Service {
             if (intent.hasExtra(com.heckbot.standdtector.Constants.STAND_DETECTOR_RESULT)) {
                 String result = intent.getStringExtra(com.heckbot.standdtector.Constants.STAND_DETECTOR_RESULT);
                 if (result.equals(com.heckbot.standdtector.Constants.STAND_DETECTED)) {
-                    Vibrator v = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
+                    Vibrator v = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
                     long[] pattern = {0, 250, 250, 250, 250, 250, 250, 250};
                     v.vibrate(pattern, -1);
                     recordStand(Constants.STOOD_AFTER, Calendar.getInstance());
@@ -240,7 +239,6 @@ public class AlarmService extends Service {
                         mHandler.removeCallbacks(timeToUpdateNotification);
                         long fiveSeconds = 5 * Constants.millisecondsInSecond;
                         mHandler.postDelayed(changeImage, fiveSeconds);
-                        long threeSeconds = 3 * Constants.millisecondsInSecond;
                         if (mCurrentAlarmSchedule == null) {
                             Utils.setImageStatus(getApplicationContext(), Constants.NON_SCHEDULE_STOOD_UP);
                         } else {
@@ -322,7 +320,6 @@ public class AlarmService extends Service {
     };
 
     private Runnable timeToUpdateNotification = new Runnable() {
-        //ToDo: Note: If user dismisses notification, it comes back every minute
         public void run() {
             updateNotification();
             int defaultReminderTime = Utils.getNotificationReminderFrequency(AlarmService.this) *
@@ -599,6 +596,7 @@ public class AlarmService extends Service {
     }
 
     private PendingIntent[] makeNotificationIntents() {
+        //ToDo: Add intent specifically for StandDtector Stand Results
         // Creates an explicit intent for an Activity in your app
         Intent launchActivityIntent = new Intent(this, MainActivity.class);
         // The stack builder object will contain an artificial back stack for the

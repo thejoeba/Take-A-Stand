@@ -33,14 +33,13 @@
         android:layout_height="wrap_content"
         android:text="Deauthorize Fit"
         android:id="@+id/btnDeauthorizeFit"
-        android:layout_gravity="center_horizontal"
-        android:onClick="deauthorizeFit" />
+        android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Insert Data"
-        android:id="@+id/btnInsertData"
+        android:text="Mark DB Synced"
+        android:id="@+id/btnMarkDBSynced"
         android:layout_gravity="center_horizontal"
         android:visibility="invisible" />
 
@@ -49,12 +48,21 @@
         android:layout_height="wrap_content"
         android:text="Read Data"
         android:id="@+id/btnReadData"
+        android:layout_gravity="center_horizontal"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Delete all Google Fit Data"
+        android:id="@+id/tvDeleteData"
         android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Delete Data"
+        android:text="Delete"
         android:id="@+id/btnDeleteData"
         android:layout_gravity="center_horizontal" />
 

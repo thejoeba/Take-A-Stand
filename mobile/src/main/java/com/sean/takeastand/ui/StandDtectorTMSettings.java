@@ -41,12 +41,15 @@ import java.util.ArrayList;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class StandDtectorTMSettings extends ActionBarActivity {
+    //ToDo: Add Analytics to StandDtectorTMSettings
+    //ToDo: Explain Settings
     private Switch toggleDeviceStepCounter;
     private Switch toggleWearStepCounter;
     private Switch toggleStandDtectorTM;
     private Button btnCalibrate;
     private TextView txtCalibratedValue;
     private Button btnPurchase;
+    private TextView tvProStatus;
 
     SharedPreferences sharedPreferences;
 
@@ -63,8 +66,6 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
-
-        setUpLayout();
     }
 
     @Override
@@ -86,7 +87,11 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                 try {
                     JSONObject jo = new JSONObject(purchaseData);
                     String sku = jo.getString("productId");
-                    Log.d("onActivityResult", "You have bought the " + sku + ". Excellent choice, adventurer!");
+                    Log.d("onActivityResult", "You have bought the " + sku + ". Excellent choice!");
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putLong(Constants.PRO_VERIFIED, System.currentTimeMillis());
+                    editor.commit();
+                    setUpLayout();
                 }
                 catch (JSONException e) {
                     Log.d("onActivityResult", "Failed to parse purchase data.");
@@ -97,27 +102,21 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     }
 
     private boolean checkPro() {
-        //ToDo: Check shared perfs first to increase speed.
-        //verify weekly
-        //ToDo: perfs should also store phone id to verify validity
-        //checked every time
-        //ToDo: handle null
-        String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        if (sharedPreferences.getString(Constants.PRO_ANDROID_ID, "").equals(android_id)) {
-            if (sharedPreferences.getLong(Constants.PRO_VERIFIED, 0) > System.currentTimeMillis() - 604800000l) {
-                return true;
+        try {
+            String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            if (sharedPreferences.getString(Constants.PRO_ANDROID_ID, "").equals(android_id)) {
+                if (sharedPreferences.getLong(Constants.PRO_VERIFIED, 0) > System.currentTimeMillis() - 604800000l) {
+                    return true;
+                }
+            } else {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(Constants.PRO_ANDROID_ID, android_id);
+                editor.commit();
             }
         }
-        else {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Constants.PRO_ANDROID_ID, android_id);
-            editor.commit();
+        catch (Exception e) {
+            Log.e("checkPro", "Failed to verify pro against sharedPreferences. Checking Purchase.");
         }
-        ArrayList<String> skuList = new ArrayList<String> ();
-        skuList.add("premiumUpgrade");
-        skuList.add("gas");
-        Bundle querySkus = new Bundle();
-        querySkus.putStringArrayList("ITEM_ID_LIST", skuList);
 
         try {
             Bundle ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null);
@@ -128,14 +127,14 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                         ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
                 ArrayList<String>  purchaseDataList =
                         ownedItems.getStringArrayList("INAPP_PURCHASE_DATA_LIST");
-                ArrayList<String>  signatureList =
-                        ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
-                String continuationToken =
-                        ownedItems.getString("INAPP_CONTINUATION_TOKEN");
+//                ArrayList<String>  signatureList =
+//                        ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
+//                String continuationToken =
+//                        ownedItems.getString("INAPP_CONTINUATION_TOKEN");
 
                 for (int i = 0; i < purchaseDataList.size(); ++i) {
-                    String purchaseData = purchaseDataList.get(i);
-                    String signature = signatureList.get(i);
+//                    String purchaseData = purchaseDataList.get(i);
+//                    String signature = signatureList.get(i);
                     String sku = ownedSkus.get(i);
 
                     // do something with this purchase information
@@ -173,10 +172,11 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             });
         }
 
-//        boolean enablePro = checkPro();
-        boolean enablePro = false;
+        //ToDo: check trial expiration when starting session
+        boolean enablePro = checkPro();
+//        boolean enablePro = false;
         boolean trial = false;
-        long installedDate;
+        long installTime;
 
         toggleDeviceStepCounter = (Switch) findViewById(R.id.toggleDeviceStepCounter);
         toggleWearStepCounter = (Switch) findViewById(R.id.toggleWearStepCounter);
@@ -185,23 +185,32 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         txtCalibratedValue = (TextView) findViewById(R.id.txtCalibratedValue);
         btnPurchase = (Button) findViewById(R.id.btnPurchase);
         btnPurchase.setOnClickListener(UpgradePurchase);
+        tvProStatus = (TextView) findViewById(R.id.tvProStatus);
 
-        if (!enablePro) {
+        Log.d("setUpLayout", "enablePro: " + enablePro);
+        if (enablePro) {
+            btnPurchase.setVisibility(View.GONE);
+            tvProStatus.setText("Pro Purchased");
+        } else {
             long freeTrialTime = 604800000l;
             try {
-                installedDate = this
+                installTime = this
                         .getPackageManager()
-                        .getPackageInfo("package.name", 0)
+                        .getPackageInfo(getPackageName(), 0)
                         .firstInstallTime;
-                //ToDo: Convert to dates, round up.
-                if ((installedDate + freeTrialTime) > System.currentTimeMillis()) {
+                int installDate = Math.round(installTime / 86400000f);
+                int daysSinceInstall = Math.round(System.currentTimeMillis() / 86400000f) - installDate;
+                if (daysSinceInstall <= 7) {
                     if (sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
-                        if (sharedPreferences.getLong(Constants.GOOGLE_FIT_AUTHORIZED, 0) > System.currentTimeMillis() - freeTrialTime) {
+                        int daysSinceFirstFit = Math.round(sharedPreferences.getLong(Constants.GOOGLE_FIT_OLDEST_SESSION, System.currentTimeMillis()) / 86400000f) - installDate;
+                        if (daysSinceFirstFit <= 7) {
                             trial = true;
+                            tvProStatus.setText("Trial: " + (7 - daysSinceInstall) + " days remaining");
                         }
                     }
                     else {
                         trial = true;
+                        tvProStatus.setText("Trial: " + (7 - daysSinceInstall) + " days remaining");
                     }
                 }
             } catch (PackageManager.NameNotFoundException e) {
@@ -221,22 +230,17 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         }
         else {
             toggleDeviceStepCounter.setChecked(false);
-            toggleDeviceStepCounter.setEnabled(false);
             toggleDeviceStepCounter.setOnClickListener(UpgradePurchase);
 
             toggleWearStepCounter.setChecked(false);
-            toggleWearStepCounter.setEnabled(false);
             toggleWearStepCounter.setOnClickListener(UpgradePurchase);
 
             toggleStandDtectorTM.setChecked(false);
-            toggleStandDtectorTM.setEnabled(false);
             toggleStandDtectorTM.setOnClickListener(UpgradePurchase);
 
-            btnCalibrate.setEnabled(false);
             btnCalibrate.setOnClickListener(UpgradePurchase);
-            btnCalibrate.setText("Upgrade");
 
-            txtCalibratedValue.setText("Trial Expired. Upgrade to Pro.");
+            tvProStatus.setText("Trial Expired. Upgrade to Pro.");
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false);
@@ -277,6 +281,10 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     View.OnClickListener UpgradePurchase = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            toggleDeviceStepCounter.setChecked(false);
+            toggleWearStepCounter.setChecked(false);
+            toggleStandDtectorTM.setChecked(false);
+
             Bundle buyIntentBundle = null;
             try {
                 buyIntentBundle = mService.getBuyIntent(3, getPackageName(),
@@ -319,6 +327,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     View.OnClickListener StandDtectorTMListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            //ToDo: calibrate first
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(Constants.STANDDTECTORTM_ENABLED, ((Switch) view).isChecked());
             editor.commit();
@@ -393,6 +402,8 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         public void onServiceConnected(ComponentName name,
                                        IBinder service) {
             mService = IInAppBillingService.Stub.asInterface(service);
+
+            setUpLayout();
         }
     };
 

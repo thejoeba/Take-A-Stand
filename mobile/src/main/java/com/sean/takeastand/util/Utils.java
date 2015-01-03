@@ -27,6 +27,7 @@ import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.GoogleFitService;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
@@ -471,7 +472,7 @@ public final class Utils {
             context.startService(insertIntent);
         }
     }
-    public static void getOldestFitSession (Context context) {
+    public static void getBootFitSync(Context context) {
         if (context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
             Intent insertIntent = new Intent(context, GoogleFitService.class);
             insertIntent.setAction("GetOldestSession");

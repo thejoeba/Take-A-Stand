@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sean.takeastand"
-    android:versionCode="22"
-    android:versionName="A22">
+    android:versionCode="27"
+    android:versionName="0.87">
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -20,9 +20,9 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <meta-data
-            android:name="com.google.android.gms.analytics.globalConfigResource"
-            android:resource="@xml/analytics_global_config" />
+        <!--<meta-data-->
+            <!--android:name="com.google.android.gms.analytics.globalConfigResource"-->
+            <!--android:resource="@xml/analytics_global_config" />-->
 
         <activity
             android:name=".ui.MainActivity"
@@ -43,6 +43,10 @@
             android:label="@string/science_behind_app"
             android:parentActivityName=".ui.MainActivity" />
         <activity
+            android:name=".ui.ScienceActivityRecyler"
+            android:label="@string/science_behind_app"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
             android:name=".ui.ReminderSettingsActivity"
             android:label="@string/reminder_settings"
             android:parentActivityName=".ui.MainActivity" />
@@ -58,6 +62,10 @@
             android:name=".ui.GoogleFitActivity"
             android:label="@string/google_fit"
             android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.HelpActivity"
+            android:label="@string/help"
+            android:parentActivityName=".ui.MainActivity" />
 
         <receiver android:name=".alarmprocess.AlarmReceiver" />
         <receiver android:name=".alarmprocess.StartScheduleReceiver" />
@@ -71,7 +79,7 @@
         <service android:name=".alarmprocess.AlarmService" />
         <service android:name="com.heckbot.standdtector.StandDtectorTM" />
         <service android:name="com.heckbot.standdtector.StandDtectorStepCounter" />
-        <service android:name=".util.GoogleFitService" />
+        <service android:name=".storage.GoogleFitService" />
 
         <service android:name="com.heckbot.standdtector.WearResultsListenerService">
             <intent-filter>

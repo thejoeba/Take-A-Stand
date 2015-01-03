@@ -31,48 +31,101 @@ public class StoodLogsAdapter {
 
     public long newStoodLog(int stoodMethod, Calendar timeStamp){
         Log.i(TAG, "newStoodLog");
-        StoodSQLHelper scheduleSQLHelper = new StoodSQLHelper(mContext);
-        SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.STOOD_METHOD, stoodMethod);
         databaseInfo.put(StoodSQLHelper.STAND_TIMESTAMP, timeStamp.getTimeInMillis());
         databaseInfo.put(StoodSQLHelper.SESSION_ID, mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE).getLong("CurrentSession", 0));
-        long l = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_MAIN, null, databaseInfo);
+        long l = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_STANDS, null, databaseInfo);
         localSQLiteDatabase.close();
-        scheduleSQLHelper.close();
+        stoodSQLHelper.close();
         sendAnalyticsEvent(mContext, "Stood: " + stoodMethod);
         return l;
     }
 
     public void newSession(int sessionType){
         Log.i(TAG, "newSession");
-        StoodSQLHelper scheduleSQLHelper = new StoodSQLHelper(mContext);
-        SQLiteDatabase localSQLiteDatabase = scheduleSQLHelper.getWritableDatabase();
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.SESSION_TYPE, sessionType);
         databaseInfo.put(StoodSQLHelper.SESSION_START, System.currentTimeMillis());
         databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 0);
-        long sessionID = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_SESSION, null, databaseInfo);
+        long sessionID = localSQLiteDatabase.insert(StoodSQLHelper.TABLE_SESSIONS, null, databaseInfo);
         localSQLiteDatabase.close();
-        scheduleSQLHelper.close();
+        stoodSQLHelper.close();
         SharedPreferences.Editor editor = mContext.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, Context.MODE_PRIVATE).edit();
         editor.putLong("CurrentSession", sessionID);
         editor.commit();
     }
 
+    public void clearStands() {
+        Log.i(TAG,"clearStand");
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
+        ContentValues databaseInfo = new ContentValues();
+        databaseInfo.put("seq", 0);
+        localSQLiteDatabase.delete(StoodSQLHelper.TABLE_STANDS, null, null);
+        stoodSQLHelper.getWritableDatabase().update(
+                StoodSQLHelper.TABLE_SEED_ID,
+                databaseInfo,
+                "name=?",
+                new String[] { StoodSQLHelper.TABLE_STANDS }
+        );
+        localSQLiteDatabase.delete(StoodSQLHelper.TABLE_SESSIONS, null, null);
+        stoodSQLHelper.getWritableDatabase().update(
+                StoodSQLHelper.TABLE_SEED_ID,
+                databaseInfo,
+                "name=?",
+                new String[] { StoodSQLHelper.TABLE_SESSIONS }
+        );
+        localSQLiteDatabase.close();
+    }
+
+    public int addFitSession(int sessionType, long sessionStart) {
+        Log.i(TAG, "addFitSession");
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
+        ContentValues databaseInfo = new ContentValues();
+        databaseInfo.put(StoodSQLHelper.SESSION_TYPE, sessionType);
+        databaseInfo.put(StoodSQLHelper.SESSION_START, sessionStart);
+        databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 1);
+        int sessionNum = (int)localSQLiteDatabase.insert(StoodSQLHelper.TABLE_SESSIONS, null, databaseInfo);
+        localSQLiteDatabase.close();
+        stoodSQLHelper.close();
+        return sessionNum;
+    }
+
+    public void addFitStand(int stoodMethod, long standTime, int session){
+        Log.i(TAG, "addFitStand");
+        StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
+        SQLiteDatabase localSQLiteDatabase = stoodSQLHelper.getWritableDatabase();
+        ContentValues databaseInfo = new ContentValues();
+        databaseInfo.put(StoodSQLHelper.STOOD_METHOD, stoodMethod);
+        databaseInfo.put(StoodSQLHelper.STAND_TIMESTAMP, standTime);
+        databaseInfo.put(StoodSQLHelper.SESSION_ID, session);
+        localSQLiteDatabase.insert(StoodSQLHelper.TABLE_STANDS, null, databaseInfo);
+        localSQLiteDatabase.close();
+        stoodSQLHelper.close();
+    }
+
     public int getCount(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.UID };
-        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_MAIN,
+        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_STANDS,
                 columns, null, null, null, null, null);
-        return cursor.getCount();
+        int count = cursor.getCount();
+        cursor.close();
+        stoodSQLHelper.close();
+        return count;
     }
 
     public long[][] getUnsyncedSessions(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.UID, StoodSQLHelper.SESSION_START, StoodSQLHelper.SESSION_TYPE};
         Cursor cursor = stoodSQLHelper.getReadableDatabase().query(
-                StoodSQLHelper.TABLE_SESSION,
+                StoodSQLHelper.TABLE_SESSIONS,
                 columns,
                 StoodSQLHelper.SESSION_SYNC_STATUS + "=?",
                 new String[] { "0" },
@@ -82,8 +135,8 @@ public class StoodLogsAdapter {
                 null
         );
         cursor.moveToFirst();
+        long[][] unsyncedSessions = new long[cursor.getCount()][3];
         if(!(cursor.getCount()==0)) {
-            long[][] unsyncedSessions = new long[cursor.getCount()][3];
             Integer row = 0;
             while (!cursor.isAfterLast()) {
                 unsyncedSessions[row][0] = (long) cursor.getInt(0);
@@ -92,20 +145,22 @@ public class StoodLogsAdapter {
                 row++;
                 cursor.moveToNext();
             }
-            return unsyncedSessions;
         }
         else {
-            return new long[0][0];
+            unsyncedSessions = new long[0][0];
         }
+        cursor.close();
+        stoodSQLHelper.close();
+        return unsyncedSessions;
     }
 
     public void updateSyncedSession(Integer session){
-        //ToDo: troubleshoot this
+        Log.d("updateSyncedSession", "Marking Session " + session + " as synced.");
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         ContentValues databaseInfo = new ContentValues();
         databaseInfo.put(StoodSQLHelper.SESSION_SYNC_STATUS, 1);
         stoodSQLHelper.getWritableDatabase().update(
-                StoodSQLHelper.TABLE_SESSION,
+                StoodSQLHelper.TABLE_SESSIONS,
                 databaseInfo,
                 StoodSQLHelper.UID + "=?",
                 new String[] { session.toString() }
@@ -116,7 +171,7 @@ public class StoodLogsAdapter {
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
         String[] columns = {StoodSQLHelper.STOOD_METHOD, StoodSQLHelper.STAND_TIMESTAMP};
         Cursor cursor = stoodSQLHelper.getReadableDatabase().query(
-                StoodSQLHelper.TABLE_MAIN,
+                StoodSQLHelper.TABLE_STANDS,
                 columns,
                 StoodSQLHelper.SESSION_ID + "=?",
                 new String[] { session.toString() },
@@ -138,17 +193,19 @@ public class StoodLogsAdapter {
                 row++;
                 cursor.moveToNext();
             }
-            return sessionArray;
         }
         else {
-            return new long[0][0];
+            sessionArray = new long[0][0];
         }
+        cursor.close();
+        stoodSQLHelper.close();
+        return sessionArray;
     }
 
-
+    //ToDo: I don't think this does anything
     public void getLastRow(){
         StoodSQLHelper stoodSQLHelper = new StoodSQLHelper(mContext);
-        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_MAIN,
+        Cursor cursor = stoodSQLHelper.getReadableDatabase().query(StoodSQLHelper.TABLE_STANDS,
                 null, null, null, null, null, null);
         cursor.moveToLast();
         //Check to make sure there is a row; this prevents IndexOutOfBoundsException
@@ -158,8 +215,8 @@ public class StoodLogsAdapter {
                 String timeStamp = cursor.getString(2);
             Log.i(TAG, UID + " " + standMethod + " " + timeStamp);
         }
-        stoodSQLHelper.close();
         cursor.close();
+        stoodSQLHelper.close();
     }
 
     private void sendAnalyticsEvent(Context context, String action){
@@ -180,12 +237,15 @@ public class StoodLogsAdapter {
         //ToDo: Rename vars to logs
         private static final String DATABASE_NAME = "stood_logs_database";
         private static final int DATABASE_VERSION = 1;
-        private static final String TABLE_MAIN = "stood_logs_table";
+
+        private static final String TABLE_SEED_ID = "sqlite_sequence";
+
+        private static final String TABLE_STANDS = "stood_logs_table";
         private static final String UID = "_id";
         private static final String STOOD_METHOD = "stand_type";
         private static final String STAND_TIMESTAMP = "stand_timestamp";
 
-        private static final String TABLE_SESSION = "session_table";
+        private static final String TABLE_SESSIONS = "session_table";
         private static final String SESSION_ID = "session_id";
         private static final String SESSION_TYPE = "session_type";
         private static final String SESSION_START = "session_start";
@@ -201,7 +261,7 @@ public class StoodLogsAdapter {
         {
             try
             {
-                sQLiteDatabase.execSQL("CREATE TABLE " + StoodSQLHelper.TABLE_SESSION + " (" + StoodSQLHelper.UID
+                sQLiteDatabase.execSQL("CREATE TABLE " + StoodSQLHelper.TABLE_SESSIONS + " (" + StoodSQLHelper.UID
                         + " INTEGER PRIMARY KEY AUTOINCREMENT, " + StoodSQLHelper.SESSION_TYPE + " INTEGER, " +
                         StoodSQLHelper.SESSION_START + " INTEGER, " + StoodSQLHelper.SESSION_SYNC_STATUS + " INTEGER);");
             }
@@ -214,7 +274,7 @@ public class StoodLogsAdapter {
 
             try
             {
-                sQLiteDatabase.execSQL("CREATE TABLE " + StoodSQLHelper.TABLE_MAIN + " (" + StoodSQLHelper.UID
+                sQLiteDatabase.execSQL("CREATE TABLE " + StoodSQLHelper.TABLE_STANDS + " (" + StoodSQLHelper.UID
                         + " INTEGER PRIMARY KEY AUTOINCREMENT, " + StoodSQLHelper.STOOD_METHOD + " INTEGER, " +
                         StoodSQLHelper.STAND_TIMESTAMP + " INTEGER, " + StoodSQLHelper.SESSION_ID + " INTEGER);");
             }
@@ -231,8 +291,8 @@ public class StoodLogsAdapter {
         {
             try
             {
-                sQLiteDatabase.execSQL("DROP TABLE IF EXISTS " + StoodSQLHelper.TABLE_MAIN);
-                sQLiteDatabase.execSQL("DROP TABLE IF EXISTS " + StoodSQLHelper.TABLE_SESSION);
+                sQLiteDatabase.execSQL("DROP TABLE IF EXISTS " + StoodSQLHelper.TABLE_STANDS);
+                sQLiteDatabase.execSQL("DROP TABLE IF EXISTS " + StoodSQLHelper.TABLE_SESSIONS);
                 onCreate(sQLiteDatabase);
             }
             catch (Exception localException)

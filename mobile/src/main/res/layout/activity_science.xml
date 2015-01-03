@@ -49,9 +49,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/medical1title"
-                        android:textSize="40sp"
+                        android:textSize="30sp"
                         android:text="@string/medical1title"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:layout_marginLeft="10dp" />
 
                     <TextView
@@ -90,9 +90,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/medical2title"
-                        android:textSize="40sp"
+                        android:textSize="30sp"
                         android:text="@string/medical2title"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:layout_marginLeft="10dp" />
 
                     <TextView
@@ -131,10 +131,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/medical3title"
-                        android:textSize="40sp"
+                        android:textSize="30sp"
                         android:text="@string/medical3title"
                         android:layout_marginLeft="10dp"
-                        android:layout_marginTop="10dp" />
+                        android:layout_marginTop="5dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -172,10 +172,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/medical4title"
-                        android:textSize="40sp"
+                        android:textSize="30sp"
                         android:text="@string/medical4title"
                         android:layout_marginLeft="10dp"
-                        android:layout_marginTop="10dp" />
+                        android:layout_marginTop="5dp" />
 
                     <TextView
                         android:layout_width="wrap_content"

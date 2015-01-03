@@ -84,13 +84,12 @@
     <string name="repeat_vibrate_sound">Repeat notification when it is time to stand</string>
     <string name="every">Every</string>
     <string name="notification_reminder_frequency">Notification Reminder Frequency</string>
-    <string name="hello_world">Hello world!</string>
     <string name="reminder_settings">Reminder Settings</string>\
     <string name="pause_description">If pausing for a set time, the next reminder will happen your default frequency minutes after the paused time has passed (20 minute frequency and 30 minute pause = next stand reminder in 50 minutes)</string>
     <string name="paused_until">Paused until:</string>
     <string name="select_pause_type">Pause Time (Minutes)</string>
     <string name="paused">Paused</string>
-    <string name="standdtectortm_settings">StandDtector™ Settings</string>\
+    <string name="standdtectortm_settings">StandDtector™ Settings Pro</string>\
     <string name="step_counter">Step Detection</string>
     <string name="wear_step_counter">Wear Step Counter (StandDtector JR™)</string>
     <string name="standdtectortm">StandDtector™</string>
@@ -99,4 +98,12 @@
     <string name="stand_count">Stand Counter</string>
     <string name="science_behind_app">Science Behind The App</string>
     <string name="google_fit">Google Fit</string>
+    <string name="help">Help</string>
+    <string name="StepDetectionDescription">Uses the phone\'s built in pedometer to ensure you are only reminded after 20 minutes of inactivity</string>
+    <string name="WearStepDetectionDescription">Uses your wearable\'s pedometer to ensure you are only reminded after 20 minutes of inactivity</string>
+    <string name="user_guide_title">User Guide</string>
+    <string name="user_guide">When activated, Take A Stand will alert you to stand every 20 minutes. To activate either set a schedule or simply tap the red figure. The figure is blue when on a schedule, or green when manually activated. You will be reminded by a short vibration and notification light. Tapping "Stood" in either the notification icon or in the app itself will reset the alarm</string>
+    <string name="settings_guide">Reminder Settings allow you to change how often you want to be notified to stand, what type of notification you will receive, and if you want follow up reminders if you miss the first notification</string>
+    <string name="pro_guide">StandDtector™ allows your device to intelligently postpone notifications by using device sensors to make sure you have not been active before reminding you to stand. These features are free for the first 7 days, and a one time $.99 purchase to permanently unlock afterwards.</string>
+    <string name="fit_guide">If enabled, your stand history will be securely and privately saved to personal Google Fit profile. You stand history can be viewed in Stand Counter from the main menu, and will automatically be backed up and restored for you. You can remove your data from Google Fit at any time on the Google Fit page</string>
 </resources>

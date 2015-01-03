@@ -24,17 +24,21 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.sean.takeastand.R;
+import com.sean.takeastand.storage.StoodLogsAdapter;
 import com.sean.takeastand.util.Constants;
-import com.sean.takeastand.util.GoogleFitService;
+import com.sean.takeastand.storage.GoogleFitService;
 
 /**
  * Created by Joey on 12/23/2014.
  */
 public class GoogleFitActivity extends ActionBarActivity {
-    //ToDo: add some branding and explain https://developers.google.com/fit/branding
+    //ToDo: add some branding https://developers.google.com/fit/branding
+    //ToDo: Add Analytics to Fit
+    //ToDo: Explain Fit.
+    //ToDO: Prompt Fit Login on first launch
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
-    private Button btnInsertData;
+    private Button btnMarkDBSynced;
     private Button btnReadData;
     private Button btnDeleteData;
 
@@ -76,8 +80,8 @@ public class GoogleFitActivity extends ActionBarActivity {
         btnDeauthorizeFit = (Button) findViewById(R.id.btnDeauthorizeFit);
         btnDeauthorizeFit.setEnabled(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false));
         btnDeauthorizeFit.setOnClickListener(DisableFit);
-        btnInsertData = (Button) findViewById(R.id.btnInsertData);
-        btnInsertData.setOnClickListener(InsertData);
+        btnMarkDBSynced = (Button) findViewById(R.id.btnMarkDBSynced);
+        btnMarkDBSynced.setOnClickListener(MarkDBSynced);
         btnReadData = (Button) findViewById(R.id.btnReadData);
         btnReadData.setOnClickListener(ReadData);
         btnDeleteData = (Button) findViewById(R.id.btnDeleteData);
@@ -117,6 +121,11 @@ public class GoogleFitActivity extends ActionBarActivity {
                         Log.i("buildFitnessClient", "Connected!!!");
                         // Now you can make calls to the Fitness APIs.
                         // Put application specific code here.
+                        if(!sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
+                            Intent intentImport = new Intent(GoogleFitActivity.this, GoogleFitService.class);
+                            intentImport.setAction("ImportFitSessions");
+                            startService(intentImport);
+                        }
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, true);
                         editor.putBoolean(Constants.GOOGLE_FIT_AUTHORIZED, true);
@@ -173,21 +182,20 @@ public class GoogleFitActivity extends ActionBarActivity {
         }
     };
 
-    View.OnClickListener InsertData = new View.OnClickListener() {
+    View.OnClickListener MarkDBSynced = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent insertIntent = new Intent(GoogleFitActivity.this, GoogleFitService.class);
-            insertIntent.setAction("InsertData");
-            startService(insertIntent);
+            StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(GoogleFitActivity.this);
+            stoodLogsAdapter.updateSyncedSession(1);
         }
     };
 
     View.OnClickListener ReadData = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Intent insertRead = new Intent(GoogleFitActivity.this, GoogleFitService.class);
-            insertRead.setAction("ReadData");
-            startService(insertRead);
+            Intent intentRead = new Intent(GoogleFitActivity.this, GoogleFitService.class);
+            intentRead.setAction("ReadData");
+            startService(intentRead);
         }
     };
 

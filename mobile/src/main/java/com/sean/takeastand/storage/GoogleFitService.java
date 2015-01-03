@@ -1,4 +1,4 @@
-package com.sean.takeastand.util;
+package com.sean.takeastand.storage;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -22,16 +22,14 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.DataDeleteRequest;
-import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.DataTypeCreateRequest;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
 import com.google.android.gms.fitness.request.SessionReadRequest;
-import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.fitness.result.DataTypeResult;
 import com.google.android.gms.fitness.result.SessionReadResult;
-import com.sean.takeastand.storage.StoodLogsAdapter;
+import com.sean.takeastand.util.Constants;
 
-import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -190,6 +188,9 @@ public class GoogleFitService extends IntentService{
                     else if(mAction.equals("ReadData")) {
                         readData();
                     }
+                    else if(mAction.equals("ImportFitSessions")){
+                        insertUnsyncedData();
+                    }
                     else if(mAction.equals("GetOldestSession")){
                         readOldestSession();
                     }
@@ -224,10 +225,6 @@ public class GoogleFitService extends IntentService{
                         int intSession = (int) unsyncedSessions[unsyncedRows][0];
                         startTime = unsyncedSessions[unsyncedRows][1];
                         int sessionType = (int) unsyncedSessions[unsyncedRows][2];
-                        Log.i("insertUnsyncedData", "Sessions:");
-                        Log.i("insertUnsyncedData", "\tintSession: " + intSession);
-                        Log.i("insertUnsyncedData", "\tstartTime: " + startTime);
-                        Log.i("insertUnsyncedData", "\tsessionType: " + sessionType);
 
                         long[][] sessionArray = stoodLogsAdapter.getSessionStands(intSession);
                         Log.i("insertUnsyncedData", "Stands: " + sessionArray.length);
@@ -236,68 +233,76 @@ public class GoogleFitService extends IntentService{
 
                         if (sessionArray.length > 0) {
                             for (int sessionRows = 0; sessionRows < sessionArray.length; sessionRows++) {
-                                Log.i("insertUnsyncedData", "\tStand:");
-                                Log.i("insertUnsyncedData", "\t\tStandTime: " + sessionArray[sessionRows][1]);
-                                Log.i("insertUnsyncedData", "\t\tStandType: " + sessionArray[sessionRows][0]);
                                 dataSet.add(dataSet.createDataPoint()
                                                 .setTimestamp(sessionArray[sessionRows][1], TimeUnit.MILLISECONDS)
                                                 .setIntValues((int) sessionArray[sessionRows][0])
                                 );
                             }
+                            endTime = sessionArray[sessionArray.length - 1][1];
+
+                            String Session_Name;
+                            if (sessionType == 1) {
+                                Session_Name = "Unscheduled Stands";
+                            } else if (sessionType == 2) {
+                                Session_Name = "Scheduled Stands";
+                            } else {
+                                Session_Name = "Unknown Stands";
+                            }
+
+                            Log.i("insertUnsyncedData", "Session_Name: " + Session_Name);
+
+                            // Create a session with metadata about the activity.
+                            Session session = new Session.Builder()
+                                    .setName(Session_Name)
+                                    .setStartTime(startTime, TimeUnit.MILLISECONDS)
+                                    .setEndTime(endTime, TimeUnit.MILLISECONDS)
+    //                                .setDescription("Stands for today")
+    //                                .setIdentifier("UniqueIdentifierHere")
+    //                                .setActivity(FitnessActivities.RUNNING)
+                                    .build();
+
+                            Log.i("insertUnsyncedData", "Session built");
+
+                            // Build a session insert request
+                            SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
+                                    .setSession(session)
+                                    .addDataSet(dataSet)
+                                    .build();
+
+                            Log.i("insertUnsyncedData", "SessionInsertRequest built");
+
+                            // Then, invoke the Sessions API to insert the session and await the result,
+                            // which is possible here because of the AsyncTask. Always include a timeout when
+                            // calling await() to avoid hanging that can occur from the service being shutdown
+                            // because of low memory or other conditions.
+                            Log.i("insertUnsyncedData", "Inserting the session in the History API");
+                            com.google.android.gms.common.api.Status insertStatus =
+                                    Fitness.SessionsApi.insertSession(mClient, insertRequest)
+                                            .await(1, TimeUnit.MINUTES);
+
+                            //Before querying the session, check to see if the insertion succeeded.
+                            if (insertStatus.isSuccess()) {
+                                // At this point, the session has been inserted and can be read.
+                                Log.i("insertUnsyncedData", "Session " + intSession + " was added to Fit successful!");
+                                stoodLogsAdapter.updateSyncedSession(intSession);
+                            } else {
+                                Log.i("insertUnsyncedData", "There was a problem inserting the session: " +
+                                        insertStatus.getStatusMessage());
+                            }
                         }
-                        endTime = sessionArray[sessionArray.length - 1][1];
-
-                        String Session_Name;
-                        if (sessionType == 1) {
-                            Session_Name = "Unscheduled Stands";
-                        } else if (sessionType == 2) {
-                            Session_Name = "Scheduled Stands";
-                        } else {
-                            Session_Name = "Unknown Stands";
-                        }
-
-                        Log.i("insertUnsyncedData", "Session_Name: " + Session_Name);
-
-                        // Create a session with metadata about the activity.
-                        Session session = new Session.Builder()
-                                .setName(Session_Name)
-                                .setStartTime(startTime, TimeUnit.MILLISECONDS)
-                                .setEndTime(endTime, TimeUnit.MILLISECONDS)
-//                                .setDescription("Stands for today")
-//                                .setIdentifier("UniqueIdentifierHere")
-//                                .setActivity(FitnessActivities.RUNNING)
-                                .build();
-
-                        Log.i("insertUnsyncedData", "Session built");
-
-                        // Build a session insert request
-                        SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
-                                .setSession(session)
-                                .addDataSet(dataSet)
-                                .build();
-
-                        Log.i("insertUnsyncedData", "SessionInsertRequest built");
-
-                        // Then, invoke the Sessions API to insert the session and await the result,
-                        // which is possible here because of the AsyncTask. Always include a timeout when
-                        // calling await() to avoid hanging that can occur from the service being shutdown
-                        // because of low memory or other conditions.
-                        Log.i("insertUnsyncedData", "Inserting the session in the History API");
-                        com.google.android.gms.common.api.Status insertStatus =
-                                Fitness.SessionsApi.insertSession(mClient, insertRequest)
-                                        .await(1, TimeUnit.MINUTES);
-
-                        //Before querying the session, check to see if the insertion succeeded.
-                        if (insertStatus.isSuccess()) {
-                            // At this point, the session has been inserted and can be read.
-                            Log.i("insertUnsyncedData", "Session insert was successful!");
+                        else {
                             stoodLogsAdapter.updateSyncedSession(intSession);
-                        } else {
-                            Log.i("insertUnsyncedData", "There was a problem inserting the session: " +
-                                    insertStatus.getStatusMessage());
                         }
-                        disconnectClient();
                     }
+                }
+                Log.i("insertUnsyncedData", "sync to fit complete, action: " + mAction);
+                if(mAction.equals("ImportFitSessions")) {
+                    Log.i("insertUnsyncedData", "Clearing Database, then importing from Fit");
+                    stoodLogsAdapter.clearStands();
+                    importFitSessions();
+                }
+                else{
+                    disconnectClient();
                 }
             }
         };
@@ -309,45 +314,53 @@ public class GoogleFitService extends IntentService{
         Thread readThread = new Thread() {
             @Override
             public void run() {
-//                //Setting a start and end date using a range of 1 week before this moment.
-//                Calendar cal = Calendar.getInstance();
-//                Date now = new Date();
-//                cal.setTime(now);
-//                long endTime = cal.getTimeInMillis();
-//                cal.add(Calendar.WEEK_OF_YEAR, -1);
-//                long startTime = cal.getTimeInMillis();
-//
-//                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-//                Log.i("readData", "Range Start: " + dateFormat.format(startTime));
-//                Log.i("readData", "Range End: " + dateFormat.format(endTime));
-                // 1419840000000 is 12/29/2014 in unix epoch time
                 long startTime = 1419840000000l;
                 long endTime = System.currentTimeMillis();
-
-                DataReadRequest readRequest = new DataReadRequest.Builder()
-                        .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                // Build a session read request
+                SessionReadRequest readRequest = new SessionReadRequest.Builder()
+                        .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
                         .read(standDataType)
                         .build();
 
-                // Invoke the History API to fetch the data with the query and await the result of
-                // the read request.
-                DataReadResult dataReadResult =
-                        Fitness.HistoryApi.readData(mClient, readRequest).await(1, TimeUnit.MINUTES);
+                // Invoke the Sessions API to fetch the session with the query and wait for the result
+                // of the read request.
+                SessionReadResult sessionReadResult =
+                        Fitness.SessionsApi.readSession(mClient, readRequest)
+                                .await(1, TimeUnit.MINUTES);
 
-                //The following example demonstrates how to obtain the points from a dataset:
-                DataSet dataSet = dataReadResult.getDataSet(standDataType);
+                // Get a list of the sessions that match the criteria to check the result.
+                Log.i("readSession", "Session read was successful. Number of returned sessions is: "
+                        + sessionReadResult.getSessions().size());
 
-                Log.i("readData", "Data returned for Data type: " + dataSet.getDataType().getName());
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(GoogleFitService.this);
 
-                for (DataPoint dp : dataSet.getDataPoints()) {
-                    Log.i("readData", "Data point:");
-                    Log.i("readData", "\tType: " + dp.getDataType().getName());
-                    Log.i("readData", "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
-                    Log.i("readData", "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
-                    for(Field field : dp.getDataType().getFields()) {
-                        Log.i("readData", "\tField: " + field.getName() +
-                                " Value: " + dp.getValue(field));
+                for (Session session : sessionReadResult.getSessions()) {
+                    int sessionType;
+                    if (session.getName().equals("Unscheduled Stands")) {
+                        sessionType = 1;
+                    } else if (session.getName().equals("Scheduled Stands")) {
+                        sessionType = 2;
+                    } else {
+                        sessionType = 3;
+                    }
+                    Log.d("GoogleFitReadSession",
+                            "sessionType: " + sessionType +
+                                    " sessionStart: " + session.getStartTime(TimeUnit.MILLISECONDS));
+//                    int sessionNum = stoodLogsAdapter.addFitSession(sessionType, session.getStartTime(TimeUnit.MILLISECONDS));
+
+                    List<DataSet> dataSets = sessionReadResult.getDataSet(session);
+                    for (DataSet standDataSet : dataSets) {
+                        for (DataPoint dp : standDataSet.getDataPoints()) {
+                            long standTime = dp.getTimestamp(TimeUnit.MILLISECONDS);
+                            int stoodMethod = 0;
+                            for(Field field : dp.getDataType().getFields()) {
+                                stoodMethod = dp.getValue(field).asInt();
+                            }
+                            Log.d("GoogleFitReadStand",
+                                    "stoodMethod: " + stoodMethod +
+                                            " standTime: " + standTime);
+//                            stoodLogsAdapter.addFitStand(stoodMethod, standTime, sessionNum);
+                        }
                     }
                 }
                 disconnectClient();
@@ -358,53 +371,113 @@ public class GoogleFitService extends IntentService{
     }
 
     public void readOldestSession() {
-        long startTime = 1419840000000l;
-        long endTime = System.currentTimeMillis();
-        // Build a session read request
-        SessionReadRequest readRequest = new SessionReadRequest.Builder()
-                .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
-                .read(standDataType)
-//                .setSessionName(SAMPLE_SESSION_NAME)
-                .build();
+        Thread readOldestThread = new Thread() {
+            @Override
+            public void run() {
+                long startTime = 1419840000000l;
+                long endTime = System.currentTimeMillis();
+                // Build a session read request
+                SessionReadRequest readRequest = new SessionReadRequest.Builder()
+                        .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+                        .read(standDataType)
+//                        .setSessionName(SAMPLE_SESSION_NAME)
+                        .build();
 
-        // Invoke the Sessions API to fetch the session with the query and wait for the result
-        // of the read request.
-        SessionReadResult sessionReadResult =
-                Fitness.SessionsApi.readSession(mClient, readRequest)
-                        .await(1, TimeUnit.MINUTES);
+                // Invoke the Sessions API to fetch the session with the query and wait for the result
+                // of the read request.
+                SessionReadResult sessionReadResult =
+                        Fitness.SessionsApi.readSession(mClient, readRequest)
+                                .await(1, TimeUnit.MINUTES);
 
-        // Get a list of the sessions that match the criteria to check the result.
-        Log.i("readSession", "Session read was successful. Number of returned sessions is: "
-                + sessionReadResult.getSessions().size());
+                // Get a list of the sessions that match the criteria to check the result.
+                Log.i("readSession", "Session read was successful. Number of returned sessions is: "
+                        + sessionReadResult.getSessions().size());
 
-        long oldestSession = endTime;
-        for (Session session : sessionReadResult.getSessions()) {
-            Long sessionTime = session.getStartTime(TimeUnit.MILLISECONDS);
-            if (sessionTime < oldestSession) {
-                oldestSession = sessionTime;
+                long oldestSession = endTime;
+                for (Session session : sessionReadResult.getSessions()) {
+                    Long sessionTime = session.getStartTime(TimeUnit.MILLISECONDS);
+                    if (sessionTime < oldestSession) {
+                        oldestSession = sessionTime;
+                    }
+                }
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putLong(Constants.GOOGLE_FIT_OLDEST_SESSION, oldestSession);
+                editor.commit();
+
+                if (sharedPref.getBoolean(Constants.GOOGLE_FIT_ENABLED, false)) {
+                    insertUnsyncedData();
+                }
+                else {
+                    disconnectClient();
+                }
             }
-        }
-//        return oldestSession;
-//        Intent intent = new Intent("ReturnOldestSession");
-//        intent.putExtra("OldestSession", oldestSession);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(Constants.GOOGLE_FIT_OLDEST_SESSION, oldestSession);
-        editor.commit();
-        disconnectClient();
+        };
+        readOldestThread.start();
+    }
+
+    public void importFitSessions() {
+        Thread importFitSessionsThread = new Thread() {
+            @Override
+            public void run() {
+                long startTime = 1419840000000l;
+                long endTime = System.currentTimeMillis();
+                // Build a session read request
+                SessionReadRequest readRequest = new SessionReadRequest.Builder()
+                        .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
+                        .read(standDataType)
+                        .build();
+
+                // Invoke the Sessions API to fetch the session with the query and wait for the result
+                // of the read request.
+                SessionReadResult sessionReadResult =
+                        Fitness.SessionsApi.readSession(mClient, readRequest)
+                                .await(1, TimeUnit.MINUTES);
+
+                // Get a list of the sessions that match the criteria to check the result.
+                Log.i("readSession", "Session read was successful. Number of returned sessions is: "
+                        + sessionReadResult.getSessions().size());
+
+                StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(GoogleFitService.this);
+
+                for (Session session : sessionReadResult.getSessions()) {
+                    int sessionType;
+                    if (session.getName().equals("Unscheduled Stands")) {
+                        sessionType = 1;
+                    } else if (session.getName().equals("Scheduled Stands")) {
+                        sessionType = 2;
+                    } else {
+                        sessionType = 3;
+                    }
+                    Log.d("GoogleFitReadSession",
+                            "sessionType: " + sessionType +
+                            " sessionStart: " + session.getStartTime(TimeUnit.MILLISECONDS));
+                    int sessionNum = stoodLogsAdapter.addFitSession(sessionType, session.getStartTime(TimeUnit.MILLISECONDS));
+
+                    List<DataSet> dataSets = sessionReadResult.getDataSet(session);
+                    for (DataSet standDataSet : dataSets) {
+                        for (DataPoint dp : standDataSet.getDataPoints()) {
+                            long standTime = dp.getTimestamp(TimeUnit.MILLISECONDS);
+                            int stoodMethod = 0;
+                            for(Field field : dp.getDataType().getFields()) {
+                                stoodMethod = dp.getValue(field).asInt();
+                            }
+                            Log.d("GoogleFitReadStand",
+                                    "stoodMethod: " + stoodMethod +
+                                    " standTime: " + standTime);
+                            stoodLogsAdapter.addFitStand(stoodMethod, standTime, sessionNum);
+                        }
+                    }
+                }
+                disconnectClient();
+            }
+        };
+        importFitSessionsThread.start();
     }
 
     public void deleteData() {
         Thread deleteThread = new Thread() {
             @Override
             public void run() {
-//                // Set a start and end time for our data, using a start time of 1 day before this moment.
-//                Calendar cal = Calendar.getInstance();
-//                Date now = new Date();
-//                cal.setTime(now);
-//                long endTime = cal.getTimeInMillis();
-//                cal.add(Calendar.DAY_OF_YEAR, -1);
-//                long startTime = cal.getTimeInMillis();
                 // 1419840000000 is 12/29/2014 in unix epoch time
                 long startTime = 1419840000000l;
                 long endTime = System.currentTimeMillis();
@@ -412,8 +485,10 @@ public class GoogleFitService extends IntentService{
                 //  Create a delete request object, providing a data type and a time interval
                 DataDeleteRequest request = new DataDeleteRequest.Builder()
                         .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
-                        .addDataType(standDataType)
+                        .deleteAllData()
+                        .deleteAllSessions()
                         .build();
+
 
                 // Invoke the History API with the Google API client object and delete request, and then
                 // specify a callback that will check the result.

@@ -39,6 +39,14 @@
                 android:textSize="@dimen/alert_text_size"
                 android:layout_gravity="center_horizontal" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/StepDetectionDescription"
+                android:id="@+id/tvStepDetectionDescription"
+                android:layout_gravity="center_horizontal" />
+
             <Switch
                 android:id="@+id/toggleDeviceStepCounter"
                 android:layout_width="wrap_content"
@@ -62,7 +70,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -76,6 +85,14 @@
                 android:gravity="center"
                 android:textSize="@dimen/alert_text_size"
                 android:layout_gravity="center_horizontal"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/WearStepDetectionDescription"
+                android:id="@+id/tvWearStepDetection"
+                android:layout_gravity="center_horizontal" />
 
             <Switch
                 android:id="@+id/toggleWearStepCounter"
@@ -93,7 +110,8 @@
             android:layout_marginTop="8dp"
             android:layout_marginRight="15dp"
             android:layout_marginLeft="15dp"
-            android:layout_marginBottom="6dp" />
+            android:layout_marginBottom="6dp"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/rlStandDTectorTM"
@@ -138,14 +156,28 @@
                 android:layout_marginTop="10dp"
                 android:layout_gravity="center_horizontal"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Purchase"
-                android:id="@+id/btnPurchase"
-                android:layout_marginTop="20dp"
-                android:layout_gravity="center_horizontal"/>
         </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Purchase Pro"
+            android:id="@+id/btnPurchase"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvProStatus"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:text="Trial Version"
+            android:textColor="@android:color/primary_text_light"
+            android:gravity="center"
+            android:textSize="@dimen/alert_text_size"
+            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 </ScrollView>
