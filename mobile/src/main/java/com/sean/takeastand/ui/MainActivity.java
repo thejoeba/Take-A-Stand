@@ -90,6 +90,7 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions.add(getString(R.string.stand_count));
         mNavDrawerOptions.add(getString(R.string.google_fit));
         mNavDrawerOptions.add(getString(R.string.help));
+        mNavDrawerOptions.add("Test");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -156,6 +157,10 @@ public class MainActivity extends ActionBarActivity {
                 case 5:
                     Intent intentHelp = new Intent(MainActivity.this, HelpActivity.class);
                     startActivity(intentHelp);
+                    break;
+                case 6:
+                    Intent intentTest = new Intent(MainActivity.this, ScienceActivityRecyler.class);
+                    startActivity(intentTest);
                     break;
             }
         }
