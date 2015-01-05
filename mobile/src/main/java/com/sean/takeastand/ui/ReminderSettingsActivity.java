@@ -45,6 +45,7 @@ public class ReminderSettingsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminder_settings);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[1]);
         setUpLayout();
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Reminder Settings");
@@ -60,7 +61,7 @@ public class ReminderSettingsActivity extends ActionBarActivity {
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    NavUtils.navigateUpFromSameTask(ReminderSettingsActivity.this);
+                    finish();
                 }
             });
         }

@@ -26,7 +26,6 @@
 
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,36 +34,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.ScheduleListActivity"
-            android:label="@string/schedules"
-            android:parentActivityName=".ui.MainActivity" />
-        <activity
-            android:name=".ui.ScienceActivity"
-            android:label="@string/science_behind_app"
-            android:parentActivityName=".ui.MainActivity" />
-        <activity
-            android:name=".ui.ScienceActivityRecyler"
-            android:label="@string/science_behind_app"
-            android:parentActivityName=".ui.MainActivity" />
-        <activity
             android:name=".ui.ReminderSettingsActivity"
             android:label="@string/reminder_settings"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.StandDtectorTMSettings"
-            android:label="@string/standdtectortm_settings"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.ScienceActivityRecyler"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.StandCountActivity"
-            android:label="@string/stand_count"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.GoogleFitActivity"
-            android:label="@string/google_fit"
             android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ui.HelpActivity"
-            android:label="@string/help"
+            android:name=".ui.HelpActivityRecyler"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.ScheduleListActivity"
+            android:label="@string/schedules"
             android:parentActivityName=".ui.MainActivity" />
 
         <receiver android:name=".alarmprocess.AlarmReceiver" />

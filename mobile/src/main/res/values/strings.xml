@@ -17,26 +17,6 @@
 
     <string name="default_praise">Good Job!</string>
     <string name="select_frequency">Select Frequency (Minutes)</string>
-    <string name="medical_studies">Medical Studies</string>
-    <string name="medical1title">Cardiovascular</string>
-    <string name="medical1">A large long-term study with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent.</string>
-    <string name="medical1link"><a href="http://www.ncbi.nlm.nih.gov/pubmed/19996993">Learn More</a></string>
-    <string name="medical2title">Quality</string>
-    <string name="medical2">A Danish medical study that looked into factors which decreased life quality found sedentary lifestyles reduced the quality-adjusted life years by 7 years.</string>
-    <string name="medical2link"><a href="http://sjp.sagepub.com/content/35/5/510.abstract">Learn More</a></string>
-    <string name="medical3title">Exercise</string>
-    <string name="medical3">A British research study found that even exercising for more than 30 minutes a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.</string>
-    <string name="medical3link"><a href="http://bjsm.bmj.com/content/43/2/81.full">Learn More</a></string>
-    <string name="medical4title">Diabetes</string>
-    <string name="medical4">Sitting for prolonged periods of time may contribute to metabolic diseases such as diabetes and cardiovascular disease.</string>
-    <string name="medical4link"><a href="http://diabetes.diabetesjournals.org/content/56/11/2655.long">Learn More</a></string>
-    <string name="news_articles">News Articles</string>
-    <string name="news1"><a href="http://lifehacker.com/tag/sitting">Lifehacker</a></string>
-    <string name="news2"><a href="http://news.bbc.co.uk/2/hi/6187080.stm">BBC</a></string>
-    <string name="news3"><a href="http://www.economist.com/news/science-and-technology/21583239-real-science-lies-behind-fad-standing-up-work-standing-orders">The Economist</a></string>
-    <string name="news4"><a href="http://www.businessweek.com/magazine/content/10_19/b4177071221162.htm">Businessweek </a></string>
-    <string name="news5"><a href="http://www.nytimes.com/2011/04/17/magazine/mag-17sitting-t.html?_r=0">New York Times</a></string>
-    <string name="news6"><a href="http://www.nbcnews.com/id/39523298/ns/health-ments_health/#.VFWu-PmG9V1">NBC News</a></string>
     <string name="drawer_open">Open</string>
     <string name="drawer_closed">Closed</string>
     <string name="minutes_ago">" minutes ago"</string>
@@ -73,10 +53,6 @@
     <string name="abbFri">F</string>
     <string name="abbSat">S</string>
     <string name="default_frequency">Stand Reminder Frequency</string>
-    <string name="default_notification">Reminder Settings</string>
-    <string name="stand_detector_on">StandDtector™: ON</string>
-    <string name="stand_detector_off">StandDtector™: OFF</string>
-    <string name="science_app">Science Behind The App</string>
     <string name="calibration">Calibration</string>
     <string name="calibration_instructions">To calibrate, the phone must be in your pocket and you must be sitting. The phone will Vibrate once, indicating you should stand. Once calibration is complete, the phone will vibrate again. Once you press OK, you will have 5 seconds to put the phone in your pocket and be sitting before you feel the first vibration.</string>
     <string name="click_for_first_schedule">No stand reminder schedules yet \n \n Click to Add</string>
@@ -89,21 +65,11 @@
     <string name="paused_until">Paused until:</string>
     <string name="select_pause_type">Pause Time (Minutes)</string>
     <string name="paused">Paused</string>
-    <string name="standdtectortm_settings">StandDtector™ Settings Pro</string>\
     <string name="step_counter">Step Detection</string>
     <string name="wear_step_counter">Wear Step Counter (StandDtector JR™)</string>
     <string name="standdtectortm">StandDtector™</string>
     <string name="standdtectortm_calbirate">Calibrate</string>
     <string name="stands">Stands</string>
-    <string name="stand_count">Stand Counter</string>
-    <string name="science_behind_app">Science Behind The App</string>
-    <string name="google_fit">Google Fit</string>
-    <string name="help">Help</string>
     <string name="StepDetectionDescription">Uses the phone\'s built in pedometer to ensure you are only reminded after 20 minutes of inactivity</string>
     <string name="WearStepDetectionDescription">Uses your wearable\'s pedometer to ensure you are only reminded after 20 minutes of inactivity</string>
-    <string name="user_guide_title">User Guide</string>
-    <string name="user_guide">When activated, Take A Stand will alert you to stand every 20 minutes. To activate either set a schedule or simply tap the red figure. The figure is blue when on a schedule, or green when manually activated. You will be reminded by a short vibration and notification light. Tapping "Stood" in either the notification icon or in the app itself will reset the alarm</string>
-    <string name="settings_guide">Reminder Settings allow you to change how often you want to be notified to stand, what type of notification you will receive, and if you want follow up reminders if you miss the first notification</string>
-    <string name="pro_guide">StandDtector™ allows your device to intelligently postpone notifications by using device sensors to make sure you have not been active before reminding you to stand. These features are free for the first 7 days, and a one time $.99 purchase to permanently unlock afterwards.</string>
-    <string name="fit_guide">If enabled, your stand history will be securely and privately saved to personal Google Fit profile. You stand history can be viewed in Stand Counter from the main menu, and will automatically be backed up and restored for you. You can remove your data from Google Fit at any time on the Google Fit page</string>
 </resources>

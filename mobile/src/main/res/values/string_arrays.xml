@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="MedicalTitle">
+        <item>Cardiovascular</item>
+        <item>Quality</item>
+        <item>Exercise</item>
+        <item>Diabetes</item>
+        <item>Other News</item>
+    </string-array>
+    <string-array name="MedicalText">
+        <item>A large long-term study with 7744 participants looked into sedentary behavior and risk of cardiovascular disease mortality in men over a 21 year period.  It found sedentary behavior increased risk of death from cardiovascular disease by 64 percent.</item>
+        <item>A Danish medical study that looked into factors which decreased life quality found sedentary lifestyles reduced the quality-adjusted life years by 7 years.</item>
+        <item>A British research study found that even exercising for more than 30 minutes a day might not be enough to counteract the negative effects of sitting for prolonged periods of time.</item>
+        <item>Sitting for prolonged periods of time may contribute to metabolic diseases such as diabetes and cardiovascular disease.</item>
+        <item />
+    </string-array>
+    <string-array name="MedicalLink">
+        <item>Learn More</item>
+        <item>Learn More</item>
+        <item>Learn More</item>
+        <item>Learn More</item>
+        <item>http://lifehacker.com/tag/sitting\n\nhttp://news.bbc.co.uk/2/hi/6187080.stm\n\nhttp://www.economist.com/news/science-and-technology/21583239-real-science-lies-behind-fad-standing-up-work-standing-orders\n\nhttp://www.businessweek.com/magazine/content/10_19/b4177071221162.htm\n\nhttp://www.nytimes.com/2011/04/17/magazine/mag-17sitting-t.html?_r=0\n\nhttp://www.nbcnews.com/id/39523298/ns/health-ments_health/#.VFWu-PmG9V1</item>
+    </string-array>
+    <string-array name="MedicalURL">
+        <item>http://www.ncbi.nlm.nih.gov/pubmed/19996993</item>
+        <item>http://sjp.sagepub.com/content/35/5/510.abstract</item>
+        <item>http://bjsm.bmj.com/content/43/2/81.full</item>
+        <item>http://diabetes.diabetesjournals.org/content/56/11/2655.long</item>
+        <item />
+    </string-array>
+    <string-array name="ActivityTitle">
+        <item>Take A Stand</item>
+        <item>Reminder Settings</item>
+        <item>StandDtector™ Settings Pro</item>
+        <item>Science Behind The App</item>
+        <item>Stand Counter</item>
+        <item>Google Fit</item>
+        <item>Help</item>
+    </string-array>
+    <string-array name="ActivityHelpText">
+        <item>When activated, Take A Stand will alert you to stand every 20 minutes. To activate either set a schedule or simply tap the red figure. The figure is blue when on a schedule, or green when manually activated. You will be reminded by a short vibration and notification light. Tapping "Stood" in either the notification icon or in the app itself will reset the alarm</item>
+        <item>Reminder Settings allow you to change how often you want to be notified to stand, what type of notification you will receive, and if you want follow up reminders if you miss the first notification</item>
+        <item>StandDtector™ allows your device to intelligently postpone notifications by using device sensors to make sure you have not been active before reminding you to stand. These features are free for the first 7 days, and a one time $.99 purchase to permanently unlock afterwards.</item>
+        <item>Medical studies and links with information on how bad sitting really is for your heatlh</item>
+        <item>Statistics about our stands. If you use Google Fit, this data is automatically backed up and restored.</item>
+        <item>If enabled, your stand history will be securely and privately saved to personal Google Fit profile. You stand history can be viewed in Stand Counter from the main menu, and will automatically be backed up and restored for you. You can remove your data from Google Fit at any time on the Google Fit page</item>
+        <item>Help Menu!</item>
+    </string-array>
+    <string-array name="ActivityClassName">
+        <item>MainActivity</item>
+        <item>ReminderSettingsActivity</item>
+        <item>StandDtectorTMSettings</item>
+        <item>ScienceActivityRecyler</item>
+        <item>StandCountActivity</item>
+        <item>GoogleFitActivity</item>
+        <item>HelpActivityRecylcer</item>
+    </string-array>
+</resources>

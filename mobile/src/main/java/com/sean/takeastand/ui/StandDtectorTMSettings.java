@@ -59,7 +59,18 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standdtectortm_settings);
-
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[2]);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.standdtectortm_settings_toolbar);
+        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
 
         sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
 
@@ -160,18 +171,6 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     }
 
     private void setUpLayout() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.standdtectortm_settings_toolbar);
-        setSupportActionBar(toolbar);
-        if (toolbar != null) {
-            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    NavUtils.navigateUpFromSameTask(StandDtectorTMSettings.this);
-                }
-            });
-        }
-
         //ToDo: check trial expiration when starting session
         boolean enablePro = checkPro();
 //        boolean enablePro = false;

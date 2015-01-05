@@ -84,13 +84,15 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions = new ArrayList<String>();
         //Find out how to initialize an arraylist; then update the arraylist when vibrate status changes
         //or standdtector status changes
-        mNavDrawerOptions.add(getString(R.string.default_notification));
-        mNavDrawerOptions.add(getString(R.string.standdtectortm_settings));
-        mNavDrawerOptions.add(getString(R.string.science_app));
-        mNavDrawerOptions.add(getString(R.string.stand_count));
-        mNavDrawerOptions.add(getString(R.string.google_fit));
-        mNavDrawerOptions.add(getString(R.string.help));
-        mNavDrawerOptions.add("Test");
+        String activitiesArray[] = getResources().getStringArray(R.array.ActivityTitle);
+        mNavDrawerOptions.add(activitiesArray[1]);
+        mNavDrawerOptions.add(activitiesArray[2]);
+        mNavDrawerOptions.add(activitiesArray[3]);
+        mNavDrawerOptions.add(activitiesArray[4]);
+        mNavDrawerOptions.add(activitiesArray[5]);
+        mNavDrawerOptions.add(activitiesArray[6]);
+//        mNavDrawerOptions.add("Test");
+        this.setTitle(activitiesArray[0]);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -143,7 +145,7 @@ public class MainActivity extends ActionBarActivity {
                     startActivity(intentStandDetectorTMSettings);
                     break;
                 case 2:
-                    Intent intentScience = new Intent(MainActivity.this, ScienceActivity.class);
+                    Intent intentScience = new Intent(MainActivity.this, ScienceActivityRecyler.class);
                     startActivity(intentScience);
                     break;
                 case 3:
@@ -155,13 +157,13 @@ public class MainActivity extends ActionBarActivity {
                     startActivity(intentGoogleFit);
                     break;
                 case 5:
-                    Intent intentHelp = new Intent(MainActivity.this, HelpActivity.class);
+                    Intent intentHelp = new Intent(MainActivity.this, HelpActivityRecyler.class);
                     startActivity(intentHelp);
                     break;
-                case 6:
-                    Intent intentTest = new Intent(MainActivity.this, ScienceActivityRecyler.class);
-                    startActivity(intentTest);
-                    break;
+//                case 6:
+//                    Intent intentTest = new Intent(MainActivity.this, HelpActivityRecyler.class);
+//                    startActivity(intentTest);
+//                    break;
             }
         }
 
