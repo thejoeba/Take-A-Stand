@@ -1,6 +1,5 @@
 package com.sean.takeastand.ui;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
@@ -12,7 +11,6 @@ import android.widget.TextView;
 import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.StoodLogsAdapter;
 
@@ -30,6 +28,7 @@ public class StandCountActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standcount);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[4]);
         Toolbar toolbar = (Toolbar) findViewById(R.id.stand_count_toolbar);
         setSupportActionBar(toolbar);
         if (toolbar != null) {
@@ -37,7 +36,7 @@ public class StandCountActivity extends ActionBarActivity {
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    NavUtils.navigateUpFromSameTask(StandCountActivity.this);
+                    finish();
                 }
             });
         }

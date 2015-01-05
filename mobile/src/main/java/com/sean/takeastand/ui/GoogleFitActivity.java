@@ -60,6 +60,7 @@ public class GoogleFitActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_google_fit);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[5]);
         Toolbar toolbar = (Toolbar) findViewById(R.id.stand_count_toolbar);
         setSupportActionBar(toolbar);
         if (toolbar != null) {
@@ -67,9 +68,10 @@ public class GoogleFitActivity extends ActionBarActivity {
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    NavUtils.navigateUpFromSameTask(GoogleFitActivity.this);
+                    finish();
                 }
             });
+
         }
 
         sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
