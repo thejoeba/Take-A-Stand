@@ -41,7 +41,7 @@
             android:name=".ui.StandDtectorTMSettings"
             android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ui.ScienceActivityRecyler"
+            android:name=".ui.ScienceActivityRecycler"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.StandCountActivity"
@@ -50,7 +50,7 @@
             android:name=".ui.GoogleFitActivity"
             android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".ui.HelpActivityRecyler"
+            android:name=".ui.HelpActivityRecycler"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.ScheduleListActivity"

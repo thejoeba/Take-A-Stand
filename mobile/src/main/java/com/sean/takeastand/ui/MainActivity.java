@@ -32,6 +32,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -79,8 +82,7 @@ public class MainActivity extends ActionBarActivity {
         Log.i(TAG, "onCreate");
 //        Log.d(TAG,"Line: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
         super.onCreate(paramBundle);
-        //deleteDatabase("alarms_database");
-        //Utils.setImageStatus(this, Constants.NO_ALARM_RUNNING);
+
         mNavDrawerOptions = new ArrayList<String>();
         //Find out how to initialize an arraylist; then update the arraylist when vibrate status changes
         //or standdtector status changes
@@ -145,7 +147,7 @@ public class MainActivity extends ActionBarActivity {
                     startActivity(intentStandDetectorTMSettings);
                     break;
                 case 2:
-                    Intent intentScience = new Intent(MainActivity.this, ScienceActivityRecyler.class);
+                    Intent intentScience = new Intent(MainActivity.this, ScienceActivityRecycler.class);
                     startActivity(intentScience);
                     break;
                 case 3:
@@ -157,7 +159,7 @@ public class MainActivity extends ActionBarActivity {
                     startActivity(intentGoogleFit);
                     break;
                 case 5:
-                    Intent intentHelp = new Intent(MainActivity.this, HelpActivityRecyler.class);
+                    Intent intentHelp = new Intent(MainActivity.this, HelpActivityRecycler.class);
                     startActivity(intentHelp);
                     break;
 //                case 6:

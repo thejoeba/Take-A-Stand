@@ -16,6 +16,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="12dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Enable Google Fit"
         android:id="@+id/tvEnableFit"
@@ -24,6 +25,7 @@
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="12dp"
         android:id="@+id/toggleGoogleFit"
         android:layout_gravity="center_horizontal"
         android:checked="false" />
@@ -31,9 +33,12 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Deauthorize Fit"
+        android:layout_margin="12dp"
+        android:padding="14dp"
+        android:text="Deauthorize  Fit"
         android:id="@+id/btnDeauthorizeFit"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        />
 
     <Button
         android:layout_width="wrap_content"
@@ -54,14 +59,17 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="12dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Delete all Google Fit Data"
         android:id="@+id/tvDeleteData"
-        android:layout_gravity="center_horizontal" />
-
+        android:layout_gravity="center_horizontal"
+        />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:padding="14dp"
         android:text="Delete"
         android:id="@+id/btnDeleteData"
         android:layout_gravity="center_horizontal" />

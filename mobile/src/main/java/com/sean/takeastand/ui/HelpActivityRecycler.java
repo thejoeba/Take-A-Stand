@@ -13,13 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
+import com.sean.takeastand.util.Constants;
 
 
 /**
  * Created by Joey on 1/2/2015.
  */
-public class HelpActivityRecyler extends ActionBarActivity {
+public class HelpActivityRecycler extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +47,11 @@ public class HelpActivityRecyler extends ActionBarActivity {
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
-
         recList.setAdapter(new HelpAdapter());
+
+        Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Help Activity");
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     public class HelpAdapter extends RecyclerView.Adapter<HelpAdapter.ScienceCardViewHolder> {
@@ -63,8 +70,12 @@ public class HelpActivityRecyler extends ActionBarActivity {
             scienceCardViewHolder.vCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    sendAnalyticsEvent("Launching " +
+                            resources.getStringArray(R.array.ActivityClassName)[i] +
+                            " from the Help Activity");
                     Intent intent = new Intent();
-                    intent.setClassName(getPackageName(), "com.sean.takeastand.ui." + resources.getStringArray(R.array.ActivityClassName)[i]);
+                    intent.setClassName(getPackageName(), "com.sean.takeastand.ui." +
+                            resources.getStringArray(R.array.ActivityClassName)[i]);
                     startActivity(intent);
                 }
             });
@@ -94,5 +105,16 @@ public class HelpActivityRecyler extends ActionBarActivity {
                 vLink = (TextView) v.findViewById(R.id.txtLink);
             }
         }
+    }
+
+    private void sendAnalyticsEvent(String action) {
+        Tracker t = ((Application) this.getApplication()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.UI_EVENT)
+                .setAction(action)
+                .build());
     }
 }

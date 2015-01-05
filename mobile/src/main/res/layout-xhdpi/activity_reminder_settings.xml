@@ -30,7 +30,7 @@
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
                 android:text="@string/reminder_frequency"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textColor="@android:color/primary_text_light"
                 android:layout_marginBottom="14dp"/>
             <TextView
@@ -40,7 +40,7 @@
                 android:layout_below="@id/txtReminderFrequencyTitle"
                 android:layout_centerInParent="true"
                 android:text="20 minutes"
-                android:textSize="14sp"
+                android:textSize="@dimen/alert_text_size"
                 android:textColor="@android:color/secondary_text_light"/>
         </RelativeLayout>
         <RelativeLayout
@@ -65,7 +65,7 @@
                 android:layout_below="@id/lineNotificationTypes"
                 android:gravity="center"
                 android:text="Notification Alert Type"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textColor="@android:color/primary_text_light"
                 android:layout_marginBottom="14dp"/>
             <CheckBox
@@ -76,7 +76,7 @@
                 android:layout_toLeftOf="@+id/chbxVibrate"
                 android:layout_marginRight="11dp"
                 android:text="@string/led_light"
-                android:textSize="14sp"
+                android:textSize="@dimen/alert_text_size"
                 android:textColor="@android:color/secondary_text_light"/>
             <CheckBox
                 android:id="@+id/chbxVibrate"
@@ -85,7 +85,7 @@
                 android:layout_below="@id/notificationAlert"
                 android:layout_centerInParent="true"
                 android:text="@string/vibrate"
-                android:textSize="14sp"
+                android:textSize="@dimen/alert_text_size"
                 android:textColor="@android:color/secondary_text_light"/>
             <CheckBox
                 android:id="@+id/chbxSound"
@@ -95,7 +95,7 @@
                 android:layout_toRightOf="@id/chbxVibrate"
                 android:layout_marginLeft="10dp"
                 android:text="@string/sound"
-                android:textSize="14sp"
+                android:textSize="@dimen/alert_text_size"
                 android:textColor="@android:color/secondary_text_light"/>
         </RelativeLayout>
         <RelativeLayout
@@ -124,7 +124,7 @@
                 android:text="@string/vibrate_sound_on_silent"
                 android:textColor="@android:color/primary_text_light"
                 android:gravity="center"
-                android:textSize="@dimen/alert_text_size"/>
+                android:textSize="18sp"/>
             <Switch
                 android:id="@+id/toggleSilentMode"
                 android:layout_width="wrap_content"
@@ -157,7 +157,7 @@
                 android:layout_marginLeft="15dp"
                 android:text="@string/repeat_vibrate_sound"
                 android:gravity="center"
-                android:textSize="14sp"
+                android:textSize="@dimen/alert_text_size"
                 android:textColor="@android:color/primary_text_light"/>
             <Switch
                 android:id="@+id/toggleRepeat"
@@ -179,7 +179,7 @@
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
                     android:text="@string/every"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textColor="@android:color/primary_text_light"/>
             </RelativeLayout>
         </RelativeLayout>

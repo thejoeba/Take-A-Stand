@@ -8,11 +8,10 @@
     android:layout_marginBottom="10dp"
     card_view:cardCornerRadius="4dp">
     <RelativeLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
+        android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_marginBottom="25dp">
         <RelativeLayout
             android:layout_width="match_parent"
@@ -33,7 +32,7 @@
                 android:textColor="@color/Grey"
                 android:id="@+id/editTitle"
                 android:ems="7"
-                android:textSize="22sp"
+                android:textSize="24sp"
                 android:layout_marginTop="12dp"/>
             <ToggleButton
                 android:layout_width="wrap_content"
@@ -82,14 +81,14 @@
                     android:layout_toLeftOf="@+id/chbxVibrate"
                     android:layout_marginRight="11dp"
                     android:text="@string/led_light"
-                    android:textSize="11sp"/>
+                    android:textSize="14sp"/>
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/chbxVibrate"
                     android:layout_centerHorizontal="true"
                     android:text="@string/vibrate"
-                    android:textSize="11sp"/>
+                    android:textSize="14sp"/>
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -97,7 +96,7 @@
                     android:layout_toRightOf="@id/chbxVibrate"
                     android:layout_marginLeft="10dp"
                     android:text="@string/sound"
-                    android:textSize="11sp"/>
+                    android:textSize="14sp"/>
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -113,8 +112,8 @@
                 android:id="@+id/secondRow"
                 android:layout_below="@id/firstRow"
                 android:layout_marginTop="8dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp">
+                android:layout_marginLeft="33dp"
+                android:layout_marginRight="33dp">
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -132,7 +131,7 @@
                         android:layout_marginTop="12dp"
                         android:id="@+id/txtFrequencyValue"
                         android:text = "20"
-                        android:textSize="16sp"
+                        android:textSize="17sp"
                         android:textColor="@color/DarkDarkGrey"
                         />
                 </RelativeLayout>
@@ -154,7 +153,7 @@
                         android:layout_marginTop="12dp"
                         android:id="@+id/txtStartTimeValue"
                         android:text = "8:00"
-                        android:textSize="16sp"
+                        android:textSize="17sp"
                         android:textColor="@color/DarkDarkGrey"/>
                 </RelativeLayout>
                 <RelativeLayout
@@ -175,7 +174,7 @@
                        android:layout_below="@id/txtEndTime"
                        android:id="@+id/txtEndTimeValue"
                        android:text = "5:00"
-                       android:textSize="16sp"
+                       android:textSize="17sp"
                        android:textColor="@color/DarkDarkGrey"/>
                 </RelativeLayout>
             </RelativeLayout>
@@ -207,7 +206,7 @@
                     android:id="@+id/txtTue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="29dp"
+                    android:layout_marginRight="33dp"
                     android:text="@string/abbTue"
                     android:layout_toLeftOf="@id/txtWed"/>
                 <TextView
@@ -215,7 +214,7 @@
                     android:id="@+id/txtMon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="27dp"
+                    android:layout_marginRight="33dp"
                     android:text="@string/abbMon"
                     android:layout_toLeftOf="@id/txtTue" />
                 <TextView
@@ -223,7 +222,7 @@
                     android:id="@+id/txtSun"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
+                    android:layout_marginRight="33dp"
                     android:text="@string/abbSun"
                     android:layout_toLeftOf="@id/txtMon"/>
                 <TextView
@@ -231,7 +230,7 @@
                     android:id="@+id/txtThu"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="29dp"
+                    android:layout_marginLeft="33dp"
                     android:text="@string/abbThu"
                     android:layout_toRightOf="@id/txtWed" />
                 <TextView
@@ -239,7 +238,7 @@
                     android:id="@+id/txtFri"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="29dp"
+                    android:layout_marginLeft="33dp"
                     android:text="@string/abbFri"
                     android:layout_toRightOf="@id/txtThu" />
                 <TextView
@@ -247,7 +246,7 @@
                     android:id="@+id/txtSat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
+                    android:layout_marginLeft="33dp"
                     android:text="@string/abbSat"
                     android:layout_toRightOf="@id/txtFri" />
             </RelativeLayout>
@@ -267,42 +266,42 @@
                     android:id="@+id/chbxTue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="7dp"
+                    android:layout_marginRight="10dp"
                     android:layout_toLeftOf="@id/chbxWed" />
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxMon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="7dp"
+                    android:layout_marginRight="10dp"
                     android:layout_toLeftOf="@id/chbxTue" />
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxSun"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="7dp"
+                    android:layout_marginRight="10dp"
                     android:layout_toLeftOf="@id/chbxMon"/>
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxThu"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/chbxWed"/>
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxFri"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/chbxThu" />
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxSat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/chbxFri" />
                 </RelativeLayout>
         </RelativeLayout>

@@ -9,18 +9,23 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
+import com.sean.takeastand.util.Constants;
 
 
 /**
  * Created by Joey on 1/2/2015.
  */
-public class ScienceActivityRecyler extends ActionBarActivity {
+public class ScienceActivityRecycler extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +48,11 @@ public class ScienceActivityRecyler extends ActionBarActivity {
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
-
         recList.setAdapter(new ScienceAdapter());
+
+        Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Science Activity");
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     public class ScienceAdapter extends RecyclerView.Adapter<ScienceAdapter.ScienceCardViewHolder> {
@@ -63,6 +71,7 @@ public class ScienceActivityRecyler extends ActionBarActivity {
             scienceCardViewHolder.vLink.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    sendAnalyticsEvent("User clicked on the link titled: " + resources.getStringArray(R.array.MedicalTitle)[i]);
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(resources.getStringArray(R.array.MedicalURL)[i])));
                 }
             });
@@ -92,5 +101,16 @@ public class ScienceActivityRecyler extends ActionBarActivity {
                 vLink = (TextView) v.findViewById(R.id.txtLink);
             }
         }
+    }
+
+    private void sendAnalyticsEvent(String action) {
+        Tracker t = ((Application) this.getApplication()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.UI_EVENT)
+                .setAction(action)
+                .build());
     }
 }
