@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="40dp" />
+                android:layout_marginTop="80dp" />
             <fragment
                 android:name="com.sean.takeastand.ui.AlarmFragment"
                 android:id="@+id/alarm_fragment"
@@ -34,7 +34,7 @@
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/main_current_status_fragment"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="20dp" />
         </RelativeLayout>
         <ListView
             android:id="@+id/left_drawer"

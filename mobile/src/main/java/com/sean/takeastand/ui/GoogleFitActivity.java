@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 
+import com.Application;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
@@ -92,6 +95,10 @@ public class GoogleFitActivity extends ActionBarActivity {
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
+
+        Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
+        t.setScreenName("Google Fit Activity");
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 
     @Override
@@ -134,6 +141,7 @@ public class GoogleFitActivity extends ActionBarActivity {
                         editor.commit();
                         disconnectClient();
                         btnDeauthorizeFit.setEnabled(true);
+                        sendAnalyticsEvent("Google Fit Enabled");
                     }
                     @Override
                     public void onConnectionSuspended(int i) {
@@ -151,6 +159,7 @@ public class GoogleFitActivity extends ActionBarActivity {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, false);
                 editor.commit();
+                sendAnalyticsEvent("Google Fit Disabled");
             }
         }
     };
@@ -167,6 +176,7 @@ public class GoogleFitActivity extends ActionBarActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, false);
                     editor.commit();
+                    sendAnalyticsEvent("Google Fit Deauthorized");
                     deauthorizeFit();
                 }
                 @Override
@@ -212,6 +222,7 @@ public class GoogleFitActivity extends ActionBarActivity {
                             Intent insertDelete = new Intent(GoogleFitActivity.this, GoogleFitService.class);
                             insertDelete.setAction("DeleteData");
                             startService(insertDelete);
+                            sendAnalyticsEvent("User Deleted All Google Fit Data");
                         }
                     })
                     .setNegativeButton(getString(R.string.cancel), null)
@@ -305,6 +316,17 @@ public class GoogleFitActivity extends ActionBarActivity {
                     }
                 }
         );
+    }
+
+    private void sendAnalyticsEvent(String action) {
+        Tracker t = ((Application) this.getApplication()).getTracker(
+                Application.TrackerName.APP_TRACKER);
+        t.enableAdvertisingIdCollection(true);
+        // Build and send an Event.
+        t.send(new HitBuilders.EventBuilder()
+                .setCategory(Constants.UI_EVENT)
+                .setAction(action)
+                .build());
     }
 }
 
