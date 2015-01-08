@@ -91,6 +91,7 @@
     <orderEntry type="library" exported="" name="calligraphy-0.7.2" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="library-2.4.0" level="project" />
+    <orderEntry type="library" exported="" name="library-5.0.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-21.0.3" level="project" />
   </component>
 </module>

@@ -20,4 +20,8 @@
         <item name="colorPrimaryDark">#1976D2</item>
         <item name="colorAccent">#A5D6A7</item>
     </style>
+
+    <style name="Tutorial" parent="ShowcaseView.Light">
+
+    </style>
 </resources>

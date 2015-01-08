@@ -68,7 +68,7 @@ public class ScienceActivityRecycler extends ActionBarActivity {
             scienceCardViewHolder.vTitle.setText(resources.getStringArray(R.array.MedicalTitle)[i]);
             scienceCardViewHolder.vText.setText(resources.getStringArray(R.array.MedicalText)[i]);
             scienceCardViewHolder.vLink.setText(resources.getStringArray(R.array.MedicalLink)[i]);
-            scienceCardViewHolder.vLink.setOnClickListener(new View.OnClickListener() {
+            scienceCardViewHolder.vCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     sendAnalyticsEvent("User clicked on the link titled: " + resources.getStringArray(R.array.MedicalTitle)[i]);
