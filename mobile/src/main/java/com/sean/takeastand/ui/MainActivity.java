@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -32,10 +33,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,11 +42,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.Application;
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ActionItemTarget;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.PointTarget;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -67,6 +73,8 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class MainActivity extends ActionBarActivity {
     //ToDo: Recenter layout
     private static final String TAG = "MainActivity";
+    private static final String UI_PATH = "com.sean.takeastand.ui.";
+    private final static Integer ACTIVITY_NUMBER = 0;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -76,6 +84,8 @@ public class MainActivity extends ActionBarActivity {
     private int[] pauseTimes = new int[]{5, 10, 15, 20, 25, 30, 45, 60, 75, 90, 105, 120, 135, 150,
             165, 180};
     private Handler mHandler;
+    ImageView ivTutorialBlock;
+    ShowcaseView showcaseView;
 
     @Override
     protected void onCreate(Bundle paramBundle) {
@@ -93,14 +103,15 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions.add(activitiesArray[4]);
         mNavDrawerOptions.add(activitiesArray[5]);
         mNavDrawerOptions.add(activitiesArray[6]);
-//        mNavDrawerOptions.add("Test");
-        this.setTitle(activitiesArray[0]);
+        mNavDrawerOptions.add(activitiesArray[7]);
+//        mNavDrawerOptions.add("Tutorial");
+        this.setTitle(activitiesArray[ACTIVITY_NUMBER]);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                toolbar, R.string.app_name, R.string.app_name) {
+                toolbar, R.string.app_name, R.string.options) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
@@ -122,6 +133,7 @@ public class MainActivity extends ActionBarActivity {
         mDrawerList.setOnItemClickListener(drawerClickListener);
         mHandler = new Handler();
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        ivTutorialBlock = (ImageView) findViewById(R.id.ivTutorialBlock);
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Main Activity");
         t.send(new HitBuilders.AppViewBuilder().build());
@@ -136,40 +148,20 @@ public class MainActivity extends ActionBarActivity {
     private AdapterView.OnItemClickListener drawerClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-            switch (position) {
-                case 0:
-                    Intent intentNotification =
-                            new Intent(MainActivity.this, ReminderSettingsActivity.class);
-                    startActivity(intentNotification);
-                    break;
-                case 1:
-                    Intent intentStandDetectorTMSettings = new Intent(MainActivity.this, StandDtectorTMSettings.class);
-                    startActivity(intentStandDetectorTMSettings);
-                    break;
-                case 2:
-                    Intent intentScience = new Intent(MainActivity.this, ScienceActivityRecycler.class);
-                    startActivity(intentScience);
-                    break;
-                case 3:
-                    Intent intentStandCount = new Intent(MainActivity.this, StandCountActivity.class);
-                    startActivity(intentStandCount);
-                    break;
-                case 4:
-                    Intent intentGoogleFit = new Intent(MainActivity.this, GoogleFitActivity.class);
-                    startActivity(intentGoogleFit);
-                    break;
-                case 5:
-                    Intent intentHelp = new Intent(MainActivity.this, HelpActivityRecycler.class);
-                    startActivity(intentHelp);
-                    break;
-//                case 6:
-//                    Intent intentTest = new Intent(MainActivity.this, HelpActivityRecyler.class);
-//                    startActivity(intentTest);
-//                    break;
+            Intent intent = new Intent();
+            String[] activities = getResources().getStringArray(R.array.ActivityClassName);
+            if(position < activities.length - 1) {
+                intent.setClassName(getPackageName(), UI_PATH + activities[position + 1]);
+                startActivity(intent);
             }
+//            else {
+//                switch (position) {
+//                    case 7:
+//                        RunTutorial();
+//                        break;
+//                }
+//            }
         }
-
-
     };
 
     @Override
@@ -177,10 +169,15 @@ public class MainActivity extends ActionBarActivity {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
+        Resources resources = getResources();
         switch (item.getItemId()) {
-            case R.id.schedules:
-                Intent intent = new Intent(this, ScheduleListActivity.class);
-                startActivity(intent);
+            case R.id.main_help:
+                new AlertDialog.Builder(this)
+                        .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
+                        .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
+                        .setPositiveButton(getString(R.string.ok), null)
+                        .setNegativeButton(getString(R.string.cancel), null)
+                        .show();
                 break;
             case R.id.pauseplay:
                 togglePausePlay();
@@ -219,6 +216,11 @@ public class MainActivity extends ActionBarActivity {
                 }
             }, 400);
         }
+
+        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean("RunTutorial", true)) {
+            getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).edit().putBoolean("RunTutorial", false).commit();
+            RunTutorial();
+        }
         super.onResume();
     }
 
@@ -238,10 +240,8 @@ public class MainActivity extends ActionBarActivity {
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
         mPausePlay = menu.findItem(R.id.pauseplay);
         if (drawerOpen) {
-            menu.findItem(R.id.schedules).setVisible(false);
             mPausePlay.setVisible(false);
         } else {
-            menu.findItem(R.id.schedules).setVisible(true);
             updatePausePlayIcon();
         }
         return super.onPrepareOptionsMenu(menu);
@@ -380,8 +380,6 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 mPausePlay.setVisible(false);
             }
-            //ToDo: Report Infinite Loop to Sean
-//            invalidateOptionsMenu();
         } else {
             Log.i(TAG, "null");
         }
@@ -437,5 +435,123 @@ public class MainActivity extends ActionBarActivity {
                 .setCategory(Constants.UI_EVENT)
                 .setAction(action)
                 .build());
+    }
+
+    private void RunTutorial() {
+        mDrawerLayout.closeDrawers();
+        //ToDo: Lock orientation
+//        setRequestedOrientation(getResources().getConfiguration().orientation);
+        ivTutorialBlock.setVisibility(View.VISIBLE);
+
+        ivTutorialBlock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showcaseView.hide();
+            }
+        });
+
+        showcaseView = new ShowcaseView.Builder(this)
+                .setTarget(new ViewTarget(R.id.main_current_status_fragment, this))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("Start Stand Reminder")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[0])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        tutorialFirstClick();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
+    }
+
+    private void tutorialFirstClick() {
+        ivTutorialBlock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showcaseView.hide();
+            }
+        });
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mDrawerLayout.openDrawer(Gravity.LEFT);
+            }
+        }, 800);
+        int actionBarHeight = getSupportActionBar().getHeight();
+        showcaseView = new ShowcaseView.Builder(MainActivity.this)
+                .setTarget(new PointTarget(actionBarHeight / 2, actionBarHeight / 2))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("Other options")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[1])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        tutorialSecondClick();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
+    }
+
+    private void tutorialSecondClick() {
+        mDrawerLayout.closeDrawers();
+        ivTutorialBlock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showcaseView.hide();
+            }
+        });
+        showcaseView = new ShowcaseView.Builder(MainActivity.this)
+                .setTarget(new ViewTarget(R.id.main_help, this))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("More Info")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[2])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        tutorialFinalClick();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
+    }
+
+    private void tutorialFinalClick() {
+        ivTutorialBlock.setVisibility(View.GONE);
     }
 }

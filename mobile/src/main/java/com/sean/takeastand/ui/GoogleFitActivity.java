@@ -5,11 +5,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
@@ -44,6 +48,7 @@ public class GoogleFitActivity extends ActionBarActivity {
     private Button btnMarkDBSynced;
     private Button btnReadData;
     private Button btnDeleteData;
+    private final static Integer ACTIVITY_NUMBER = 6;
 
     /**
      *  Track whether an authorization activity is stacking over the current activity, i.e. when
@@ -63,7 +68,7 @@ public class GoogleFitActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_google_fit);
-        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[5]);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER]);
         Toolbar toolbar = (Toolbar) findViewById(R.id.stand_count_toolbar);
         setSupportActionBar(toolbar);
         if (toolbar != null) {
@@ -99,6 +104,32 @@ public class GoogleFitActivity extends ActionBarActivity {
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Google Fit Activity");
         t.send(new HitBuilders.AppViewBuilder().build());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.help_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Resources resources = getResources();
+        if (item.getItemId() ==  R.id.help) {
+            new AlertDialog.Builder(this)
+                    .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
+                    .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+        }
+        else {
+            //Closes Activity when user presses title
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

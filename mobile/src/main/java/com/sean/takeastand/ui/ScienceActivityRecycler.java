@@ -1,5 +1,6 @@
 package com.sean.takeastand.ui;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -11,6 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,12 +30,14 @@ import com.sean.takeastand.util.Constants;
  * Created by Joey on 1/2/2015.
  */
 public class ScienceActivityRecycler extends ActionBarActivity {
+    private final static Integer ACTIVITY_NUMBER = 4;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_recycler);
-        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[3]);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER]);
         Toolbar toolbar = (Toolbar) findViewById(R.id.recycler_toolbar);
         setSupportActionBar(toolbar);
         if (toolbar != null) {
@@ -55,6 +61,32 @@ public class ScienceActivityRecycler extends ActionBarActivity {
         t.send(new HitBuilders.AppViewBuilder().build());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.help_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Resources resources = getResources();
+        if (item.getItemId() ==  R.id.help) {
+            new AlertDialog.Builder(this)
+                    .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
+                    .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+        }
+        else {
+            //Closes Activity when user presses title
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public class ScienceAdapter extends RecyclerView.Adapter<ScienceAdapter.ScienceCardViewHolder> {
 
         @Override
@@ -68,7 +100,7 @@ public class ScienceActivityRecycler extends ActionBarActivity {
             scienceCardViewHolder.vTitle.setText(resources.getStringArray(R.array.MedicalTitle)[i]);
             scienceCardViewHolder.vText.setText(resources.getStringArray(R.array.MedicalText)[i]);
             scienceCardViewHolder.vLink.setText(resources.getStringArray(R.array.MedicalLink)[i]);
-            scienceCardViewHolder.vLink.setOnClickListener(new View.OnClickListener() {
+            scienceCardViewHolder.vCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     sendAnalyticsEvent("User clicked on the link titled: " + resources.getStringArray(R.array.MedicalTitle)[i]);

@@ -4,11 +4,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -40,17 +43,44 @@ public class ReminderSettingsActivity extends ActionBarActivity {
     private Switch swSilent;
     private Switch swRepeat;
     private boolean mNotificationAlertChanged;
+    private final static Integer ACTIVITY_NUMBER = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminder_settings);
-        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[1]);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER]);
         setUpLayout();
         Tracker t = ((Application) this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Reminder Settings");
         t.send(new HitBuilders.AppViewBuilder().build());
         mNotificationAlertChanged = false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.help_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Resources resources = getResources();
+        if (item.getItemId() ==  R.id.help) {
+                new AlertDialog.Builder(this)
+                        .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
+                        .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
+                        .setPositiveButton(getString(R.string.ok), null)
+                        .setNegativeButton(getString(R.string.cancel), null)
+                        .show();
+        }
+        else {
+            //Closes Activity when user presses title
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setUpLayout() {
@@ -274,13 +304,6 @@ public class ReminderSettingsActivity extends ActionBarActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Constants.USER_FREQUENCY, frequency);
         editor.commit();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //Closes Activity when user presses title
-        finish();
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

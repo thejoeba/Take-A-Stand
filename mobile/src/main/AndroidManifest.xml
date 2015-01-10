@@ -54,7 +54,6 @@
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.ScheduleListActivity"
-            android:label="@string/schedules"
             android:parentActivityName=".ui.MainActivity" />
 
         <receiver android:name=".alarmprocess.AlarmReceiver" />

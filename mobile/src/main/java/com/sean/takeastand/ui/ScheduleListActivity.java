@@ -18,11 +18,13 @@
 package com.sean.takeastand.ui;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
@@ -30,6 +32,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -69,15 +73,43 @@ public class ScheduleListActivity extends ActionBarActivity {
     private Handler mHandler;
     private TextView txtNoAlarms;
     private RelativeLayout rlScheduleList;
+    private final static Integer ACTIVITY_NUMBER = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_list);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER]);
         setUpLayout();
         Tracker t = ((Application)this.getApplication()).getTracker(Application.TrackerName.APP_TRACKER);
         t.setScreenName("Schedules List Activity");
         t.send(new HitBuilders.AppViewBuilder().build());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.help_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Resources resources = getResources();
+        if (item.getItemId() ==  R.id.help) {
+            new AlertDialog.Builder(this)
+                    .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
+                    .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+        }
+        else {
+            //Closes Activity when user presses title
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -92,13 +124,6 @@ public class ScheduleListActivity extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceivers();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //Closes Activity when user presses title
-        finish();
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

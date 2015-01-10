@@ -72,4 +72,5 @@
     <string name="stands">Stands</string>
     <string name="StepDetectionDescription">Uses device\'s built in pedometer to detect the last time you walked, so that you are only reminded to stand after you have been sitting for a while.</string>
     <string name="WearStepDetectionDescription">Uses your wearable\'s pedometer to ensure you are only reminded after 20 minutes of inactivity</string>
+    <string name="options">Options</string>
 </resources>
