@@ -34,7 +34,7 @@
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/main_current_status_fragment"
-                android:layout_marginTop="20dp" />
+                android:layout_marginTop="15dp" />
         </RelativeLayout>
         <ListView
             android:id="@+id/left_drawer"

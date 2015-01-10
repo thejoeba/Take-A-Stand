@@ -267,42 +267,42 @@
                     android:id="@+id/chbxTue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="7dp"
+                    android:layout_marginRight="6dp"
                     android:layout_toLeftOf="@id/chbxWed" />
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxMon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="7dp"
+                    android:layout_marginRight="6dp"
                     android:layout_toLeftOf="@id/chbxTue" />
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxSun"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="7dp"
+                    android:layout_marginRight="6dp"
                     android:layout_toLeftOf="@id/chbxMon"/>
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxThu"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginLeft="6dp"
                     android:layout_toRightOf="@id/chbxWed"/>
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxFri"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginLeft="6dp"
                     android:layout_toRightOf="@id/chbxThu" />
                 <CheckBox
                     android:gravity="center"
                     android:id="@+id/chbxSat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginLeft="6dp"
                     android:layout_toRightOf="@id/chbxFri" />
                 </RelativeLayout>
         </RelativeLayout>
