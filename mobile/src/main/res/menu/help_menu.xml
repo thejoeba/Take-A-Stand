@@ -3,15 +3,9 @@
     xmlns:takeastand="http://schemas.android.com/apk/res-auto"
     tools:context=".Main_Activity">
     <item
-        android:id="@+id/main_help"
+        android:id="@+id/help"
         android:icon="@drawable/ic_action_help"
         android:title="Help"
         android:orderInCategory="2"
-        takeastand:showAsAction="always" />
-    <item
-        android:id="@+id/pauseplay"
-        android:icon="@drawable/ic_action_pause"
-        android:title="Pause"
-        android:orderInCategory="0"
         takeastand:showAsAction="always" />
 </menu>

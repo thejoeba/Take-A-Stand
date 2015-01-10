@@ -13,6 +13,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -22,6 +23,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -50,6 +53,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     private TextView txtCalibratedValue;
     private Button btnPurchase;
     private TextView tvProStatus;
+    private final static Integer ACTIVITY_NUMBER = 3;
 
     SharedPreferences sharedPreferences;
 
@@ -59,7 +63,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standdtectortm_settings);
-        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[2]);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER]);
         Toolbar toolbar = (Toolbar) findViewById(R.id.standdtectortm_settings_toolbar);
         setSupportActionBar(toolbar);
         if (toolbar != null) {
@@ -77,6 +81,32 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.help_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Resources resources = getResources();
+        if (item.getItemId() ==  R.id.help) {
+            new AlertDialog.Builder(this)
+                    .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
+                    .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+        }
+        else {
+            //Closes Activity when user presses title
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -359,12 +389,6 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                     .show();
         }
     };
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //Closes Activity when user presses title
-        finish();
-        return super.onOptionsItemSelected(item);
-    }
 
     //For Calligraphy font library class
     @Override

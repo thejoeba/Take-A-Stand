@@ -1,5 +1,6 @@
 package com.sean.takeastand.ui;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -9,6 +10,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -24,13 +28,15 @@ import com.sean.takeastand.util.Constants;
  * Created by Joey on 1/2/2015.
  */
 public class HelpActivityRecycler extends ActionBarActivity {
+    private final static Integer ACTIVITY_NUMBER = 7;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //help and science layouts are identical, reuse?
         setContentView(R.layout.activity_recycler);
-        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[6]);
+        this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER]);
         Toolbar toolbar = (Toolbar) findViewById(R.id.recycler_toolbar);
         setSupportActionBar(toolbar);
         if (toolbar != null) {
@@ -54,11 +60,37 @@ public class HelpActivityRecycler extends ActionBarActivity {
         t.send(new HitBuilders.AppViewBuilder().build());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.help_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Resources resources = getResources();
+        if (item.getItemId() ==  R.id.help) {
+            new AlertDialog.Builder(this)
+                    .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
+                    .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
+                    .setPositiveButton(getString(R.string.ok), null)
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+        }
+        else {
+            //Closes Activity when user presses title
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public class HelpAdapter extends RecyclerView.Adapter<HelpAdapter.ScienceCardViewHolder> {
 
         @Override
         public int getItemCount() {
-            return getResources().getStringArray(R.array.ActivityTitle).length - 1;
+            return getResources().getStringArray(R.array.ActivityTitle).length;
         }
 
         @Override
@@ -70,6 +102,11 @@ public class HelpActivityRecycler extends ActionBarActivity {
             scienceCardViewHolder.vCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(resources.getStringArray(R.array.ActivityTitle)[i].equals("Tutorial"))
+                    {
+                        sendAnalyticsEvent("Resetting Tutorial from the Help Activity");
+                        getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).edit().putBoolean("RunTutorial", true).commit();
+                    }
                     sendAnalyticsEvent("Launching " +
                             resources.getStringArray(R.array.ActivityClassName)[i] +
                             " from the Help Activity");
