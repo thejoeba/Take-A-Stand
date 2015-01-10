@@ -398,9 +398,9 @@ public class MainImageButtonFragment extends Fragment {
             @Override
             public View makeView() {
                 tapTextView = new TextView(getActivity());
-                tapTextView.setTextSize(25);
+                tapTextView.setTextSize(24);
                 tapTextView.setGravity(Gravity.CENTER_HORIZONTAL);
-                tapTextView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
+                tapTextView.setTextColor(getResources().getColor(android.R.color.secondary_text_light));
                 tapTextView.setText(getResources().getString(R.string.tap_to_start));
                 mCurrentText = getResources().getString(R.string.tap_to_start);
                 return tapTextView;
