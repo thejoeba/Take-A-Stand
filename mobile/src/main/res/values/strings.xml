@@ -93,7 +93,7 @@
     <string name="delete_fit_button">Delete Fit Data</string>
     <string name="stand_dtector_description">With StandDtector enabled, if your phone is in your pocket and you feel the stand reminder vibrations, you can stand up without taking the phone out of your pocket and that stand will be recorded.</string>
     <string name="trial_version">Trial Version</string>
-    <string name="purchase_pro_button">Purchase Pro Settings</string>
+    <string name="purchase_pro_button">Purchase Pro</string>
     <string name="notification_alert_type">Notify Me With:</string>
     <string name="toast_checkbox">Congratulatory toast with each stand</string>
 </resources>
