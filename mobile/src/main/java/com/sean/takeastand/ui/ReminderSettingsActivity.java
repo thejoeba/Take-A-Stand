@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,8 +25,12 @@ import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.sean.takeastand.R;
+import com.sean.takeastand.storage.FixedAlarmSchedule;
+import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;
 import com.sean.takeastand.util.Utils;
+
+import java.util.ArrayList;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -34,14 +39,15 @@ public class ReminderSettingsActivity extends ActionBarActivity {
     private CheckBox chbxLED;
     private CheckBox chbxVibrate;
     private CheckBox chbxSound;
+    private CheckBox chbxToast;
     private TextView txtSilentMode;
     private TextView txtRepeat;
     private TextView txtReminderFrequency;
     private TextView txtNotificationFrequency;
     private RelativeLayout rlReminderFrequency;
     private RelativeLayout rlNotificationFrequency;
-    private Switch swSilent;
-    private Switch swRepeat;
+    private CheckBox chbxSilent;
+    private CheckBox chbxRepeat;
     private boolean mNotificationAlertChanged;
     private final static Integer ACTIVITY_NUMBER = 7;
 
@@ -105,7 +111,10 @@ public class ReminderSettingsActivity extends ActionBarActivity {
         chbxSound = (CheckBox) findViewById(R.id.chbxSound);
         chbxSound.setChecked(currentNotification[2]);
         chbxSound.setOnClickListener(checkBoxListener);
-        txtSilentMode = (TextView) findViewById(R.id.tvStepCounter);
+        chbxToast = (CheckBox) findViewById(R.id.chbxToast);
+        chbxToast.setOnClickListener(checkBoxToastListener);
+        chbxToast.setChecked(Utils.getToastEnabled(this));
+        txtSilentMode = (TextView) findViewById(R.id.txtSilentMode);
         txtRepeat = (TextView) findViewById(R.id.txtRepeat);
         //txtNotificationFrequencyTitle = (TextView) findViewById(R.id.txtNotificationFrequencyTitle);
         txtNotificationFrequency = (TextView) findViewById(R.id.txtNotificationFrequencyTitle);
@@ -115,14 +124,14 @@ public class ReminderSettingsActivity extends ActionBarActivity {
         txtReminderFrequency.setText(setMinutes(Utils.getDefaultFrequency(this)));
         rlReminderFrequency = (RelativeLayout) findViewById(R.id.reminderFrequency);
         rlReminderFrequency.setOnClickListener(reminderFrequencyListener);
-        rlNotificationFrequency = (RelativeLayout) findViewById(R.id.notificationFrequency);
+        rlNotificationFrequency = (RelativeLayout) findViewById(R.id.notificationRepeatFrequency);
         rlNotificationFrequency.setOnClickListener(notificationFrequencyListener);
-        swSilent = (Switch) findViewById(R.id.toggleSilentMode);
-        swSilent.setOnClickListener(silentModeListener);
-        swSilent.setChecked(Utils.getVibrateOverride(this));
-        swRepeat = (Switch) findViewById(R.id.toggleRepeat);
-        swRepeat.setOnClickListener(repeatListener);
-        swRepeat.setChecked(Utils.getRepeatAlerts(this));
+        chbxSilent = (CheckBox) findViewById(R.id.toggleSilentMode);
+        chbxSilent.setOnClickListener(silentModeListener);
+        chbxSilent.setChecked(Utils.getVibrateOverride(this));
+        chbxRepeat = (CheckBox)findViewById(R.id.toggleRepeat);
+        chbxRepeat.setOnClickListener(repeatListener);
+        chbxRepeat.setChecked(Utils.getRepeatAlerts(this));
         //Set up grayed views
         setGrayedAreas();
     }
@@ -130,7 +139,7 @@ public class ReminderSettingsActivity extends ActionBarActivity {
     View.OnClickListener repeatListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (((Switch) view).isChecked()) {
+            if (((CheckBox) view).isChecked()) {
                 setRepeatAlerts(ReminderSettingsActivity.this, true);
                 sendAnalyticsEvent("Notification Reminders Repeat: On");
             } else {
@@ -144,7 +153,7 @@ public class ReminderSettingsActivity extends ActionBarActivity {
     View.OnClickListener silentModeListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            boolean silentModeOn = ((Switch) view).isChecked();
+            boolean silentModeOn = ((CheckBox) view).isChecked();
             silentMode(silentModeOn);
             if (silentModeOn) {
                 sendAnalyticsEvent("Override silent: On");
@@ -206,6 +215,13 @@ public class ReminderSettingsActivity extends ActionBarActivity {
 
     };
 
+    View.OnClickListener checkBoxToastListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            setToastOnOff(((CheckBox)v).isChecked());
+        }
+    };
+
     View.OnClickListener notificationFrequencyListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -255,12 +271,12 @@ public class ReminderSettingsActivity extends ActionBarActivity {
         }
         if (chbxVibrate.isChecked()) {
             txtSilentMode.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-            swSilent.setEnabled(true);
-            swSilent.setAlpha((float) 1);
+            chbxSilent.setEnabled(true);
+            chbxSilent.setAlpha((float) 1);
         } else {
             txtSilentMode.setTextColor(getResources().getColor(R.color.LightGrey));
-            swSilent.setEnabled(false);
-            swSilent.setAlpha((float) 0.5);
+            chbxSilent.setEnabled(false);
+            chbxSilent.setAlpha((float) 0.5);
         }
     }
 
@@ -341,5 +357,13 @@ public class ReminderSettingsActivity extends ActionBarActivity {
                 .setCategory(Constants.UI_EVENT)
                 .setAction(action)
                 .build());
+    }
+
+    public void setToastOnOff(boolean enabled){
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constants.TOAST_ENABLED, enabled);
+        editor.commit();
     }
 }

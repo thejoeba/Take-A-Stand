@@ -479,4 +479,10 @@ public final class Utils {
             context.startService(insertIntent);
         }
     }
+
+    public static boolean getToastEnabled(Context context){
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
+        return sharedPreferences.getBoolean(Constants.TOAST_ENABLED, true);
+    }
 }

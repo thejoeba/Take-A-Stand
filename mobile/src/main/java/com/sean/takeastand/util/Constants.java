@@ -85,4 +85,5 @@ public final class Constants {
     public static final String GOOGLE_FIT_OLDEST_SESSION = "OldestGoogleFitSession";
     public static final String PRO_VERIFIED = "ProVerified";
     public static final String PRO_ANDROID_ID = "ProAndroidID";
+    public static final String TOAST_ENABLED = "ToastEnabled";
 }

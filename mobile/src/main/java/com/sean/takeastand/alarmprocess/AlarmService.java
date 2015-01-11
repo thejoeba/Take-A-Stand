@@ -35,7 +35,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.heckbot.standdtector.StandDtectorTM;
@@ -434,7 +439,18 @@ public class AlarmService extends Service {
             intent.putExtra("Praise", praise);
             LocalBroadcastManager.getInstance(this).sendBroadcastSync(intent);
         } else {
-            Toast.makeText(this, praise, Toast.LENGTH_LONG).show();
+            if(Utils.getToastEnabled(this)){
+                LayoutInflater inflater = (LayoutInflater)getApplication().getSystemService
+                        (Context.LAYOUT_INFLATER_SERVICE);
+                View layout = inflater.inflate(R.layout.custom_toast, null);
+                TextView text = (TextView) layout.findViewById(R.id.toast_text);
+                text.setText(praise);
+                Toast toast = new Toast(getApplicationContext());
+                //toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.setDuration(Toast.LENGTH_LONG);
+                toast.setView(layout);
+                toast.show();
+            }
         }
     }
 

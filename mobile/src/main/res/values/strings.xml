@@ -13,6 +13,8 @@
         <item>Good job!</item>
         <item>Way to go!</item>
         <item>Excellent!</item>
+        <item>Doing Great!</item>
+        <item>Keep it Up!</item>
     </string-array>
 
     <string name="default_praise">Good Job!</string>
@@ -31,13 +33,13 @@
     <string name="cancel">Cancel</string>
     <string name="schedule_running">Schedule Running</string>
     <string name="settings">Settings</string>
-    <string name="reminder_frequency">Stand Reminder Frequency</string>
+    <string name="reminder_frequency">Remind Me to Stand Every:</string>
     <string name="select_alert_types">Set Default Notification</string>
     <string name="schedules">Schedules</string>
     <string name="AM">am</string>
     <string name="PM">pm</string>
     <string name="led_light">LED Light</string>
-    <string name="vibrate">Vibrate</string>
+    <string name="vibrate">Vibration</string>
     <string name="sound">Sound</string>
     <string name="next_alert_at">Take A Stand at:</string>
     <string name="stood">Stood</string>
@@ -52,12 +54,11 @@
     <string name="abbThu">T</string>
     <string name="abbFri">F</string>
     <string name="abbSat">S</string>
-    <string name="default_frequency">Stand Reminder Frequency</string>
     <string name="calibration">Calibration</string>
     <string name="calibration_instructions">To calibrate, the phone must be in your pocket and you must be sitting. The phone will Vibrate once, indicating you should stand. Once calibration is complete, the phone will vibrate again. Once you press OK, you will have 5 seconds to put the phone in your pocket and be sitting before you feel the first vibration.</string>
     <string name="click_for_first_schedule">No stand reminder schedules yet \n \n Click to Add</string>
-    <string name="vibrate_sound_on_silent">Vibrate on silent</string>
-    <string name="repeat_vibrate_sound">Repeat notification when it is time to stand</string>
+    <string name="vibrate_sound_on_silent">Vibrate even in silent mode</string>
+    <string name="repeat_vibrate_sound">Repeat notifications if missed first</string>
     <string name="every">Every</string>
     <string name="notification_reminder_frequency">Notification Reminder Frequency</string>
     <string name="reminder_settings">Reminder Settings</string>\
@@ -93,4 +94,6 @@
     <string name="stand_dtector_description">With StandDtector enabled, if your phone is in your pocket and you feel the stand reminder vibrations, you can stand up without taking the phone out of your pocket and that stand will be recorded.</string>
     <string name="trial_version">Trial Version</string>
     <string name="purchase_pro_button">Purchase Pro Settings</string>
+    <string name="notification_alert_type">Notify Me With:</string>
+    <string name="toast_checkbox">Congratulatory toast with each stand</string>
 </resources>
