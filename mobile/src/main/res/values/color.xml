@@ -167,4 +167,6 @@
     <color name="ButtonRed">#E41C1C</color>
     <color name="ButtonRedPressed">#CB0101</color>
     <color name="ButtonRedRipple">#DB1313</color>
+    <color name="link_text_light">#0000ee</color>
+    <color name="suggestion_highlight_text">#177bbd</color>
 </resources>

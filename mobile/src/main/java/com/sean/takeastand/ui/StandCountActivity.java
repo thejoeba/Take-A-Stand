@@ -26,7 +26,7 @@ public class StandCountActivity extends ActionBarActivity {
     //ToDo: Add more statistics
     private static final String TAG = "StandCountActivity";
     private TextView txtStandCount;
-    private final static Integer ACTIVITY_NUMBER = 5;
+    private final static Integer ACTIVITY_NUMBER = 4;
 //    private TextView tvLastStep;
 
     @Override

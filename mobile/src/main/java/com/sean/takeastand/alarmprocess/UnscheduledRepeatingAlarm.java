@@ -61,7 +61,7 @@ public class UnscheduledRepeatingAlarm implements RepeatingAlarm {
         */
     @Override
     public void setRepeatingAlarm() {
-        double alarmPeriodMinutes = .2;//Utils.getDefaultFrequency(mContext);
+        double alarmPeriodMinutes = Utils.getDefaultFrequency(mContext);
         double alarmTimeInMillis = alarmPeriodMinutes * Constants.secondsInMinute * Constants.millisecondsInSecond;
         long triggerTime = SystemClock.elapsedRealtime() + (long) alarmTimeInMillis;
         Calendar nextAlarmTime = Calendar.getInstance();

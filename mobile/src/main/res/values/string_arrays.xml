@@ -30,14 +30,15 @@
     </string-array>
     <string-array name="ActivityTitle">
         <item>Take A Stand</item>
-        <item>Reminder Settings</item>
-        <item>Reminder Schedule</item>
-        <item>StandDtector™ Settings Pro</item>
+        <item>Settings</item>
+        <item>Stand Schedules</item>
         <item>Science Behind The App</item>
         <item>Stand Counter</item>
-        <item>Google Fit</item>
         <item>Help</item>
         <item>Tutorial</item>
+        <item>Reminder Settings</item>
+        <item>Google Fit Settings</item>
+        <item>Pro Settings</item>
     </string-array>
     <string-array name="ActivityHelpText">
         <item>When activated, Take A Stand will alert you to stand on a regular basis. To activate either set a schedule or simply tap the red figure. The figure is blue when on a schedule, or green when manually activated. When it is time to stand, you will be reminded by a short vibration and notification light. Tapping "Stood" in either the notification or in the app itself will reset the alarm.</item>
@@ -52,18 +53,16 @@
     </string-array>
     <string-array name="ActivityClassName">
         <item>MainActivity</item>
-        <item>ReminderSettingsActivity</item>
+        <item>SettingsActivity</item>
         <item>ScheduleListActivity</item>
-        <item>StandDtectorTMSettings</item>
         <item>ScienceActivityRecycler</item>
         <item>StandCountActivity</item>
-        <item>GoogleFitActivity</item>
         <item>HelpActivityRecycler</item>
         <item>MainActivity</item>
     </string-array>
     <string-array name="Tutorial">
-        <item>Tap the figure to manually start the stand reminder</item>
-        <item>You can access all the options like an automatic schedule or automatic stand detection from the menu</item>
-        <item>Tap the question mark icon for more info on any screen</item>
+        <item>To start the stand reminders, tap the figure</item>
+        <item>You can customize Take A Stand by adjusting the reminder settings and setting up weekly reminder schedules through this menu.  From here, you can also learn more about the science behind Take A Stand and view the help page.</item>
+        <item>Tap the question mark icon for additional info about each screen</item>
     </string-array>
 </resources>

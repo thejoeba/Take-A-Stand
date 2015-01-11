@@ -20,8 +20,10 @@
             android:id="@+id/reminderFrequency"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:layout_margin="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_below="@+id/reminder_settings_toolbar">
             <TextView
                 android:id="@+id/txtReminderFrequencyTitle"
@@ -32,13 +34,15 @@
                 android:text="@string/reminder_frequency"
                 android:textSize="18sp"
                 android:textColor="@android:color/primary_text_light"
-                android:layout_marginBottom="14dp"/>
+                android:layout_marginBottom="4dp"/>
             <TextView
                 android:id="@+id/txtReminderFrequency"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/txtReminderFrequencyTitle"
                 android:layout_centerInParent="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="12dp"
                 android:text="20 minutes"
                 android:textSize="@dimen/alert_text_size"
                 android:textColor="@android:color/secondary_text_light"/>
@@ -48,12 +52,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/reminderFrequency"
-            android:layout_margin="8dp">
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="2dp">
             <View
                 android:id="@+id/lineNotificationTypes"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/LightGrey"
+                android:background="@android:color/holo_blue_light"
                 android:layout_marginRight="15dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginBottom="6dp"/>
@@ -67,7 +73,8 @@
                 android:text="Notification Alert Type"
                 android:textSize="18sp"
                 android:textColor="@android:color/primary_text_light"
-                android:layout_marginBottom="14dp"/>
+                android:layout_marginBottom="14dp"
+                android:layout_marginTop="4dp"/>
             <CheckBox
                 android:id="@+id/chbxLED"
                 android:layout_width="wrap_content"
@@ -108,7 +115,7 @@
                 android:id="@+id/lineSilent"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/LightGrey"
+                android:background="@android:color/holo_blue_light"
                 android:layout_marginRight="15dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginBottom="6dp"/>
@@ -121,6 +128,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="15dp"
                 android:layout_marginLeft="15dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/vibrate_sound_on_silent"
                 android:textColor="@android:color/primary_text_light"
                 android:gravity="center"
@@ -142,7 +150,7 @@
                 android:id="@+id/lineRepeat"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/LightGrey"
+                android:background="@android:color/holo_blue_light"
                 android:layout_marginRight="15dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginBottom="6dp"/>
@@ -155,6 +163,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="15dp"
                 android:layout_marginLeft="15dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/repeat_vibrate_sound"
                 android:gravity="center"
                 android:textSize="@dimen/alert_text_size"
@@ -170,17 +179,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/toggleRepeat"
-                android:layout_marginTop="16dp">
-
+                android:layout_marginTop="8dp">
                 <TextView
                     android:id="@+id/txtNotificationFrequencyTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:padding="12dp"
                     android:text="@string/every"
-                    android:textSize="18sp"
-                    android:textColor="@android:color/primary_text_light"/>
+                    android:textSize="16sp"
+                    android:textColor="@android:color/secondary_text_light"/>
             </RelativeLayout>
         </RelativeLayout>
         <View
@@ -188,8 +198,8 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@id/repeat"
-            android:background="@color/LightGrey"
-            android:layout_marginTop="8dp"
+            android:background="@android:color/holo_blue_light"
+            android:layout_marginTop="1dp"
             android:layout_marginRight="15dp"
             android:layout_marginLeft="15dp"
             android:layout_marginBottom="6dp"
