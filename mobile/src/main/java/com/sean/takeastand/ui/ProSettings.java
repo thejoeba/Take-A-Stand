@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.Settings;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -43,7 +42,7 @@ import java.util.ArrayList;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class StandDtectorTMSettings extends ActionBarActivity {
+public class ProSettings extends ActionBarActivity {
     //ToDo: Add Analytics to StandDtectorTMSettings
     //ToDo: Explain Settings
     private Switch toggleDeviceStepCounter;
@@ -53,7 +52,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     private TextView txtCalibratedValue;
     private Button btnPurchase;
     private TextView tvProStatus;
-    private final static Integer ACTIVITY_NUMBER = 3;
+    private final static Integer ACTIVITY_NUMBER = 9;
 
     SharedPreferences sharedPreferences;
 
@@ -62,7 +61,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_standdtectortm_settings);
+        setContentView(R.layout.activity_pro_settings);
         this.setTitle(getResources().getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER]);
         Toolbar toolbar = (Toolbar) findViewById(R.id.standdtectortm_settings_toolbar);
         setSupportActionBar(toolbar);
@@ -234,12 +233,12 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                         int daysSinceFirstFit = Math.round(sharedPreferences.getLong(Constants.GOOGLE_FIT_OLDEST_SESSION, System.currentTimeMillis()) / 86400000f) - installDate;
                         if (daysSinceFirstFit <= 7) {
                             trial = true;
-                            tvProStatus.setText("Trial: " + (7 - daysSinceInstall) + " days remaining");
+                            tvProStatus.setText(getString(R.string.trial) + (7 - daysSinceInstall) + getString(R.string.days_remaining));
                         }
                     }
                     else {
                         trial = true;
-                        tvProStatus.setText("Trial: " + (7 - daysSinceInstall) + " days remaining");
+                        tvProStatus.setText(getString(R.string.trial) + (7 - daysSinceInstall) + getString(R.string.days_remaining));
                     }
                 }
             } catch (PackageManager.NameNotFoundException e) {
@@ -254,7 +253,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
             toggleStandDtectorTM.setOnClickListener(StandDtectorTMListener);
             toggleStandDtectorTM.setChecked(sharedPreferences.getBoolean(Constants.STANDDTECTORTM_ENABLED, false));
             btnCalibrate.setOnClickListener(CalibrateListener);
-            txtCalibratedValue.setText("Calibrated Value: " + sharedPreferences.getFloat("CALIBRATEDVARIATION", 0));
+            txtCalibratedValue.setText(getString(R.string.calibrated_value) + sharedPreferences.getFloat("CALIBRATEDVARIATION", 0));
             FeatureCheck();
         }
         else {
@@ -269,7 +268,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
 
             btnCalibrate.setOnClickListener(UpgradePurchase);
 
-            tvProStatus.setText("Trial Expired. Upgrade to Pro.");
+            tvProStatus.setText(getString(R.string.trial_expired));
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(Constants.DEVICE_STEP_DETECTOR_ENABLED, false);
@@ -367,12 +366,12 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         @Override
         public void onClick(View view) {
             setRequestedOrientation(getResources().getConfiguration().orientation);
-            new AlertDialog.Builder(StandDtectorTMSettings.this)
+            new AlertDialog.Builder(ProSettings.this)
                     .setTitle(getString(R.string.calibration))
                     .setMessage(getString(R.string.calibration_instructions))
                     .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent calibrationIntent = new Intent(StandDtectorTMSettings.this, StandDtectorTM.class);
+                            Intent calibrationIntent = new Intent(ProSettings.this, StandDtectorTM.class);
                             calibrationIntent.setAction(com.heckbot.standdtector.Constants.CALIBRATE);
                             Intent intent = new Intent("CalibrationFinished");
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -382,7 +381,7 @@ public class StandDtectorTMSettings extends ActionBarActivity {
                             startService(calibrationIntent);
                             getApplicationContext().registerReceiver(calibrationFinishedReceiver, new IntentFilter("CalibrationFinished"));
                             btnCalibrate.setEnabled(false);
-                            btnCalibrate.setText("Calibrating");
+                            btnCalibrate.setText(getString(R.string.calibrating));
                         }
                     })
                     .setNegativeButton(getString(R.string.cancel), null)
@@ -400,12 +399,12 @@ public class StandDtectorTMSettings extends ActionBarActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("StandDtectorTMSettings", "Calibration Finished");
-            LocalBroadcastManager.getInstance(StandDtectorTMSettings.this).unregisterReceiver(calibrationFinishedReceiver);
+            LocalBroadcastManager.getInstance(ProSettings.this).unregisterReceiver(calibrationFinishedReceiver);
             if (intent.getExtras().getString("Results").equals("Success")) {
-                txtCalibratedValue.setText("New Calibrated Value: " + sharedPreferences.getFloat("CALIBRATEDVARIATION", 0));
+                txtCalibratedValue.setText(getString(R.string.new_calibrated) + sharedPreferences.getFloat("CALIBRATEDVARIATION", 0));
             } else {
-                LocalBroadcastManager.getInstance(StandDtectorTMSettings.this).unregisterReceiver(calibrationFinishedReceiver);
-                txtCalibratedValue.setText("Calibration Failed");
+                LocalBroadcastManager.getInstance(ProSettings.this).unregisterReceiver(calibrationFinishedReceiver);
+                txtCalibratedValue.setText(getString(R.string.calibration_failed));
             }
             btnCalibrate.setEnabled(true);
             btnCalibrate.setText(R.string.standdtectortm_calbirate);

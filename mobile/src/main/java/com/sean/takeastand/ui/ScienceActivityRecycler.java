@@ -30,7 +30,7 @@ import com.sean.takeastand.util.Constants;
  * Created by Joey on 1/2/2015.
  */
 public class ScienceActivityRecycler extends ActionBarActivity {
-    private final static Integer ACTIVITY_NUMBER = 4;
+    private final static Integer ACTIVITY_NUMBER = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

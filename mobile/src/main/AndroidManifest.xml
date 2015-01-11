@@ -36,10 +36,10 @@
         <activity
             android:name=".ui.ReminderSettingsActivity"
             android:label="@string/reminder_settings"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.SettingsActivity" />
         <activity
-            android:name=".ui.StandDtectorTMSettings"
-            android:parentActivityName=".ui.MainActivity" />
+            android:name=".ui.ProSettings"
+            android:parentActivityName=".ui.SettingsActivity" />
         <activity
             android:name=".ui.ScienceActivityRecycler"
             android:parentActivityName=".ui.MainActivity" />
@@ -48,13 +48,16 @@
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.GoogleFitActivity"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.SettingsActivity" />
         <activity
             android:name=".ui.HelpActivityRecycler"
             android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.ScheduleListActivity"
             android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:parentActivityName=".ui.MainActivity"/>
 
         <receiver android:name=".alarmprocess.AlarmReceiver" />
         <receiver android:name=".alarmprocess.StartScheduleReceiver" />

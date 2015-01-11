@@ -45,10 +45,8 @@ public class GoogleFitActivity extends ActionBarActivity {
     //ToDO: Prompt Fit Login on first launch
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
-    private Button btnMarkDBSynced;
-    private Button btnReadData;
     private Button btnDeleteData;
-    private final static Integer ACTIVITY_NUMBER = 6;
+    private final static Integer ACTIVITY_NUMBER = 8;
 
     /**
      *  Track whether an authorization activity is stacking over the current activity, i.e. when
@@ -90,10 +88,6 @@ public class GoogleFitActivity extends ActionBarActivity {
         btnDeauthorizeFit = (Button) findViewById(R.id.btnDeauthorizeFit);
         btnDeauthorizeFit.setEnabled(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false));
         btnDeauthorizeFit.setOnClickListener(DisableFit);
-        btnMarkDBSynced = (Button) findViewById(R.id.btnMarkDBSynced);
-        btnMarkDBSynced.setOnClickListener(MarkDBSynced);
-        btnReadData = (Button) findViewById(R.id.btnReadData);
-        btnReadData.setOnClickListener(ReadData);
         btnDeleteData = (Button) findViewById(R.id.btnDeleteData);
         btnDeleteData.setOnClickListener(DeleteData);
 
@@ -225,29 +219,12 @@ public class GoogleFitActivity extends ActionBarActivity {
         }
     };
 
-    View.OnClickListener MarkDBSynced = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            StoodLogsAdapter stoodLogsAdapter = new StoodLogsAdapter(GoogleFitActivity.this);
-            stoodLogsAdapter.updateSyncedSession(1);
-        }
-    };
-
-    View.OnClickListener ReadData = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intentRead = new Intent(GoogleFitActivity.this, GoogleFitService.class);
-            intentRead.setAction("ReadData");
-            startService(intentRead);
-        }
-    };
-
     View.OnClickListener DeleteData = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             new AlertDialog.Builder(GoogleFitActivity.this)
-                    .setTitle("Delete Fit Data")
-                    .setMessage("Deleting Fit Data cannot be undone. Are you sure?")
+                    .setTitle(getString(R.string.delete_fit_data))
+                    .setMessage(getString(R.string.delete_fit_data_message))
                     .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             Intent insertDelete = new Intent(GoogleFitActivity.this, GoogleFitService.class);

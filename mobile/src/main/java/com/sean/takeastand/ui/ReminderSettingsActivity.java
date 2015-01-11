@@ -43,7 +43,7 @@ public class ReminderSettingsActivity extends ActionBarActivity {
     private Switch swSilent;
     private Switch swRepeat;
     private boolean mNotificationAlertChanged;
-    private final static Integer ACTIVITY_NUMBER = 1;
+    private final static Integer ACTIVITY_NUMBER = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

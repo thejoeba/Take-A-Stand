@@ -24,6 +24,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sean.takeastand.R;
 import com.sean.takeastand.alarmprocess.ScheduledRepeatingAlarm;
 import com.sean.takeastand.alarmprocess.StartScheduleReceiver;
 import com.sean.takeastand.util.Constants;
@@ -76,7 +77,7 @@ public class ScheduleEditor {
                             saturday);
                     new ScheduledRepeatingAlarm(mContext, newAlarmSchedule).setRepeatingAlarm();
                     Utils.setImageStatus(mContext, Constants.SCHEDULE_RUNNING);
-                    Toast.makeText(mContext, "New schedule is now running", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.new_schedule_running), Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Log.i(TAG, "New alarm is not activated for today.  Not beginning repeatingAlarm.");

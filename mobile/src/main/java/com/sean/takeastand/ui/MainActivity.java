@@ -50,8 +50,6 @@ import android.widget.TextView;
 import com.Application;
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.github.amlcurran.showcaseview.targets.ActionItemTarget;
-import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
 import com.github.amlcurran.showcaseview.targets.PointTarget;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -102,8 +100,6 @@ public class MainActivity extends ActionBarActivity {
         mNavDrawerOptions.add(activitiesArray[3]);
         mNavDrawerOptions.add(activitiesArray[4]);
         mNavDrawerOptions.add(activitiesArray[5]);
-        mNavDrawerOptions.add(activitiesArray[6]);
-        mNavDrawerOptions.add(activitiesArray[7]);
 //        mNavDrawerOptions.add("Tutorial");
         this.setTitle(activitiesArray[ACTIVITY_NUMBER]);
         setContentView(R.layout.activity_main);
