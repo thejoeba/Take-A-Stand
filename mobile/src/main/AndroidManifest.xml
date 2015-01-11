@@ -45,7 +45,9 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:parentActivityName=".ui.MainActivity"/>
-
+        <activity
+            android:name=".ui.ScheduleListActivity"
+            android:parentActivityName=".ui.MainActivity" />
         <receiver android:name=".alarmprocess.AlarmReceiver" />
         <receiver android:name=".alarmprocess.StartScheduleReceiver" />
         <receiver android:name=".alarmprocess.BootReceiver">

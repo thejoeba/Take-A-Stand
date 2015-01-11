@@ -79,16 +79,16 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/chbxLED"
                     android:layout_toLeftOf="@+id/chbxVibrate"
-                    android:layout_marginRight="11dp"
+                    android:layout_marginRight="6dp"
                     android:text="@string/led_light"
-                    android:textSize="14sp"/>
+                    android:textSize="13sp"/>
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/chbxVibrate"
                     android:layout_centerHorizontal="true"
                     android:text="@string/vibrate"
-                    android:textSize="14sp"/>
+                    android:textSize="13sp"/>
                 <CheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -96,7 +96,7 @@
                     android:layout_toRightOf="@id/chbxVibrate"
                     android:layout_marginLeft="10dp"
                     android:text="@string/sound"
-                    android:textSize="14sp"/>
+                    android:textSize="13sp"/>
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
