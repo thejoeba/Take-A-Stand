@@ -42,14 +42,15 @@
     </string-array>
     <string-array name="ActivityHelpText">
         <item>When activated, Take A Stand will alert you to stand on a regular basis. To activate either set a schedule or simply tap the red figure. The figure is blue when on a schedule, or green when manually activated. When it is time to stand, you will be reminded by a short vibration and notification light. Tapping "Stood" in either the notification or in the app itself will reset the alarm.</item>
-        <item>Reminder Settings allow you to change how often you want to be notified to stand, what type of notification you will receive, and if you want follow up reminders if you miss the first notification.</item>
-        <item></item>
-        <item>StandDtector™ allows your device to intelligently postpone notifications by using device sensors to make sure you have not been active before reminding you to stand. These features are free for the first 7 days, and a one time $.99 purchase to permanently unlock afterwards.</item>
+        <item>This is where you will find all the options. Further help is available in each section.</item>
+        <item>Create a custom schedule for your reminders. Set your stand workday hours and the app will automatically start and stop for you.</item>
         <item>Medical studies and links with information on how bad sitting for long periods of time really is for your health.</item>
         <item>Statistics about your stands, such as the number of stands you have made since you began using Take A Stand. If you use Google Fit, this data is automatically backed up and if you ever migrate to a new device, your statistics will be restored on the new device.</item>
+        <item>Central location for all the help articles.</item>
+        <item>View the main tutorial again.</item>
+        <item>Reminder Settings allow you to change how often you want to be notified to stand, what type of notification you will receive, and if you want follow up reminders if you miss the first notification.</item>
         <item>If enabled, your stand history will be securely and privately saved to personal Google Fit profile. You stand history can be viewed in Stand Counter from the main menu, and will automatically be backed up and restored for you. You can remove your data from Google Fit at any time on the Google Fit page.</item>
-        <item>Help Menu!</item>
-        <item>View the main tutorial</item>
+        <item>StandDtector™ allows your device to intelligently postpone notifications by using device sensors to make sure you have not been active before reminding you to stand. These features are free for the first 7 days, and a one time $.99 purchase to permanently unlock afterwards.</item>
     </string-array>
     <string-array name="ActivityClassName">
         <item>MainActivity</item>
@@ -59,10 +60,15 @@
         <item>StandCountActivity</item>
         <item>HelpActivityRecycler</item>
         <item>MainActivity</item>
+        <item>SettingsActivity</item>
+        <item>SettingsActivity</item>
+        <item>SettingsActivity</item>
     </string-array>
     <string-array name="Tutorial">
+        <item>Welcome. The next few screens will get you started. Take A Stand for your health!</item>
         <item>To start the stand reminders, tap the figure</item>
         <item>You can customize Take A Stand by adjusting the reminder settings and setting up weekly reminder schedules through this menu.  From here, you can also learn more about the science behind Take A Stand and view the help page.</item>
         <item>Tap the question mark icon for additional info about each screen</item>
+        <item>Tapping the Pause/Play icon will postpone the alarm for a custom period of time</item>
     </string-array>
 </resources>

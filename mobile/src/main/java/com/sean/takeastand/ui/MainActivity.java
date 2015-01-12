@@ -86,6 +86,7 @@ public class MainActivity extends ActionBarActivity {
     private Handler mHandler;
     ImageView ivTutorialBlock;
     ShowcaseView showcaseView;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle paramBundle) {
@@ -93,6 +94,7 @@ public class MainActivity extends ActionBarActivity {
 //        Log.d(TAG,"Line: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
         super.onCreate(paramBundle);
 
+        sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         mNavDrawerOptions = new ArrayList<String>();
         //Find out how to initialize an arraylist; then update the arraylist when vibrate status changes
         //or standdtector status changes
@@ -174,7 +176,6 @@ public class MainActivity extends ActionBarActivity {
                         .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
                         .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
                         .setPositiveButton(getString(R.string.ok), null)
-                        .setNegativeButton(getString(R.string.cancel), null)
                         .show();
                 break;
             case R.id.pauseplay:
@@ -215,8 +216,8 @@ public class MainActivity extends ActionBarActivity {
             }, 400);
         }
 
-        if (getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).getBoolean("RunTutorial", true)) {
-            getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0).edit().putBoolean("RunTutorial", false).commit();
+        if (sharedPreferences.getBoolean("RunTutorial", true)) {
+            sharedPreferences.edit().putBoolean("RunTutorial", false).commit();
             RunTutorial();
         }
         super.onResume();
@@ -371,6 +372,15 @@ public class MainActivity extends ActionBarActivity {
                     currentImageStatus != Constants.SCHEDULE_PAUSED) {
                 mPausePlay.setVisible(true);
                 mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
+                if (sharedPreferences.getBoolean("PausePlayTutorial", true)) {
+                    sharedPreferences.edit().putBoolean("PausePlayTutorial", false).commit();
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            tutorialPausePlay();
+                        }
+                    }, 1000);
+                }
             } else if (currentImageStatus == Constants.SCHEDULE_PAUSED ||
                     currentImageStatus == Constants.NON_SCHEDULE_PAUSED) {
                 mPausePlay.setVisible(true);
@@ -410,8 +420,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void setDefaultPauseAmount(int pauseAmount) {
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(Constants.PAUSE_TIME, pauseAmount);
         editor.commit();
@@ -436,6 +444,126 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void RunTutorial() {
+        tutorialStart();
+        tutorialManualStart();
+    }
+
+    private void tutorialWelcome() {
+        showcaseView = new ShowcaseView.Builder(this)
+                .setTarget(new ViewTarget(R.id.alarm_fragment, this))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("Take A Stand")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[0])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        tutorialManualStart();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
+    }
+
+    private void tutorialManualStart() {
+        showcaseView = new ShowcaseView.Builder(this)
+                .setTarget(new ViewTarget(R.id.spaceTutorialStartReminder, this))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("Start Stand Reminder")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[1])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        tutorialMenuFragment();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
+    }
+
+    private void tutorialMenuFragment() {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mDrawerLayout.openDrawer(Gravity.LEFT);
+            }
+        }, 800);
+        int actionBarHeight = getSupportActionBar().getHeight();
+        showcaseView = new ShowcaseView.Builder(MainActivity.this)
+                .setTarget(new PointTarget(actionBarHeight / 2, actionBarHeight / 2))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("Other options")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[2])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        mDrawerLayout.closeDrawers();
+                        tutorialHelpButton();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
+    }
+
+    private void tutorialHelpButton() {
+        showcaseView = new ShowcaseView.Builder(MainActivity.this)
+                .setTarget(new ViewTarget(R.id.main_help, this))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("More Info")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[3])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        sharedPreferences.edit().putBoolean("PausePlayTutorial", true).commit();
+                        tutorialFinish();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
+    }
+
+    private void tutorialStart() {
         mDrawerLayout.closeDrawers();
         //ToDo: Lock orientation
 //        setRequestedOrientation(getResources().getConfiguration().orientation);
@@ -448,108 +576,37 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        showcaseView = new ShowcaseView.Builder(this)
-                .setTarget(new ViewTarget(R.id.main_current_status_fragment, this))
-                .setStyle(R.style.Tutorial)
-                .setContentTitle("Start Stand Reminder")
-                .setContentText(getResources().getTextArray(R.array.Tutorial)[0])
-                .hideOnTouchOutside()
-                .setShowcaseEventListener(new OnShowcaseEventListener() {
-                    @Override
-                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
-                        tutorialFirstClick();
-                    }
-
-                    @Override
-                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
-
-                    }
-
-                    @Override
-                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
-
-                    }
-                })
-                .build();
-        showcaseView.hideButton();
     }
 
-    private void tutorialFirstClick() {
-        ivTutorialBlock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showcaseView.hide();
-            }
-        });
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mDrawerLayout.openDrawer(Gravity.LEFT);
-            }
-        }, 800);
-        int actionBarHeight = getSupportActionBar().getHeight();
-        showcaseView = new ShowcaseView.Builder(MainActivity.this)
-                .setTarget(new PointTarget(actionBarHeight / 2, actionBarHeight / 2))
-                .setStyle(R.style.Tutorial)
-                .setContentTitle("Other options")
-                .setContentText(getResources().getTextArray(R.array.Tutorial)[1])
-                .hideOnTouchOutside()
-                .setShowcaseEventListener(new OnShowcaseEventListener() {
-                    @Override
-                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
-                        tutorialSecondClick();
-                    }
-
-                    @Override
-                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
-
-                    }
-
-                    @Override
-                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
-
-                    }
-                })
-                .build();
-        showcaseView.hideButton();
-    }
-
-    private void tutorialSecondClick() {
-        mDrawerLayout.closeDrawers();
-        ivTutorialBlock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showcaseView.hide();
-            }
-        });
-        showcaseView = new ShowcaseView.Builder(MainActivity.this)
-                .setTarget(new ViewTarget(R.id.main_help, this))
-                .setStyle(R.style.Tutorial)
-                .setContentTitle("More Info")
-                .setContentText(getResources().getTextArray(R.array.Tutorial)[2])
-                .hideOnTouchOutside()
-                .setShowcaseEventListener(new OnShowcaseEventListener() {
-                    @Override
-                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
-                        tutorialFinalClick();
-                    }
-
-                    @Override
-                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
-
-                    }
-
-                    @Override
-                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
-
-                    }
-                })
-                .build();
-        showcaseView.hideButton();
-    }
-
-    private void tutorialFinalClick() {
+    private void tutorialFinish() {
         ivTutorialBlock.setVisibility(View.GONE);
+    }
+
+    private void tutorialPausePlay() {
+        tutorialStart();
+        showcaseView = new ShowcaseView.Builder(this)
+                .setTarget(new ViewTarget(R.id.pauseplay, this))
+                .setStyle(R.style.Tutorial)
+                .setContentTitle("Pause Reminder")
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[3])
+                .hideOnTouchOutside()
+                .setShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                        tutorialFinish();
+                    }
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                    }
+                })
+                .build();
+        showcaseView.hideButton();
     }
 }

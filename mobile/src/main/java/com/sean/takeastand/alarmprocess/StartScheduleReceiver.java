@@ -25,7 +25,6 @@ import android.util.Log;
 import com.Application;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.storage.ScheduleDatabaseAdapter;
 import com.sean.takeastand.util.Constants;

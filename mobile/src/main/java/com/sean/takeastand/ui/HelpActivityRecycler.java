@@ -76,7 +76,6 @@ public class HelpActivityRecycler extends ActionBarActivity {
                     .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
                     .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
                     .setPositiveButton(getString(R.string.ok), null)
-                    .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         }
         else {

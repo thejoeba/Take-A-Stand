@@ -3,7 +3,6 @@ package com.sean.takeastand.ui;
 import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -70,7 +69,6 @@ public class StandCountActivity extends ActionBarActivity {
                     .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
                     .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
                     .setPositiveButton(getString(R.string.ok), null)
-                    .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         }
         else {

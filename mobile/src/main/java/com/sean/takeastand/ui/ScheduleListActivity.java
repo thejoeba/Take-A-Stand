@@ -17,7 +17,6 @@
 
 package com.sean.takeastand.ui;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
@@ -27,7 +26,6 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -36,7 +34,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -102,7 +99,6 @@ public class ScheduleListActivity extends ActionBarActivity {
                     .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
                     .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
                     .setPositiveButton(getString(R.string.ok), null)
-                    .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         }
         else {
@@ -184,7 +180,7 @@ public class ScheduleListActivity extends ActionBarActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(titleChangeReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(timePickerResponseReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(showTimePickerReceiver);
-    };
+    }
 
     private void createNewAlarm(){
         showTimePickerDialog(true, true);

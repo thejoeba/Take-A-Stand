@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
@@ -55,7 +56,6 @@ import com.sean.takeastand.util.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -77,11 +77,13 @@ public class SettingsActivity extends ActionBarActivity {
     private TextView txtRepeat;
     private TextView txtReminderFrequency;
     private TextView txtNotificationFrequency;
-    private RelativeLayout rlReminderFrequency;
-    private RelativeLayout rlNotificationFrequency;
+    private TextView txtNotificationFrequencyTitle;
     private CheckBox chbxSilent;
     private CheckBox chbxRepeat;
     private boolean mNotificationAlertChanged;
+    private ImageView ivReminderHelp;
+    private ImageView ivFitHelp;
+    private ImageView ivProHelp;
 
     //Google Fit Settings variables and views
     //ToDo: add some branding https://developers.google.com/fit/branding
@@ -136,14 +138,7 @@ public class SettingsActivity extends ActionBarActivity {
         mNotificationAlertChanged = false;
         sharedPreferences = getSharedPreferences(Constants.USER_SHARED_PREFERENCES, 0);
 
-        toggleGoogleFit = (Switch) findViewById(R.id.toggleGoogleFit);
-        toggleGoogleFit.setChecked(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_ENABLED, false));
-        toggleGoogleFit.setOnClickListener(EnableFit);
-        btnDeauthorizeFit = (Button) findViewById(R.id.btnDeauthorizeFit);
-        btnDeauthorizeFit.setEnabled(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false));
-        btnDeauthorizeFit.setOnClickListener(DisableFit);
-        btnDeleteData = (Button) findViewById(R.id.btnDeleteData);
-        btnDeleteData.setOnClickListener(DeleteData);
+        setupGoogleFitSettingsLayout();
 
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
@@ -151,6 +146,52 @@ public class SettingsActivity extends ActionBarActivity {
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+
+        setupHelpButtons();
+    }
+
+    private void setupHelpButtons(){
+        ivReminderHelp = (ImageView) findViewById(R.id.ivReminderHelp);
+        ivFitHelp = (ImageView) findViewById(R.id.ivFitHelp);
+        ivProHelp = (ImageView) findViewById(R.id.ivProHelp);
+
+        ivReminderHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowHelp(7);
+            }
+        });
+        ivFitHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowHelp(8);
+            }
+        });
+        ivProHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowHelp(9);
+            }
+        });
+    }
+
+    private void ShowHelp(int helpNum) {
+        new AlertDialog.Builder(this)
+                .setTitle(getResources().getStringArray(R.array.ActivityTitle)[helpNum])
+                .setMessage(getResources().getStringArray(R.array.ActivityHelpText)[helpNum])
+                .setPositiveButton(getString(R.string.ok), null)
+                .show();
+    }
+
+    private void setupGoogleFitSettingsLayout() {
+        toggleGoogleFit = (Switch) findViewById(R.id.fit_sync_switch);
+        toggleGoogleFit.setChecked(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_ENABLED, false));
+        toggleGoogleFit.setOnClickListener(EnableFit);
+        btnDeauthorizeFit = (Button) findViewById(R.id.fit_disconnect_button);
+        btnDeauthorizeFit.setEnabled(sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false));
+        btnDeauthorizeFit.setOnClickListener(DisableFit);
+        btnDeleteData = (Button) findViewById(R.id.fit_delete_button);
+        btnDeleteData.setOnClickListener(DeleteData);
     }
 
     @Override
@@ -165,12 +206,7 @@ public class SettingsActivity extends ActionBarActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Resources resources = getResources();
         if (item.getItemId() ==  R.id.help) {
-            new AlertDialog.Builder(this)
-                    .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
-                    .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
-                    .setPositiveButton(getString(R.string.ok), null)
-                    .setNegativeButton(getString(R.string.cancel), null)
-                    .show();
+            ShowHelp(ACTIVITY_NUMBER);
         }
         else {
             //Closes Activity when user presses title
@@ -259,10 +295,9 @@ public class SettingsActivity extends ActionBarActivity {
         txtNotificationFrequency.setText(getString(R.string.every) + " " + setMinutes(notifFrequency));
         txtReminderFrequency = (TextView) findViewById(R.id.txtReminderFrequency);
         txtReminderFrequency.setText(setMinutes(Utils.getDefaultFrequency(this)));
-        rlReminderFrequency = (RelativeLayout) findViewById(R.id.reminderFrequency);
-        rlReminderFrequency.setOnClickListener(reminderFrequencyListener);
-        rlNotificationFrequency = (RelativeLayout) findViewById(R.id.notificationRepeatFrequency);
-        rlNotificationFrequency.setOnClickListener(notificationFrequencyListener);
+        txtReminderFrequency.setOnClickListener(reminderFrequencyListener);
+        txtNotificationFrequencyTitle = (TextView) findViewById(R.id.txtNotificationFrequencyTitle);
+        txtNotificationFrequencyTitle.setOnClickListener(notificationFrequencyListener);
         chbxSilent = (CheckBox) findViewById(R.id.toggleSilentMode);
         chbxSilent.setOnClickListener(silentModeListener);
         chbxSilent.setChecked(Utils.getVibrateOverride(this));
@@ -402,9 +437,9 @@ public class SettingsActivity extends ActionBarActivity {
         if (Utils.getRepeatAlerts(SettingsActivity.this)) {
             //txtNotificationFrequencyTitle.setTextColor(getResources().getColor(android.R.color.primary_text_light));
             txtNotificationFrequency.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-            rlNotificationFrequency.setVisibility(View.VISIBLE);
+            txtNotificationFrequencyTitle.setVisibility(View.VISIBLE);
         } else {
-            rlNotificationFrequency.setVisibility(View.GONE);
+            txtNotificationFrequencyTitle.setVisibility(View.GONE);
         }
         if (chbxVibrate.isChecked()) {
             txtSilentMode.setTextColor(getResources().getColor(android.R.color.primary_text_light));

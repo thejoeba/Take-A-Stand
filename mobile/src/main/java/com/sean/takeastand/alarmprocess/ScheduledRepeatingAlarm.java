@@ -26,7 +26,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.heckbot.standdtector.StandDtectorTM;
 import com.sean.takeastand.R;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;

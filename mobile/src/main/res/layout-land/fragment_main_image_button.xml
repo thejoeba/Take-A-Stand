@@ -10,6 +10,14 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="-3dp"
         android:text="@string/tap_to_start"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/spaceTutorialStartReminder"
+        android:layout_below="@+id/tap_to_set" />
+
     <ImageView
         android:id="@+id/statusImage"
         android:layout_marginLeft="80dp"

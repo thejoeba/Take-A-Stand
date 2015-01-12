@@ -10,7 +10,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -77,7 +76,6 @@ public class ScienceActivityRecycler extends ActionBarActivity {
                     .setTitle(resources.getStringArray(R.array.ActivityTitle)[ACTIVITY_NUMBER])
                     .setMessage(resources.getStringArray(R.array.ActivityHelpText)[ACTIVITY_NUMBER])
                     .setPositiveButton(getString(R.string.ok), null)
-                    .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         }
         else {

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.sean.takeastand.storage.AlarmSchedule;
 import com.sean.takeastand.storage.FixedAlarmSchedule;
 import com.sean.takeastand.util.Constants;
 
