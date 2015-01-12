@@ -549,6 +549,21 @@ public class MainActivity extends ActionBarActivity {
                     public void onShowcaseViewHide(ShowcaseView showcaseView) {
                         sharedPreferences.edit().putBoolean("PausePlayTutorial", true).commit();
                         tutorialFinish();
+                        if (!sharedPreferences.getBoolean(Constants.GOOGLE_FIT_ENABLED, false)) {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(getString(R.string.prompt_fit_title))
+                                    .setMessage(getString(R.string.prompt_fit_text))
+                                    .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                                            intent.setAction(Constants.CONNECT_FIT);
+                                            startActivity(intent);
+                                        }
+                                    })
+                                    .setNegativeButton(getString(R.string.no), null)
+                                    .show();
+                        }
                     }
 
                     @Override
@@ -588,7 +603,7 @@ public class MainActivity extends ActionBarActivity {
                 .setTarget(new ViewTarget(R.id.pauseplay, this))
                 .setStyle(R.style.Tutorial)
                 .setContentTitle("Pause Reminder")
-                .setContentText(getResources().getTextArray(R.array.Tutorial)[3])
+                .setContentText(getResources().getTextArray(R.array.Tutorial)[4])
                 .hideOnTouchOutside()
                 .setShowcaseEventListener(new OnShowcaseEventListener() {
                     @Override

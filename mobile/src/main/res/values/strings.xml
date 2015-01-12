@@ -30,6 +30,8 @@
     <string name="schedule">"Schedule "</string>
     <string name="new_schedule_title">New Title</string>
     <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="cancel">Cancel</string>
     <string name="schedule_running">Schedule Running</string>
     <string name="settings">Settings</string>
@@ -96,4 +98,6 @@
     <string name="purchase_pro_button">Purchase Pro</string>
     <string name="notification_alert_type">Notify Me With:</string>
     <string name="toast_checkbox">Congratulatory toast with each stand</string>
+    <string name="prompt_fit_title">Sync Health Data</string>
+    <string name="prompt_fit_text">Would you like your health data backed up to Google Fit?</string>
 </resources>

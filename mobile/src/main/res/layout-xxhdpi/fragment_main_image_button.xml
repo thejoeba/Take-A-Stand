@@ -18,7 +18,8 @@
         android:layout_height="0dp"
         android:layout_centerHorizontal="true"
         android:id="@+id/spaceTutorialStartReminder"
-        android:layout_below="@+id/tap_to_set" />
+        android:layout_below="@+id/tap_to_set"
+        android:layout_marginTop="40dp" />
 
     <ImageView
         android:id="@+id/statusImage"

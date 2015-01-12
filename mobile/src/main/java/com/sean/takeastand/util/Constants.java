@@ -86,4 +86,5 @@ public final class Constants {
     public static final String PRO_VERIFIED = "ProVerified";
     public static final String PRO_ANDROID_ID = "ProAndroidID";
     public static final String TOAST_ENABLED = "ToastEnabled";
+    public static final String CONNECT_FIT = "ConnectFit";
 }

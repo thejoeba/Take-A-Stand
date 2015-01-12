@@ -32,6 +32,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -87,16 +88,11 @@ public class SettingsActivity extends ActionBarActivity {
 
     //Google Fit Settings variables and views
     //ToDo: add some branding https://developers.google.com/fit/branding
-    //ToDo: Add Analytics to Fit
-    //ToDo: Explain Fit.
-    //ToDO: Prompt Fit Login on first launch
     private Switch toggleGoogleFit;
     private Button btnDeauthorizeFit;
     private Button btnDeleteData;
 
     //Pro Settings variables and views
-    //ToDo: Add Analytics to StandDtectorTMSettings
-    //ToDo: Explain Settings
     private Switch toggleDeviceStepCounter;
     private Switch toggleWearStepCounter;
     private Switch toggleStandDtectorTM;
@@ -141,13 +137,27 @@ public class SettingsActivity extends ActionBarActivity {
         setupGoogleFitSettingsLayout();
 
         if (savedInstanceState != null) {
-            authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
+            authInProgress = savedInstanceState.getBoolean(AUTH_PENDING, false);
+
         }
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
 
         setupHelpButtons();
+
+        if(Constants.CONNECT_FIT.equals(getIntent().getAction())) {
+            ConnectFit();
+            final ScrollView mScrollView = (ScrollView) findViewById(R.id.scrollviewSettings);
+            mScrollView.postDelayed(new Runnable() {
+                public void run() {
+                    int[] fitLocation = new int[2];;
+                    ivFitHelp.getLocationInWindow(fitLocation);
+                    mScrollView.smoothScrollTo(0, fitLocation[1] - 150);
+                }
+            },1000);
+            toggleGoogleFit.setChecked(true);
+        }
     }
 
     private void setupHelpButtons(){
@@ -530,37 +540,7 @@ public class SettingsActivity extends ActionBarActivity {
         @Override
         public void onClick(View view) {
             if (((Switch) view).isChecked()) {
-                FitConnectionCallback = new GoogleApiClient.ConnectionCallbacks() {
-                    @Override
-                    public void onConnected(Bundle bundle) {
-                        Log.i("buildFitnessClient", "Connected!!!");
-                        // Now you can make calls to the Fitness APIs.
-                        // Put application specific code here.
-                        if(!sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
-                            Intent intentImport = new Intent(SettingsActivity.this, GoogleFitService.class);
-                            intentImport.setAction("ImportFitSessions");
-                            startService(intentImport);
-                        }
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, true);
-                        editor.putBoolean(Constants.GOOGLE_FIT_AUTHORIZED, true);
-                        editor.commit();
-                        disconnectClient();
-                        btnDeauthorizeFit.setEnabled(true);
-                        sendAnalyticsEvent("Google Fit Enabled");
-                    }
-                    @Override
-                    public void onConnectionSuspended(int i) {
-                        // If your connection to the sensor gets lost at some point,
-                        // you'll be able to determine the reason and react to it here.
-                        if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-                            Log.i("onConnectionSuspended", "Connection lost.  Cause: Network Lost.");
-                        } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-                            Log.i("onConnectionSuspended", "Connection lost.  Reason: Service Disconnected");
-                        }
-                    }
-                };
-                buildFitnessClient();
+                ConnectFit();
             } else {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, false);
@@ -569,6 +549,40 @@ public class SettingsActivity extends ActionBarActivity {
             }
         }
     };
+
+    private void ConnectFit() {
+        FitConnectionCallback = new GoogleApiClient.ConnectionCallbacks() {
+            @Override
+            public void onConnected(Bundle bundle) {
+                Log.i("buildFitnessClient", "Connected!!!");
+                // Now you can make calls to the Fitness APIs.
+                // Put application specific code here.
+                if(!sharedPreferences.getBoolean(Constants.GOOGLE_FIT_AUTHORIZED, false)) {
+                    Intent intentImport = new Intent(SettingsActivity.this, GoogleFitService.class);
+                    intentImport.setAction("ImportFitSessions");
+                    startService(intentImport);
+                }
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(Constants.GOOGLE_FIT_ENABLED, true);
+                editor.putBoolean(Constants.GOOGLE_FIT_AUTHORIZED, true);
+                editor.commit();
+                disconnectClient();
+                btnDeauthorizeFit.setEnabled(true);
+                sendAnalyticsEvent("Google Fit Enabled");
+            }
+            @Override
+            public void onConnectionSuspended(int i) {
+                // If your connection to the sensor gets lost at some point,
+                // you'll be able to determine the reason and react to it here.
+                if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
+                    Log.i("onConnectionSuspended", "Connection lost.  Cause: Network Lost.");
+                } else if (i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
+                    Log.i("onConnectionSuspended", "Connection lost.  Reason: Service Disconnected");
+                }
+            }
+        };
+        buildFitnessClient();
+    }
 
     View.OnClickListener DisableFit = new View.OnClickListener() {
         @Override
