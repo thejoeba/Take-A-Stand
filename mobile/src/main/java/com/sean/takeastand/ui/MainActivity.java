@@ -72,6 +72,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends ActionBarActivity {
     //ToDo: Recenter layout
+    //ToDo: Upgrade App Receiver?
     private static final String TAG = "MainActivity";
     private static final String UI_PATH = "com.sean.takeastand.ui.";
     private final static Integer ACTIVITY_NUMBER = 0;
@@ -372,7 +373,7 @@ public class MainActivity extends ActionBarActivity {
                     currentImageStatus != Constants.SCHEDULE_PAUSED) {
                 mPausePlay.setVisible(true);
                 mPausePlay.setIcon(getResources().getDrawable(R.drawable.ic_action_pause));
-                if (sharedPreferences.getBoolean("PausePlayTutorial", true)) {
+                if (sharedPreferences.getBoolean("PausePlayTutorial", false)) {
                     sharedPreferences.edit().putBoolean("PausePlayTutorial", false).commit();
                     mHandler.postDelayed(new Runnable() {
                         @Override
@@ -583,6 +584,7 @@ public class MainActivity extends ActionBarActivity {
         //ToDo: Lock orientation
 //        setRequestedOrientation(getResources().getConfiguration().orientation);
         ivTutorialBlock.setVisibility(View.VISIBLE);
+        ivTutorialBlock.bringToFront();
 
         ivTutorialBlock.setOnClickListener(new View.OnClickListener() {
             @Override

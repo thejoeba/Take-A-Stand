@@ -716,6 +716,7 @@ public class SettingsActivity extends ActionBarActivity {
                             btnDeauthorizeFit.setEnabled(false);
                             toggleGoogleFit.setChecked(false);
                         }
+                        //ToDo: fit isn't always authorizing
                     }
                 }
         );
